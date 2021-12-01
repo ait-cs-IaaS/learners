@@ -1,0 +1,186 @@
+input,
+select,
+textarea {
+  border-radius: 4px;
+  border: none;
+  min-height: 52px;
+  width: 30%;
+  min-width: 400px;
+  padding: 0.8em 1.2em 0.8em 1.2em;
+  margin-bottom: 0.5em;
+  transition: 150ms;
+  font-size: 1.2em;
+  color: $input-text-color;
+  background-color: $input-bg-color;
+  border: 2px solid $input-bg-color;
+  outline: 0 none;
+  box-shadow: none;
+
+  &:hover,
+  :focus {
+    background-color: lighten($input-bg-color, 5);
+    border: 2px solid lighten($input-bg-color, 5);
+  }
+
+  &.error {
+    border: 2px solid $danger;
+  }
+}
+
+select {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+input::placeholder {
+  color: $input-placeholder-color;
+}
+
+// Regular Input Field
+// input,
+// textarea,
+// select {
+//   color: $input-text-color;
+//   outline: 0 none;
+//   box-shadow: none;
+//   transition: 250ms;
+//   margin-bottom: 0.5em;
+
+//   &.is-invalid {
+//     border-right: 5px solid $red-light;
+//     box-shadow: none;
+//     transition: 200ms;
+//   }
+
+//   &.is-valid {
+//     border-right: 5px solid $green-mid;
+//     box-shadow: none;
+//     transition: 200ms;
+//   }
+// }
+
+
+
+.btn {
+  border-radius: 4px;
+  border: none;
+  box-shadow: none;
+  padding: 0.8em 2em 0.8em 2em;
+  font-weight: 400;
+  width: auto;
+  min-width: 100px;
+  border: 2px solid;
+
+  &:hover {
+    border-radius: 4px;
+  }
+
+  &:active,
+  &:focus {
+    border: none;
+    box-shadow: none;
+  }
+}
+
+.btn.disabled {
+  background: $mid-2;
+  color: $light-1;
+
+  &:hover {
+    background: $mid-2;
+  }
+
+  &:before,
+  &:hover:before {
+    filter: invert(60%);
+  }
+}
+
+.icon-btn {
+  background: none;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+
+  &:hover,
+  &:active,
+  &:focus {
+    background: none;
+  }
+
+  & svg.icon {
+    height: 2em;
+    width: 2em;
+    margin: 0 0 0 0;
+    fill: $light-2;
+  }
+
+  &:hover svg.icon {
+    fill: $light-1;
+  }
+}
+
+// -------------------------------------------------------------
+// Button Colorcodes
+// -------------------------------------------------------------
+
+.green-btn,
+.green-btn:active,
+.green-btn:focus {
+  background: $green-mid;
+  border: 2px solid $green-mid;
+  color: $light-1;
+
+  &:hover {
+    color: white;
+    background: $green-light;
+    border: 2px solid $green-light;
+  }
+}
+
+.red-btn,
+.red-btn:active,
+.red-btn:focus {
+  background: $red-mid;
+  color: $light-1;
+
+  &:hover {
+    color: white;
+    background: $red-light;
+  }
+}
+
+.blue-btn,
+.blue-btn:active,
+.blue-btn:focus {
+  background: $blue-light;
+  color: $light-1;
+
+  &:hover {
+    color: white;
+    background: $blue-light;
+  }
+}
+
+.gray-btn,
+.gray-btn:active,
+.gray-btn:focus {
+  background: $mid-2;
+  color: $light-1;
+
+  &:hover {
+    color: white;
+    background: $mid-1;
+  }
+}
+
+.purple-btn,
+.purple-btn:active,
+.purple-btn:focus {
+  background: $purple-mid;
+  color: $light-1;
+
+  &:hover {
+    color: white;
+    background: $purple-light;
+  }
+}

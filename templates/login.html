@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+
+{% block theme %}{{ theme | default('dark') }}{% endblock %}
+
+{% block title %}
+CyberRange | Login
+{% endblock %}
+
+{% block content %}
+
+<div class="content-container">
+
+    <div class="notification-box {% if error %} error {% elif success %} success {% endif %}">
+        <span>
+            {% if error %} 
+                <svg class="bi" width="18" height="18" role="img"><use xlink:href="#fail"></use></svg>
+                <strong>Error:</strong> {{ error }} 
+            {% endif %}
+            {% if success %} 
+                <svg class="bi" width="18" height="18" role="img"><use xlink:href="#ok"></use></svg>
+                <strong>Success:</strong> {{ success }} 
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="center-content">
+        <h1>
+            Welcome to the<br />
+            <span class="heading_highlight">RTC Exercise</span>
+        </h1>
+
+        <p style="margin-top: 2.4em;">
+            This exercise was developed in collaboration with the AIT, Austrian Institute of Technology and the IAEA, International Atomic Energy Agency, and serves to further educate and sensitize employees with regard to cyber-criminal activities. The scenario constructed here is a fictitious one, but it is based on realistic settings in terms of its basic structure and the behavior of the malware. 
+        </p>
+
+        <h4 style="margin-top: 2.4em;">Login</h4>
+        <p style="margin-bottom: 2.0em;">
+            In order to participate in the exercises, please log in with your credentials. You will then get access to the documentation and the introduction to the tools to be used, the Exercises-Control and get access to the VNC client from which the exercises can be performed. 
+        </p>
+       
+        <form action="/login" method="post">
+            <div class="input-row">
+                <input class="{% if error %}error{% endif %}" type="text" placeholder="Username" name="username" value="{{request.form.username }}">
+                        </div>
+                        <div class="mb-3 input-row">
+                <input class="{% if error %}error{% endif %}" type="password" placeholder="Password" name="password" value="{{request.form.password }}">
+            </div>
+            <div class="input-row">
+                <input class="btn green-btn" type="submit" value="Login">
+            </div>
+        </form>
+        
+        
+        {% if branding %} 
+        <div id="branding-container">
+            <!-- include branding -->
+            {% include "partials/branding.html" %}
+        </div>
+        {% endif %}
+
+
+        <svg class="bi developed-by" width="200" role="img">
+            <use xlink:href="#developed-by"></use>
+        </svg>
+
+    </div>
+</div>
+
+{% endblock %}
