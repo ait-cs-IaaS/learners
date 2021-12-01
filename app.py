@@ -78,7 +78,7 @@ app.config['EXERCISES_URL'] = "http://localhost:8888" + "/en"
 app.config['CALLBACK_URL'] = "http://127.0.0.1:5000/callback"
 
 # DB
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cpm_tracker.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///learners_tracker.db"
 db = SQLAlchemy(app)
 
 # ---------------------------------------------------------------------------------------
