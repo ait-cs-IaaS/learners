@@ -1,0 +1,67 @@
+#navigation {
+  display: flex;
+  background-color: $dark-2;
+  color: $light;
+  width: $nav-width;
+  height: 100%;
+  
+  a.active {
+    background: none;
+    border-radius: 0;
+
+    svg {
+      fill: $light;
+    }
+  }
+}
+
+.bi {
+  vertical-align: -.125em;
+  pointer-events: none;
+  fill: currentColor;
+}
+
+.nav-item {
+  transition: all 400ms;
+  text-align: center;
+
+  &:hover {
+    background-color: $mid-1;
+
+    .nav-link svg {
+      fill: $light;
+    }
+  }
+
+  .nav-link {
+    border-radius: 0;
+  }
+
+  .nav-link svg {
+    fill: $purple-light;
+    transition: all 400ms;
+  }
+}
+
+#menu-chat {
+  
+  transition: all 100ms;
+  cursor: pointer;
+
+  &.active {
+    background-color: $primary !important;
+    background: none;
+    border-radius: 0;
+
+    svg {
+      fill: $light;
+    }
+  }
+}
+
+#menu-newtab {
+  
+  transition: all 100ms;
+  cursor: pointer;
+
+}

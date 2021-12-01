@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+CyberRange
+{% endblock %}
+
+{% block content %}
+    <iframe id="exercises" class="content-container pager" frameborder='0' noresize='noresize' src="{{ exercises_url }}" frameborder="0"></iframe>
+    <iframe id="docs" class="content-container pager" frameborder='0' noresize='noresize' src="{{ docs_url }}" frameborder="0"></iframe>
+    <iframe id="client" class="content-container pager" frameborder='0' noresize='noresize' src="{{ vnc_url }}" frameborder="0"></iframe>
+
+    <!-- <div id="client" class="content-container pager">
+        <div class="center-content">
+            <h1 style="position:relative; margin-top:20%; font-weight:700; font-size: 8em">VNC Client</h1>
+        </div>
+    </div> -->
+    
+    <div id="preloader" class="content-container pager">
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+{% endblock %}
