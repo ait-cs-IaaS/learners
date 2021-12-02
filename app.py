@@ -1,14 +1,14 @@
 # Flask / Flask modules
-from flask import Flask, json
+from flask import Flask
+from flask import json
 from flask import render_template
 from flask import redirect
 from flask import jsonify
 from flask import request
-from flask.helpers import make_response
 
 # SCSS Support
 from flask_assets import Environment
-from flask_jwt_extended.utils import decode_token, get_jwt, get_jwt_header
+
 # Custom bundles
 from util.assets import get_bundle
 
@@ -38,6 +38,7 @@ from datetime import datetime
 from datetime import timedelta
 import time
 import uuid
+import yaml
 
 # ---------------------------------------------------------------------------------------
 
@@ -45,40 +46,15 @@ app = Flask(__name__)
 
 # ---------------------------------------------------------------------------------------
 
-# Temporarly set ENV variables
-os.environ['CHARM_HTPASSWD'] = 'temp_htpasswd'
+# Load config from file
+app.config.from_file(os.path.join(os.getcwd(), 'learners_config.yml'), load=yaml.full_load)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes = app.config['JWT_ACCESS_TOKEN_DURATION'])
 
-# HTPASSWD
-htpasswd = os.getenv('CHARM_HTPASSWD', default="/etc/nginx/htpasswd")
-ht = HtpasswdFile(htpasswd)
+htpasswd = HtpasswdFile(app.config['LEARNERS_HTPASSWD'])
 
-# JWT
-jwt_secret = os.getenv('CHARM_JWT_SECRET', default="53CR3T")
-app.config["JWT_SECRET_KEY"] = jwt_secret
-app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=120)
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
-
-# CONFIG
-app.config['THEME'] = 'dark'
-app.config['BRANDING'] = True
-
-# CORS
-app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['CORS_ORIGINS'] = ['http://127.0.0.1:8888', 'http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:8888']
-app.config['CORS_SUPPORTS_CREDENTIALS '] = True
 cors = CORS(app)
-
-# URLS
-app.config['VENJIX_URL'] = "http://127.0.0.1:5001"
-app.config['VNC_URL'] = "https://10.17.4.219/placeholder_1"
-app.config['DOCS_URL'] = "http://localhost:8080" + "/en"
-app.config['EXERCISES_URL'] = "http://localhost:8888" + "/en"
-app.config['CALLBACK_URL'] = "http://127.0.0.1:5000/callback"
-
-# DB
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///learners_tracker.db"
 db = SQLAlchemy(app)
 
 # ---------------------------------------------------------------------------------------
@@ -182,7 +158,7 @@ def login():
         username = request.form.get("username", None)
         password = request.form.get("password", None)
 
-        if not ht.check_password(username, password):
+        if not htpasswd.check_password(username, password):
             error_msg = "Invalid username or password"
             return render_template('login.html', **template_config, error=error_msg)
         
