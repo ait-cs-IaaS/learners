@@ -15,3 +15,4 @@ DOCS_URL: "http://localhost:8080/en"
 EXERCISES_URL: "http://localhost:8888/en"
 CALLBACK_URL: "http://127.0.0.1:5000/callback"
 SQLALCHEMY_DATABASE_URI: "sqlite:///learners_tracker.db"
+SQLALCHEMY_TRACK_MODIFICATIONS: False
