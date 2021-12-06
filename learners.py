@@ -70,7 +70,8 @@ template_config = dict(
     branding = app.config['BRANDING'],
     theme = app.config['THEME'],
     docs_url = app.config['DOCS_URL'], 
-    vnc_url = app.config['VNC_URL']
+    vnc_url = app.config['VNC_URL'],
+    exercises_url = app.config['EXERCISES_URL']
 )
 
 # ---------------------------------------------------------------------------------------
@@ -181,12 +182,21 @@ def render_access():
     # Get JWT Token and append it to the exercises URL via query string
     user_id = get_jwt_identity()
     headers = request.cookies.get('access_token_cookie')
-    exercises_url = app.config['EXERCISES_URL'] + '?auth=' + str(headers)
+    
+    try:
+        exercises_url = app.config['EXERCISES_URL'] + ':' + app.config['PORT_LIST'][user_id]['exercises'] + '?auth=' + str(headers)
+        template_config['exercises_url'] = exercises_url
+        
+        docs_url = app.config['DOCS_URL'] + ':' + app.config['PORT_LIST'][user_id]['docs']
+        template_config['docs_url'] = docs_url
+
+    except:
+        error_msg = "No exercises for this user."
+        return render_template('login.html', **template_config, error=error_msg)
 
     return render_template(
         'index.html',
         **template_config,
-        exercises_url = exercises_url, 
         id = user_id
         )
 
