@@ -184,7 +184,7 @@ def render_access():
     headers = request.cookies.get('access_token_cookie')
     
     try:
-        exercises_url = app.config['EXERCISES_URL'] + ':' + app.config['PORT_LIST'][user_id]['exercises'] + '?auth=' + str(headers)
+        exercises_url = app.config['EXERCISES_URL'] + ':' + app.config['PORT_LIST'][user_id]['exercises'] +'/' + app.config['LANGUAGE'] + '?auth=' + str(headers)
         template_config['exercises_url'] = exercises_url
         
         docs_url = app.config['DOCS_URL'] + ':' + app.config['PORT_LIST'][user_id]['docs']
