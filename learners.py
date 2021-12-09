@@ -241,7 +241,7 @@ def execute_script_on_remote(script):
         url = app.config['VENJIX_URL'] + "/{0}".format(script), 
         headers = {
             'Content-type': 'application/json',
-            'Authorization': app.config['VENJIX_AUTH_SECRET']
+            'Authorization': 'Bearer ' + app.config['VENJIX_AUTH_SECRET']
             },
         data = payload
     )
