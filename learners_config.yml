@@ -1,6 +1,7 @@
 DEBUG: False
 TESTING: False
 LEARNERS_HTPASSWD: "temp_htpasswd"
+VENJIX_AUTH_SECRET: "53CR3T"
 JWT_SECRET_KEY: "53CR3T"
 JWT_TOKEN_LOCATION: ['headers', 'cookies']
 JWT_ACCESS_TOKEN_DURATION: 120
@@ -21,8 +22,8 @@ EXERCISES_URL: "http://localhost"
 
 PORT_LIST: 
   test:
-    docs: "8080/en"
-    exercises: "8080/en"
+    docs: "8080"
+    exercises: "8888"
   ben: 
-    docs: "8888/en"
-    exercises: "8888/en"
+    docs: "8080"
+    exercises: "8888"
