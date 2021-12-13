@@ -7,6 +7,12 @@ CyberRange
 {% block content %}
     <iframe id="exercises" class="content-container pager" frameborder='0' noresize='noresize' src="{{ exercises_url }}" frameborder="0"></iframe>
     <iframe id="docs" class="content-container pager" frameborder='0' noresize='noresize' src="{{ docs_url }}" frameborder="0"></iframe>
+    <div id="client-resume" class="hideContent center-content pager">
+        <h2>Resume VNC Client here</h2>
+        <p>The VNC Client is currently opened in a different browser-tab. <br>
+            Only one instance can be run simultaneously.</p>
+        <button id="resume-btn" class="btn gray-btn">Resume here</button>
+    </div>
     <iframe id="client" class="content-container pager" frameborder='0' noresize='noresize' src="{{ vnc_url }}" frameborder="0"></iframe>
 
     <!-- <div id="client" class="content-container pager">
