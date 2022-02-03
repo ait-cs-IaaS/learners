@@ -166,10 +166,12 @@ input::placeholder {
 .gray-btn:focus {
   background: $mid-2;
   color: $light-1;
+  border: 2px solid $mid-2;
 
   &:hover {
     color: white;
-    background: $mid-1;
+    background: lighten($mid-1, 10);
+    border: 2px solid lighten($mid-1, 10);
   }
 }
 
