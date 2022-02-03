@@ -1,6 +1,7 @@
 body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    background-color: $main-bg-color;
 }
   
 html {
@@ -90,6 +91,18 @@ h5 {
   z-index: -99999;
   left: -99999;
 }
+
+#client-resume {
+  z-index: 8000;
+  width: auto;
+  margin-top: 10%;
+
+  & h2{
+    font-weight: 700;
+    color: $primary;
+  }
+}
+
 
 #preloader {
   transition: all 500ms;
