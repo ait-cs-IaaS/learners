@@ -7,7 +7,10 @@ CyberRange
 {% block content %}
     <iframe id="exercises" class="content-container pager" frameborder='0' noresize='noresize' src="{{ exercises_url }}" frameborder="0"></iframe>
     <iframe id="docs" class="content-container pager" frameborder='0' noresize='noresize' src="{{ docs_url }}" frameborder="0"></iframe>
-    <iframe id="client" class="content-container pager" frameborder='0' noresize='noresize' src="{{ vnc_url }}" frameborder="0"></iframe>
+    
+    {% for (client_url, info) in vnc_urls %}
+        <iframe id="client{{ '_' + info if info|length else omit }}" class="content-container pager" frameborder='0' noresize='noresize' src="{{ client_url }}" frameborder="0"></iframe>
+    {% endfor %}
 
     <!-- <div id="client" class="content-container pager">
         <div class="center-content">

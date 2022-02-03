@@ -29,14 +29,21 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a href="/access#client" class="nav-link py-3" data-bs-toggle="tooltip"
-                    data-bs-placement="right" data-bs-original-title="Access Client">
-                    <svg class="bi" width="22" height="22" role="img">
-                        <use xlink:href="#vnc"></use>
-                    </svg>
-                </a>
-            </li>
+            {% for (client_url, info) in vnc_urls %}
+                <li class="nav-item">
+                    <a href="/access#client{{ '_' + info if info|length else omit }}" class="nav-link py-3" data-bs-toggle="tooltip"
+                        data-bs-placement="right" data-bs-original-title="Access {{ info | default(omit) }} Client">
+                        <svg class="bi" width="22" height="22" role="img">
+                            <use xlink:href="#vnc"></use>
+                        </svg>
+                        {% if vnc_urls | length > 1 %}
+                        <div class="client_index">
+                            <span>{{ loop.index }}</span>
+                        </div>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
         </ul>
     </nav>
 

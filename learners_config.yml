@@ -15,7 +15,10 @@ SQLALCHEMY_TRACK_MODIFICATIONS: False
 LANGUAGE: "en"
 
 VENJIX_URL: "http://127.0.0.1:5001"
-VNC_URL: "https://placeholder_2@10.17.4.219/"
+VNC_URLS: [
+  ["https://placeholder_1@10.17.4.219/"], 
+  ["https://placeholder_3@10.17.4.219/", "PPS"]
+  ]
 CALLBACK_URL: "http://127.0.0.1:5000/callback"
 DOCS_URL: "http://localhost"
 EXERCISES_URL: "http://localhost"

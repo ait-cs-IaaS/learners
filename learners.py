@@ -66,11 +66,16 @@ assets.register(theme_bundle)
 
 # ---------------------------------------------------------------------------------------
 
+vnc_urls = app.config['VNC_URLS']
+for (index, url) in enumerate(vnc_urls):
+    if len(url) < 2:
+        vnc_urls[index] = [url[0], ""]
+
 template_config = dict(
     branding = app.config['BRANDING'],
     theme = app.config['THEME'],
     docs_url = app.config['DOCS_URL'], 
-    vnc_url = app.config['VNC_URL'],
+    vnc_urls = app.config['VNC_URLS'],
     exercises_url = app.config['EXERCISES_URL']
 )
 
