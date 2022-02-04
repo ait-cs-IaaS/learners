@@ -36,31 +36,6 @@ input::placeholder {
   color: $input-placeholder-color;
 }
 
-// Regular Input Field
-// input,
-// textarea,
-// select {
-//   color: $input-text-color;
-//   outline: 0 none;
-//   box-shadow: none;
-//   transition: 250ms;
-//   margin-bottom: 0.5em;
-
-//   &.is-invalid {
-//     border-right: 5px solid $red-light;
-//     box-shadow: none;
-//     transition: 200ms;
-//   }
-
-//   &.is-valid {
-//     border-right: 5px solid $green-mid;
-//     box-shadow: none;
-//     transition: 200ms;
-//   }
-// }
-
-
-
 .btn {
   border-radius: 4px;
   border: none;

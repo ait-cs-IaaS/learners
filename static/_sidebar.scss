@@ -20,7 +20,7 @@
 }
 
 .bi {
-  vertical-align: -.125em;
+  vertical-align: -0.125em;
   pointer-events: none;
   fill: currentColor;
 }
@@ -73,7 +73,7 @@
       color: $mid-1;
       background-color: $light;
       outline: 2px solid $mid-1;
-      
+
       & span {
         color: $mid-1;
       }
@@ -82,7 +82,6 @@
 }
 
 #menu-chat {
-
   transition: all 100ms;
   cursor: pointer;
 
@@ -98,8 +97,6 @@
 }
 
 #menu-newtab {
-
   transition: all 100ms;
   cursor: pointer;
-
 }

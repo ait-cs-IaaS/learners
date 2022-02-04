@@ -1,39 +1,39 @@
 body {
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    background-color: $main-bg-color;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  background-color: $main-bg-color;
 }
-  
+
 html {
-    height: -webkit-fill-available;
-    font-size: 16px;
+  height: -webkit-fill-available;
+  font-size: 16px;
 }
 
 main {
-    display: flex;
-    flex-wrap: nowrap;
-    height: 100vh;
-    max-height: 100vh;
-    overflow-x: auto;
-    overflow-y: hidden;
+  display: flex;
+  flex-wrap: nowrap;
+  height: 100vh;
+  max-height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 #nav-container {
-    display: flex;
-    flex-wrap: nowrap;
-    width: $nav-width;
-    height: 100vh;
-    max-height: 100vh;
+  display: flex;
+  flex-wrap: nowrap;
+  width: $nav-width;
+  height: 100vh;
+  max-height: 100vh;
 }
 
 .content-container {
-    z-index:10; 
-    position: absolute; 
-    width: calc(100% - #{$nav-width}); 
-    height: 100%;
-    margin-left: $nav-width;
-    background-color: $main-bg-color;
-    overflow-x: hidden;
+  z-index: 10;
+  position: absolute;
+  width: calc(100% - #{$nav-width});
+  height: 100%;
+  margin-left: $nav-width;
+  background-color: $main-bg-color;
+  overflow-x: hidden;
 }
 
 a {
@@ -42,10 +42,17 @@ a {
   text-transform: none;
 }
 
-h1, h2, h3, h4, h5, p, input, label {
-    font-family: "Rubik", sans-serif;
-    color: $main-text-color;
-    max-width: 60em;
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+input,
+label {
+  font-family: "Rubik", sans-serif;
+  color: $main-text-color;
+  max-width: 60em;
 }
 
 h1 {
@@ -71,15 +78,15 @@ h5 {
 }
 
 .heading_highlight {
-    color: $primary;
+  color: $primary;
 }
 
 .center-content {
-    width: 60%;
-    margin: auto;
-    margin-top: 100px;
-    margin-bottom: 100px;
-  }
+  width: 60%;
+  margin: auto;
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
 
 .pager {
   transition: all 150ms;
@@ -97,19 +104,17 @@ h5 {
   width: auto;
   margin-top: 10%;
 
-  & h2{
+  & h2 {
     font-weight: 700;
     color: $primary;
   }
 }
-
 
 #preloader {
   transition: all 500ms;
 }
 
 .notification-box {
-  
   position: absolute;
   width: 100%;
   display: block;
@@ -122,7 +127,7 @@ h5 {
   animation-delay: 0.1s;
   animation-timing-function: ease-in;
   color: $light;
-  
+
   & span {
     display: block;
     width: 60%;
@@ -139,11 +144,15 @@ h5 {
 }
 
 @-webkit-keyframes slide {
-  100% { top: 0; }
+  100% {
+    top: 0;
+  }
 }
 
 @keyframes slide {
-  100% { top: 0; }
+  100% {
+    top: 0;
+  }
 }
 
 .lds-ring {

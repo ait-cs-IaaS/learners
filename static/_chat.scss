@@ -1,13 +1,13 @@
 #chat-container {
-    z-index:20; 
-    position: absolute;
-    bottom: 0;
-    width: calc(30% - #{$nav-width}); 
-    height: 80%;
-    margin-left: $nav-width;
-    background-color: rgba(15, 16, 23, 0.85);
-    overflow: auto;
-    resize: both;
+  z-index: 20;
+  position: absolute;
+  bottom: 0;
+  width: calc(30% - #{$nav-width});
+  height: 80%;
+  margin-left: $nav-width;
+  background-color: rgba(15, 16, 23, 0.85);
+  overflow: auto;
+  resize: both;
 }
 
 #chatframe {
@@ -22,4 +22,3 @@
     margin: auto;
   }
 }
-
