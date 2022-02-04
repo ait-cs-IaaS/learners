@@ -1,38 +1,52 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
-{% block title %}
-CyberRange
-{% endblock %}
+{% block title %} 
+CyberRange 
+{% endblock %} 
 
 {% block content %}
-    <iframe id="exercises" class="content-container pager" frameborder='0' noresize='noresize' src="{{ exercises_url }}" frameborder="0"></iframe>
-    <iframe id="docs" class="content-container pager" frameborder='0' noresize='noresize' src="{{ docs_url }}" frameborder="0"></iframe>
-    
-    
-    <div id="client-resume" class="hideContent center-content pager">
-        <h2>Resume VNC Client here</h2>
-        <p>The VNC Client is currently opened in a different browser-tab. <br>
-            Only one instance can be run simultaneously.</p>
-        <button id="resume-btn" class="btn gray-btn">Resume here</button>
-    </div>
-    
-    {% for vnc_client, client_info in vnc_clients.items() %}
-        <iframe 
-            id="{{ vnc_client }}" 
-            class="content-container pager" 
-            frameborder='0' 
-            noresize='noresize' 
-            src="{{ client_info.url }}" 
-        ></iframe>
-    {% endfor %}
+<iframe
+  id="exercises"
+  class="content-container pager"
+  frameborder="0"
+  noresize="noresize"
+  src="{{ exercises_url }}"
+  frameborder="0"
+></iframe>
+<iframe
+  id="docs"
+  class="content-container pager"
+  frameborder="0"
+  noresize="noresize"
+  src="{{ docs_url }}"
+  frameborder="0"
+></iframe>
 
-    <!-- <div id="client" class="content-container pager">
-        <div class="center-content">
-            <h1 style="position:relative; margin-top:20%; font-weight:700; font-size: 8em">VNC Client</h1>
-        </div>
-    </div> -->
-    
-    <div id="preloader" class="content-container pager">
-            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-    </div>
+<div id="client-resume" class="hideContent center-content pager">
+  <h2>Resume VNC Client here</h2>
+  <p>
+    The VNC Client is currently opened in a different browser-tab. <br />
+    Only one instance can be run simultaneously.
+  </p>
+  <button id="resume-btn" class="btn gray-btn">Resume here</button>
+</div>
+
+{% for vnc_client, client_info in vnc_clients.items() %}
+<iframe
+  id="{{ vnc_client }}"
+  class="content-container pager"
+  frameborder="0"
+  noresize="noresize"
+  src="{{ client_info.url }}"
+></iframe>
+{% endfor %}
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
 {% endblock %}
