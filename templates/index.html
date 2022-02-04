@@ -15,8 +15,15 @@ CyberRange
             Only one instance can be run simultaneously.</p>
         <button id="resume-btn" class="btn gray-btn">Resume here</button>
     </div>
-    {% for (client_url, info) in vnc_urls %}
-        <iframe id="client{{ '_' + info if info|length else omit }}" class="content-container pager" frameborder='0' noresize='noresize' src="{{ client_url }}" frameborder="0"></iframe>
+    
+    {% for vnc_client, client_info in vnc_clients.items() %}
+        <iframe 
+            id="{{ vnc_client }}" 
+            class="content-container pager" 
+            frameborder='0' 
+            noresize='noresize' 
+            src="{{ client_info.url }}" 
+        ></iframe>
     {% endfor %}
 
     <!-- <div id="client" class="content-container pager">
