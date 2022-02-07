@@ -1,4 +1,4 @@
-from src.app import app
+from learners import main
 
 if __name__ == '__main__':
-    app.run()
+    main()

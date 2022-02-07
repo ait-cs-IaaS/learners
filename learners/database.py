@@ -1,11 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
-from src.app import app
-
-# ---------------------------------------------------------------------------------------
-db = SQLAlchemy(app)
-# ---------------------------------------------------------------------------------------
+from learners import db
 
 # User table
 class User(db.Model):
@@ -32,7 +27,3 @@ class Post(db.Model):
 
     def as_dict(self):
         return "{ 'start_time' : {self.start_time}, 'completed' : {self.completed} }"
-
-
-# Create Database
-db.create_all()

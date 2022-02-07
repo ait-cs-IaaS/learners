@@ -1,11 +1,6 @@
-from flask import Flask
 from flask import render_template
-from flask_jwt_extended import JWTManager
-
-from src.app import app
-from src.config import template_config
-
-jwt = JWTManager(app)
+from learners.config import template_config
+from learners import jwt
 
 @jwt.expired_token_loader
 def token_expired(jwt_header, jwt_payload):

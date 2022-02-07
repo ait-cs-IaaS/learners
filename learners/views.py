@@ -3,6 +3,7 @@ from flask import render_template
 from flask import redirect
 from flask import jsonify
 from flask import request
+from flask import Blueprint
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -13,23 +14,19 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_cors import cross_origin
 
 import requests
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import time
 import uuid
 
-from src.app import app
-from src.app import db
-from src.app import htpasswd
+from learners import db
+from learners.helpers import datetime_from_utc_to_local
+from learners.config import template_config, htpasswd
+from learners.database import User, Post
 
-from src.helpers import datetime_from_utc_to_local
+bp = Blueprint("views", __name__)
 
-from src.config import template_config
 
-from src.database import User
-from src.database import Post
-
-@app.route('/')
+@bp.route('/')
 def home():
 
     """
@@ -45,7 +42,7 @@ def home():
         return render_template('login.html', **template_config)
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@bp.route("/login", methods=['GET', 'POST'])
 def login():
 
     """
@@ -58,33 +55,33 @@ def login():
 
     if request.method == 'GET':
         return render_template('login.html', **template_config)
-    else:
-        username = request.form.get("username", None)
-        password = request.form.get("password", None)
 
-        if not htpasswd.check_password(username, password):
-            error_msg = "Invalid username or password"
-            return render_template('login.html', **template_config, error = error_msg)
+    username = request.form.get("username", None)
+    password = request.form.get("password", None)
 
-        """ 
-        Keep track of users in the database. First it is checked if there is already a 
-        corresponding entry for the logged in user in the database, if this is not 
-        the case, it is created.
-        """
+    if not htpasswd.check_password(username, password):
+        error_msg = "Invalid username or password"
+        return render_template('login.html', **template_config, error = error_msg)
 
-        if User.query.filter_by(username = username).first() == None:
-            authorized_user = User(username = username)
-            db.session.add(authorized_user)
-            db.session.commit()
+    """ 
+    Keep track of users in the database. First it is checked if there is already a 
+    corresponding entry for the logged in user in the database, if this is not 
+    the case, it is created.
+    """
 
-        response = redirect('/access')
-        access_token = create_access_token(identity = username)
-        set_access_cookies(response, access_token)
+    if User.query.filter_by(username = username).first() is None:
+        authorized_user = User(username = username)
+        db.session.add(authorized_user)
+        db.session.commit()
 
-        return response
+    response = redirect('/access')
+    access_token = create_access_token(identity = username)
+    set_access_cookies(response, access_token)
+
+    return response
 
 
-@app.route('/access')
+@bp.route('/access')
 @jwt_required()
 def access():
 
@@ -139,29 +136,29 @@ def access():
         the app-config 'JWT_FOR_VNC_ACCESS':
 
         1. JWT token with target host: The target host is defined as an additional parameter in the 
-           JWT token. In this case a separate JWT token is created and apended for each host in which 
-           the target host is defined.
-           
-           Required config:
-           
-           vnc_clients:
-             client:
-               server (string)   -> IP of the noVNC server
-               target (int)      -> target host to connect to
-               username (string) -> Username of client
-               password (string) -> Password of client
+          JWT token. In this case a separate JWT token is created and apended for each host in which 
+          the target host is defined.
+          
+          Required config:
+          
+          vnc_clients:
+            client:
+              server (string)   -> IP of the noVNC server
+              target (int)      -> target host to connect to
+              username (string) -> Username of client
+              password (string) -> Password of client
 
         2. 1:1 Mapping: In case there is only one Client used, no target must be specified, in this 
-           case a simple username + password config can be used. In order to not transmit username 
-           and password over the wire option 1 can be chosen with 'target=0'. 
-           
-           Required config:
-           
-           vnc_clients:
-             client:
-               server (string)   -> IP of the noVNC server
-               username (string) -> Username of client
-               password (string) -> Password of client
+          case a simple username + password config can be used. In order to not transmit username 
+          and password over the wire option 1 can be chosen with 'target=0'. 
+          
+          Required config:
+          
+          vnc_clients:
+            client:
+              server (string)   -> IP of the noVNC server
+              username (string) -> Username of client
+              password (string) -> Password of client
 
         """
         
@@ -199,7 +196,7 @@ def access():
 # Run a script on the external server (Venjix)
 # ---------------------------------------------------------------------------------------
 
-@app.route('/execute_script/<script>', methods=['POST'])
+@bp.route('/execute_script/<script>', methods=['POST'])
 @cross_origin()
 @jwt_required()
 def call_venjix(script):
@@ -260,7 +257,7 @@ def call_venjix(script):
 # Callback
 # ---------------------------------------------------------------------------------------
 
-@app.route('/callback/<call_uuid>', methods=['POST'])
+@bp.route('/callback/<call_uuid>', methods=['POST'])
 def callback(call_uuid):
 
     """
@@ -283,7 +280,7 @@ def callback(call_uuid):
 # Get current state
 # ---------------------------------------------------------------------------------------
 
-@app.route('/current_state/<script>')
+@bp.route('/current_state/<script>')
 @cross_origin()
 @jwt_required()
 def get_state(script):
@@ -326,7 +323,7 @@ def get_state(script):
 # Check if exercise completed
 # ---------------------------------------------------------------------------------------
 
-@app.route('/check_completion/<call_uuid>')
+@bp.route('/check_completion/<call_uuid>')
 @cross_origin()
 @jwt_required()
 def check_completion(call_uuid):
