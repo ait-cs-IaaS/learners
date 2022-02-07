@@ -5,7 +5,7 @@ VENJIX_AUTH_SECRET: "53CR3T"
 JWT_SECRET_KEY: "53CR3T"
 JWT_TOKEN_LOCATION: ["headers", "cookies"]
 JWT_ACCESS_TOKEN_DURATION: 120
-JWT_FOR_VNC_ACCESS: True
+JWT_FOR_VNC_ACCESS: False
 THEME: "dark"
 BRANDING: True
 CORS_HEADERS: "Content-Type"
@@ -25,13 +25,17 @@ VENJIX_URL: "http://127.0.0.1:5001"
 
 VNC_CLIENTS:
   soc_client:
-    url: "https://placeholder_1:placeholder@10.17.4.219"
+    server: "10.17.4.219"
     target: 1
     tooltip: "Access SOC client"
+    username: placeholder_1
+    password: placeholder
   pps_client:
-    url: "https://placeholder_3:placeholder@10.17.4.219"
+    server: "10.17.4.219"
     target: 2
     tooltip: "Access PPS client"
+    username: placeholder_3
+    password: placeholder
 
 CALLBACK_URL: "http://127.0.0.1:5000/callback"
 DOCS_URL: "http://localhost"

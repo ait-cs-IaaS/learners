@@ -31,6 +31,7 @@ from src.database import Post
 
 @app.route('/')
 def home():
+
     """
     This function verifies if a valid jwt-token is present. Depending on this, 
     the user is either shown a success message or redirected to the plain login form. 
@@ -39,13 +40,14 @@ def home():
     try:
         verify_jwt_in_request()
         success_msg = "Logged in as %s" % get_jwt_identity()
-        return render_template('login.html', **template_config, success=success_msg)
+        return render_template('login.html', **template_config, success = success_msg)
     except:
         return render_template('login.html', **template_config)
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+
     """
     GET: The plain login form is displayed to the user.
 
@@ -62,7 +64,7 @@ def login():
 
         if not htpasswd.check_password(username, password):
             error_msg = "Invalid username or password"
-            return render_template('login.html', **template_config, error=error_msg)
+            return render_template('login.html', **template_config, error = error_msg)
 
         """ 
         Keep track of users in the database. First it is checked if there is already a 
@@ -70,13 +72,13 @@ def login():
         the case, it is created.
         """
 
-        if User.query.filter_by(username=username).first() == None:
-            authorized_user = User(username=username)
+        if User.query.filter_by(username = username).first() == None:
+            authorized_user = User(username = username)
             db.session.add(authorized_user)
             db.session.commit()
 
         response = redirect('/access')
-        access_token = create_access_token(identity=username)
+        access_token = create_access_token(identity = username)
         set_access_cookies(response, access_token)
 
         return response
@@ -85,6 +87,7 @@ def login():
 @app.route('/access')
 @jwt_required()
 def access():
+
     """
     This function is responsible for rendering the access page. For this the 
     'template_config' dict is filled with the necessary information which is 
@@ -128,44 +131,59 @@ def access():
         'base_url:port'
         """
 
-        template_config['docs_url'] = app.config['DOCS_URL'] + ':' + \
-            app.config['PORT_LIST'][template_config.get('user_id')]['docs']
+        template_config['docs_url'] = app.config['DOCS_URL'] + \
+            ':' + app.config['PORT_LIST'][template_config.get('user_id')]['docs']
 
         """
-        There are two ways Learners can tell the noVNC server which host to connect to, defined by 
+        There are two types of user-host mapping between Learners and the noVNC server, defined by 
         the app-config 'JWT_FOR_VNC_ACCESS':
-        1. JWT token: As an additional parameter in the JWT token. In this case a separate JWT token 
-           must be created for each host.
-        2. query string: as an additional parameter in the URL. The mapping between user and target 
-           machine is done on noVNC side.
 
-        Structure of the clients dict:
+        1. JWT token with target host: The target host is defined as an additional parameter in the 
+           JWT token. In this case a separate JWT token is created and apended for each host in which 
+           the target host is defined.
+           
+           Required config:
+           
+           vnc_clients:
+             client:
+               server (string)   -> IP of the noVNC server
+               target (int)      -> target host to connect to
+               username (string) -> Username of client
+               password (string) -> Password of client
 
-        vnc_clients:
-            client:
-                url (string)      -> url of the noVNC server
-                target (int)      -> target host to connect to
-                tooltip (string)  -> hint for the user shown in the UI
+        2. 1:1 Mapping: In case there is only one Client used, no target must be specified, in this 
+           case a simple username + password config can be used. In order to not transmit username 
+           and password over the wire option 1 can be chosen with 'target=0'. 
+           
+           Required config:
+           
+           vnc_clients:
+             client:
+               server (string)   -> IP of the noVNC server
+               username (string) -> Username of client
+               password (string) -> Password of client
+
         """
         
         for vnc_client, client_details in template_config['vnc_clients'].items():
             if app.config['JWT_FOR_VNC_ACCESS']:
-                # JWT Token is used to define the target host
                 additional_claims = {
-                    "target": str(client_details['target'])
+                    "target": str(client_details['target']),
+                    "username": str(client_details['username']),
+                    "password": str(client_details['password'])
                     }
-                auth_url = client_details['url'] + \
+                auth_url = 'https://' + client_details['server'] + \
                     '?auth=' + str(create_access_token(
                         identity = template_config.get('user_id'), 
                         additional_claims = additional_claims
                         ))
             else:
-                # target host is send via the query string
-                auth_url = client_details['url'] + \
-                    '?auth=' + str(jwt_token) + \
-                    '&target=' + str(client_details['target'])
+                auth_url = 'https://' + \
+                    client_details['username'] + ':' + \
+                    client_details['password'] + '@' + \
+                    client_details['server']
 
-            template_config['vnc_clients'][vnc_client]['url'] = auth_url
+            template_config['vnc_clients'][vnc_client].setdefault('url', auth_url)
         
     except:
         error_msg = "No exercises for this user."
@@ -245,6 +263,11 @@ def call_venjix(script):
 @app.route('/callback/<call_uuid>', methods=['POST'])
 def callback(call_uuid):
 
+    """
+    This endpoint is passed to Venjix in order to respond to an execute script. If a response 
+    is received, it is recorded in the database and 'completed' returned.
+    """
+
     feedback = request.get_json()
 
     db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
@@ -265,43 +288,37 @@ def callback(call_uuid):
 @jwt_required()
 def get_state(script):
 
-    # get user id from JWT token
-    verify_jwt_in_request(locations='headers')
-    user_jwt_identity = get_jwt_identity()
+    """
+    This function returns the last 10 results of the requested script, executed by the current 
+    user (identified via JWT token Identity).
+    """
 
     db_entries = (db.session.query(Post)
-                  .filter_by(script_name=script)
+                  .filter_by(script_name = script)
                   .join(User)
-                  .filter_by(username=user_jwt_identity)
+                  .filter_by(username = get_jwt_identity())
                   .order_by(Post.response_time.desc())
                   .limit(10)
                   .all()
                   )
 
     history = {}
-    i = 1
-    for db_entry in db_entries:
-        new_history_entry = {
+    for i, db_entry in enumerate(db_entries):
+        history[str(i + 1)] = {
             'start_time': datetime_from_utc_to_local(db_entry.start_time, date=True),
             'response_time': datetime_from_utc_to_local(db_entry.response_time, date=False),
             'completed': db_entry.completed
         }
-        indicator = "post_{0}".format(i)
-        history[indicator] = new_history_entry
-        i += 1
 
     if (db_entries):
-        script_executed = bool(db_entries[0])
-        completed = db_entries[0].completed
-
         return jsonify(
-            script_executed=script_executed,
-            completed=completed,
-            history=history
+            script_executed = bool(db_entries[0]),
+            completed = db_entries[0].completed,
+            history = history
         )
     else:
         return jsonify(
-            exercises=None
+            exercises = None
         )
 
 
@@ -314,14 +331,16 @@ def get_state(script):
 @jwt_required()
 def check_completion(call_uuid):
 
-    # get user id from JWT token
-    verify_jwt_in_request(locations='headers')
+    """
+    This function executes a repeated query of the database and monitors whether a response to a 
+    given callback endpoint ('<call_uuid>') has already been received.
+    """
 
     while True:
         time.sleep(0.5)
 
         db_entry = (Post.query
-                    .filter_by(call_uuid=call_uuid)
+                    .filter_by(call_uuid = call_uuid)
                     .first()
                     )
 
