@@ -6,8 +6,6 @@ from learners.config import set_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
-from learners import views
-from learners import database
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -21,9 +19,12 @@ def main():
         cors = CORS(app)
         set_config(app)
         db.init_app(app)
+        from learners import database
+
         db.create_all()
         jwt.init_app(app)
 
+    from learners import views
 
     app.register_blueprint(views.bp)
 

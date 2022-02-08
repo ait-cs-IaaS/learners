@@ -31,6 +31,3 @@ def set_config(app):
         docs_url="",
         exercises_url="",
     )
-
-
-
