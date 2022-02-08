@@ -6,6 +6,7 @@ from learners.config import set_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
+
 db = SQLAlchemy()
 jwt = JWTManager()
 
@@ -18,6 +19,8 @@ def main():
         cors = CORS(app)
         set_config(app)
         db.init_app(app)
+        from learners import database
+
         db.create_all()
         jwt.init_app(app)
 

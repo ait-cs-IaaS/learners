@@ -1,0 +1,3 @@
+graft learners/static
+graft learners/templates
+exclude wsgi.py

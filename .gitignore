@@ -1,6 +1,7 @@
 *.retry
 .idea/
 .envrc
+learners/learners_tracker.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
