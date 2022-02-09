@@ -14,17 +14,16 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_cors import cross_origin
 
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import uuid
 
-from learners import db
-from learners.helpers import datetime_from_utc_to_local
-from learners.config import template_config, htpasswd
+from learners.helpers import utc_to_local
 from learners.database import User, Post
+from learners.config import cfg
+from learners.database import db
 
 bp = Blueprint("views", __name__)
-
 
 @bp.route("/")
 def home():
@@ -36,9 +35,9 @@ def home():
     try:
         verify_jwt_in_request()
         success_msg = "Logged in as %s" % get_jwt_identity()
-        return render_template("login.html", **template_config, success=success_msg)
+        return render_template("login.html", **cfg.template, success=success_msg)
     except:
-        return render_template("login.html", **template_config)
+        return render_template("login.html", **cfg.template)
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -52,14 +51,14 @@ def login():
     """
 
     if request.method == "GET":
-        return render_template("login.html", **template_config)
+        return render_template("login.html", **cfg.template)
 
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
-    if not htpasswd.check_password(username, password):
+    if not cfg.get_htpasswd().check_password(username, password):
         error_msg = "Invalid username or password"
-        return render_template("login.html", **template_config, error=error_msg)
+        return render_template("login.html", **cfg.template, error=error_msg)
 
     """
     Keep track of users in the database. First it is checked if there is already a
@@ -84,10 +83,10 @@ def login():
 def access():
     """
     This function is responsible for rendering the access page. For this the
-    'template_config' dict is filled with the necessary information which is
+    'cfg.template' dict is filled with the necessary information which is
     then rendered via the index.html template.
 
-    template_config:
+    cfg.template:
         user_id (string)        -> Username from JWT Token
         branding (boolean)      -> wheiter or not to display branding on the login page
         theme (string)          -> 'dark' or 'light'
@@ -97,7 +96,7 @@ def access():
     """
 
     # Get JWT Token and append it to the exercises URL via query string
-    template_config["user_id"] = get_jwt_identity()
+    cfg.template["user_id"] = get_jwt_identity()
     jwt_token = request.cookies.get("access_token_cookie")
 
     try:
@@ -114,12 +113,12 @@ def access():
         'base_url:port/en?auth=jwt_token'
         """
 
-        template_config["exercises_url"] = (
-            app.config["EXERCISES_URL"]
+        cfg.template["exercises_url"] = (
+            cfg.app_config["EXERCISES_URL"]
             + ":"
-            + app.config["PORT_LIST"][template_config.get("user_id")]["exercises"]
+            + cfg.app_config["PORT_LIST"][cfg.template.get("user_id")]["exercises"]
             + "/"
-            + app.config["LANGUAGE"]
+            + cfg.app_config["LANGUAGE"]
             + "?auth="
             + str(jwt_token)
         )
@@ -130,7 +129,7 @@ def access():
         'base_url:port'
         """
 
-        template_config["docs_url"] = app.config["DOCS_URL"] + ":" + app.config["PORT_LIST"][template_config.get("user_id")]["docs"]
+        cfg.template["docs_url"] = cfg.app_config["DOCS_URL"] + ":" + cfg.app_config["PORT_LIST"][cfg.template.get("user_id")]["docs"]
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -163,8 +162,8 @@ def access():
 
         """
 
-        for vnc_client, client_details in template_config["vnc_clients"].items():
-            if app.config["JWT_FOR_VNC_ACCESS"]:
+        for vnc_client, client_details in cfg.template["vnc_clients"].items():
+            if cfg.app_config["JWT_FOR_VNC_ACCESS"]:
                 additional_claims = {
                     "target": str(client_details["target"]),
                     "username": str(client_details["username"]),
@@ -176,7 +175,7 @@ def access():
                     + "?auth="
                     + str(
                         create_access_token(
-                            identity=template_config.get("user_id"),
+                            identity=cfg.template.get("user_id"),
                             additional_claims=additional_claims,
                         )
                     )
@@ -184,13 +183,13 @@ def access():
             else:
                 auth_url = "https://" + client_details["username"] + ":" + client_details["password"] + "@" + client_details["server"]
 
-            template_config["vnc_clients"][vnc_client].setdefault("url", auth_url)
+            cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
 
     except:
         error_msg = "No exercises for this user."
-        return render_template("login.html", **template_config, error=error_msg)
+        return render_template("login.html", **cfg.template, error=error_msg)
 
-    return render_template("index.html", **template_config)
+    return render_template("index.html", **cfg.template)
 
 
 # ---------------------------------------------------------------------------------------
@@ -225,7 +224,7 @@ def call_venjix(script):
         {
             "script": script,
             "user_id": user_jwt_identity,
-            "callback": app.config["CALLBACK_URL"] + "/" + str(call_uuid),
+            "callback": cfg.app_config["CALLBACK_URL"] + "/" + str(call_uuid),
         }
     )
 
@@ -237,10 +236,10 @@ def call_venjix(script):
 
     # send POST request
     response = requests.post(
-        url=app.config["VENJIX_URL"] + "/{0}".format(script),
+        url=cfg.app_config["VENJIX_URL"] + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": "Bearer " + app.config["VENJIX_AUTH_SECRET"],
+            "Authorization": "Bearer " + cfg.app_config["VENJIX_AUTH_SECRET"],
         },
         data=payload,
     )
@@ -303,8 +302,8 @@ def get_state(script):
 
     history = {
         str(i + 1): {
-            "start_time": datetime_from_utc_to_local(db_entry.start_time, date=True),
-            "response_time": datetime_from_utc_to_local(db_entry.response_time, date=False),
+            "start_time": utc_to_local(db_entry.start_time, date=True),
+            "response_time": utc_to_local(db_entry.response_time, date=False),
             "completed": db_entry.completed,
         }
         for i, db_entry in enumerate(db_entries)

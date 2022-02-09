@@ -1,15 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from learners import db
+
+
+db = SQLAlchemy()
 
 # User table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     posts = db.relationship("Post", backref="user", lazy=True)
-
-    def __repr__(self):
-        return f"User('{self.id}', '{self.username}')"
 
 
 # History of sent POSTs
@@ -23,8 +22,8 @@ class Post(db.Model):
     completed = db.Column(db.Integer, nullable=False, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    def __repr__(self):
-        return f"\nPost('id: {self.id}', \n'script_name: {self.script_name}', \n'call_uuid: {self.call_uuid}', \n'start_time: {self.start_time}', \n'response_time: {self.response_time}', \n'completed: {self.completed}', \n'user_id: {self.user_id}') \n -------------------------------------"
 
-    def as_dict(self):
-        return "{ 'start_time' : {self.start_time}, 'completed' : {self.completed} }"
+def build_db(app):
+    global db
+    db.init_app(app)
+    db.create_all()
