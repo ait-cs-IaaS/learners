@@ -53,7 +53,7 @@ $(function () {
         $('nav a').removeClass('active');
         $('nav a[href="' + href + '"]').addClass('active');
 
-        // toggle content 
+        // toggle content
         $('.pager').addClass('hideContent').removeClass('visibleContent');
 
         if ((anker == '#client') && ($("#client").attr('src') == '')) {
