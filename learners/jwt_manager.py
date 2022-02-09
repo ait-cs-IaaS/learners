@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 
 jwt = JWTManager()
 
+
 @jwt.expired_token_loader
 def token_expired(jwt_header, jwt_payload):
     error_msg = "Your token is expired. Please login again."

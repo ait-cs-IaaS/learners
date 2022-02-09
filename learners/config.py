@@ -8,6 +8,7 @@ from learners.assets import get_bundle
 
 cfg = None
 
+
 class Configuration:
     def __init__(self, app):
         app.config.from_file(os.path.join(os.getcwd(), "learners_config.yml"), load=yaml.full_load)

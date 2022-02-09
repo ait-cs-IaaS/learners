@@ -6,7 +6,7 @@ from learners.jwt_manager import init_jwt
 
 
 def main():
-    
+
     app = Flask(__name__)
 
     with app.app_context():

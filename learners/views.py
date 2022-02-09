@@ -25,6 +25,7 @@ from learners.database import db
 
 bp = Blueprint("views", __name__)
 
+
 @bp.route("/")
 def home():
     """
