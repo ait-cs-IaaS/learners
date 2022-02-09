@@ -45,6 +45,4 @@ def build_config(app):
     global cfg
     cfg = Configuration(app)
 
-    print(cfg.app_config)
-
     return cfg.app_config
