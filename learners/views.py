@@ -14,13 +14,13 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_cors import cross_origin
 
 import requests
-from datetime import datetime
-import time
 import uuid
+import time
+from datetime import datetime
 
 from learners.helpers import utc_to_local
 from learners.database import User, Post
-from learners.config import cfg
+from learners.conf.config import cfg
 from learners.database import db
 
 bp = Blueprint("views", __name__)
@@ -57,8 +57,9 @@ def login():
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
-    if not cfg.get_htpasswd().check_password(username, password):
+    if not cfg.htpasswd.check_password(username, password):
         error_msg = "Invalid username or password"
+        cfg.template["authenticated"] = False
         return render_template("login.html", **cfg.template, error=error_msg)
 
     """
@@ -75,6 +76,7 @@ def login():
     response = redirect("/access")
     access_token = create_access_token(identity=username)
     set_access_cookies(response, access_token)
+    cfg.template["authenticated"] = True
 
     return response
 
@@ -97,7 +99,8 @@ def access():
     """
 
     # Get JWT Token and append it to the exercises URL via query string
-    cfg.template["user_id"] = get_jwt_identity()
+    user_id = get_jwt_identity()
+    cfg.template["authenticated"] = True
     jwt_token = request.cookies.get("access_token_cookie")
 
     try:
@@ -115,11 +118,11 @@ def access():
         """
 
         cfg.template["exercises_url"] = (
-            cfg.app_config["EXERCISES_URL"]
+            cfg.url_exercises
             + ":"
-            + cfg.app_config["PORT_LIST"][cfg.template.get("user_id")]["exercises"]
+            + str(cfg.user_assignments[user_id].get("ports").get("exercises"))
             + "/"
-            + cfg.app_config["LANGUAGE"]
+            + cfg.language
             + "?auth="
             + str(jwt_token)
         )
@@ -130,7 +133,7 @@ def access():
         'base_url:port'
         """
 
-        cfg.template["docs_url"] = cfg.app_config["DOCS_URL"] + ":" + cfg.app_config["PORT_LIST"][cfg.template.get("user_id")]["docs"]
+        cfg.template["docs_url"] = cfg.url_documentation + ":" + str(cfg.user_assignments[user_id].get("ports").get("docs"))
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -163,8 +166,11 @@ def access():
 
         """
 
-        for vnc_client, client_details in cfg.template["vnc_clients"].items():
-            if cfg.app_config["JWT_FOR_VNC_ACCESS"]:
+        cfg.template["vnc_clients"] = cfg.user_assignments[user_id]["vnc_clients"]
+        for vnc_client, client_details in cfg.user_assignments[user_id]["vnc_clients"].items():
+            if client_details["server"] == "default":
+                client_details["server"] = cfg.url_novnc
+            if cfg.jwt_for_vnc_access:
                 additional_claims = {
                     "target": str(client_details["target"]),
                     "username": str(client_details["username"]),
@@ -176,7 +182,7 @@ def access():
                     + "?auth="
                     + str(
                         create_access_token(
-                            identity=cfg.template.get("user_id"),
+                            identity=user_id,
                             additional_claims=additional_claims,
                         )
                     )
@@ -225,7 +231,7 @@ def call_venjix(script):
         {
             "script": script,
             "user_id": user_jwt_identity,
-            "callback": cfg.app_config["CALLBACK_URL"] + "/" + str(call_uuid),
+            "callback": cfg.url_callback + "/" + str(call_uuid),
         }
     )
 
@@ -237,10 +243,10 @@ def call_venjix(script):
 
     # send POST request
     response = requests.post(
-        url=cfg.app_config["VENJIX_URL"] + "/{0}".format(script),
+        url=cfg.url_venjix + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": "Bearer " + cfg.app_config["VENJIX_AUTH_SECRET"],
+            "Authorization": "Bearer " + cfg.venjix_auth_secret,
         },
         data=payload,
     )
