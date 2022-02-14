@@ -108,7 +108,6 @@ dmypy.json
 # Flask
 .DS_Store
 .env
-.flaskenv
 *.pyc
 *.pyo
 env/

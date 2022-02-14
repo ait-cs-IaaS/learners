@@ -1,50 +1,43 @@
-DEBUG: False
-TESTING: False
-LEARNERS_HTPASSWD: "temp_htpasswd"
-VENJIX_AUTH_SECRET: "53CR3T"
-JWT_SECRET_KEY: "53CR3T"
-JWT_TOKEN_LOCATION: ["headers", "cookies"]
-JWT_ACCESS_TOKEN_DURATION: 120
-JWT_FOR_VNC_ACCESS: False
-THEME: "dark"
-BRANDING: True
-CORS_HEADERS: "Content-Type"
-CORS_ORIGINS:
-  [
-    "http://127.0.0.1:8888",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
-    "http://localhost:8888",
-  ]
-CORS_SUPPORTS_CREDENTIALS: True
-SQLALCHEMY_DATABASE_URI: "sqlite:///learners_tracker.db"
-SQLALCHEMY_TRACK_MODIFICATIONS: False
-LANGUAGE: "en"
+learners:
+  htpasswd: "temp_htpasswd"
 
-VENJIX_URL: "http://127.0.0.1:5001"
+jwt:
+  jwt_secret_key: "53CR3T"
 
-VNC_CLIENTS:
-  soc_client:
-    server: "10.17.4.219"
-    target: 1
-    tooltip: "Access SOC client"
-    username: placeholder_1
-    password: placeholder
-  pps_client:
-    server: "10.17.4.219"
-    target: 2
-    tooltip: "Access PPS client"
-    username: placeholder_3
-    password: placeholder
+database:
+  db_uri: "sqlite:///learners_tracker.db"
 
-CALLBACK_URL: "http://127.0.0.1:5000/callback"
-DOCS_URL: "http://localhost"
-EXERCISES_URL: "http://localhost"
-
-PORT_LIST:
-  test:
-    docs: "8080"
-    exercises: "8888"
-  ben:
-    docs: "8080"
-    exercises: "8888"
+components:
+  venjix_auth_secret: "53CR3T"
+  urls:
+    venjix: "http://127.0.0.1:5001"
+    callback: "http://127.0.0.1:5000/callback"
+    documentation: "http://localhost"
+    exercises: "http://localhost"
+    novnc: "10.17.4.219"
+  user_assignments:
+    test:
+      vnc_clients:
+        soc_client:
+          target: 1
+          tooltip: "Access SOC client"
+          username: placeholder_1
+          password: placeholder
+        pps_client:
+          target: 3
+          tooltip: "Access PPS client"
+          username: placeholder_3
+          password: placeholder
+      ports:
+        docs: 8080
+        exercises: 8888
+    ben:
+      vnc_clients:
+        soc_client:
+          target: 1
+          tooltip: "Access SOC client"
+          username: placeholder_2
+          password: placeholder
+      ports:
+        docs: 8080
+        exercises: 8888

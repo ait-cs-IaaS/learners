@@ -28,7 +28,7 @@ When calling "check" via the Learners interface, the flag file on the client is 
 
 The Learners interface must be able to display the result it has received from venjix. While the exercise is not yet solved, the progress should only be displayed via a progress bar. Only after the pass-check all possible flags with the corresponding check/non-check are displayed.
 
--------------------------- 
+--------------------------
 
  ## Modular design
 
