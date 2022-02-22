@@ -11,6 +11,8 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
 
+from flask_mail import Message
+
 from flask_cors import cross_origin
 
 import requests
@@ -22,6 +24,7 @@ from learners.helpers import utc_to_local
 from learners.database import User, Post, Form
 from learners.conf.config import cfg
 from learners.database import db
+from learners.mail_manager import mail
 
 bp = Blueprint("views", __name__)
 
@@ -365,18 +368,49 @@ def check_completion(call_uuid):
 @jwt_required()
 def get_formdata(form_name):
 
+    """
+    This function takes form data and stores it in the database and can additionally, if specified
+    by the "Method" parameter in the header, send the results by mail to the exercise administrator.
+    """
+
+    # Get user identification
     verify_jwt_in_request(locations="headers")
     user_jwt_identity = get_jwt_identity()
-
     user_id = User.query.filter_by(username=user_jwt_identity).first().id
-    prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
-    print(prio_submission)
 
+    # Check whether the form was already submitted
+    prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
     if prio_submission is None:
+
         form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
+
+        # Create database entry
         new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
         db.session.add(new_form)
         db.session.commit()
+
+        # if specified, send form data via email
+        if request.headers.get("Method") == "mail":
+            subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
+
+            mailbody = "<h1>Results</h1>"
+            mailbody += "<h2>Information:</h2>"
+            mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
+            mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
+            mailbody += "<h2>Data:</h2>"
+
+            data = ""
+            for (key, value) in request.form.to_dict().items():
+                if not value:
+                    value = "<i>-- emtpy --</i>"
+                data += "<strong>{}</strong>: {}</br>".format(key, value)
+
+            mailbody += "<p>{}</p></br>".format(data)
+
+            msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
+            msg.html = mailbody
+            mail.send(msg)
+
         return jsonify(completed=True)
     else:
         msg = "Form was already submitted."

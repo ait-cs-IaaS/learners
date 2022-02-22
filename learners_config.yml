@@ -9,6 +9,14 @@ jwt:
 database:
   db_uri: "sqlite:///learners_tracker.db"
 
+# mail:
+#   server: ""
+#   port: 587
+#   username: ""
+#   password: ""
+#   tls: True
+#   ssl: False
+
 components:
   venjix_auth_secret: "53CR3T"
   urls:
