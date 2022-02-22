@@ -1,8 +1,10 @@
 learners:
   htpasswd: "temp_htpasswd"
+  # theme: "light"
 
 jwt:
   jwt_secret_key: "53CR3T"
+  jwt_for_vnc_access: False
 
 database:
   db_uri: "sqlite:///learners_tracker.db"
@@ -21,12 +23,12 @@ components:
         soc_client:
           target: 1
           tooltip: "Access SOC client"
-          username: placeholder_1
+          username: csirt1
           password: placeholder
         pps_client:
           target: 3
           tooltip: "Access PPS client"
-          username: placeholder_3
+          username: csirt3
           password: placeholder
       ports:
         docs: 8080
@@ -36,7 +38,7 @@ components:
         soc_client:
           target: 1
           tooltip: "Access SOC client"
-          username: placeholder_2
+          username: csirt2
           password: placeholder
       ports:
         docs: 8080
