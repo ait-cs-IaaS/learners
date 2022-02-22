@@ -31,9 +31,6 @@ class Form(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    def __repr__(self):
-        return f"\nForm('id: {self.id}', \n'form_name: {self.form_name}', \n'form_data: {self.form_data}', \n'timestamp: {self.timestamp}', \n'user_id: {self.user_id}') \n -------------------------------------"
-
 
 def build_db(app):
     global db
