@@ -19,7 +19,7 @@ import time
 from datetime import datetime
 
 from learners.helpers import utc_to_local
-from learners.database import User, Post
+from learners.database import User, Post, Form
 from learners.conf.config import cfg
 from learners.database import db
 
@@ -353,3 +353,31 @@ def check_completion(call_uuid):
 
         # force new query on db in the next iteration
         db.session.close()
+
+
+# ---------------------------------------------------------------------------------------
+# Get form data
+# ---------------------------------------------------------------------------------------
+
+
+@bp.route("/form/<form_name>", methods=["POST"])
+@cross_origin()
+@jwt_required()
+def get_formdata(form_name):
+
+    verify_jwt_in_request(locations="headers")
+    user_jwt_identity = get_jwt_identity()
+
+    user_id = User.query.filter_by(username=user_jwt_identity).first().id
+    prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
+    print(prio_submission)
+
+    if prio_submission is None:
+        form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
+        new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
+        db.session.add(new_form)
+        db.session.commit()
+        return jsonify(completed=True)
+    else:
+        msg = "Form was already submitted."
+        return jsonify(completed=False, msg=msg)
