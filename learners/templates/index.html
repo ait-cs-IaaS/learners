@@ -1,10 +1,5 @@
-{% extends 'base.html' %}
-
-{% block title %}
-CyberRange
-{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %} CyberRange {% endblock %} {% block
+content %}
 <iframe
   id="exercises"
   class="content-container pager"
@@ -34,7 +29,7 @@ CyberRange
 {% for vnc_client, client_info in vnc_clients.items() %}
 <iframe
   id="{{ vnc_client }}"
-  class="content-container pager"
+  class="content-container pager novnc_client"
   frameborder="0"
   noresize="noresize"
   src="{{ client_info.url }}"

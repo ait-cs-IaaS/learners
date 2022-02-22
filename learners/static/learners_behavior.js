@@ -63,7 +63,9 @@ $(function () {
         }
         $(anker).addClass('visibleContent');
 
-        $('#menu-newtab').unbind().click(function () { newTab(); })
+        $('#menu-newtab').unbind().click(function () {
+            newTab();
+        })
 
     }
 
@@ -86,6 +88,39 @@ $(function () {
             window.open(current_location, '_blank')
         }
     }
+
+    // function newTab() {
+    //     var current_location = $('.visibleContent').attr('src');
+    //     var current_client = $(".novnc_client.visibleContent")
+
+    //     console.log(current_client)
+
+    //     if (current_client &&
+    //         current_client.attr('src') != '') {
+    //         console.log("opened")
+    //         // save location
+    //         client_iframe_url = current_location
+    //         // unload iframe
+    //         current_client.attr('src', '')
+    //         // open noVNC in new tab
+    //         let w = window.open(current_location, '_blank');
+    //         w.name = "viewer-tab";
+
+    //         // ###########################################################################################
+    //         // ###########################################################################################
+    //         // ########################### ADD SUPPORT FOR MULTIPLE CLIENTS ##############################
+    //         // Generate Resume view in js (per client)
+    //         // new window with unique name
+    //         // resume correct client
+    //         //
+    //         // ###########################################################################################
+    //         // ###########################################################################################
+    //         $('.pager').addClass('hideContent').removeClass('visibleContent');
+    //         $('#client-resume').removeClass('hideContent')
+    //     } else {
+    //         window.open(current_location, '_blank')
+    //     }
+    // }
 
     $('#resume-btn').click(function () {
         // get control over tab
