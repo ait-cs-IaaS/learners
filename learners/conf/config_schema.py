@@ -1,4 +1,4 @@
-from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern
+from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, EmptyDict, EmptyNone
 
 config_schema = Map(
     {
@@ -20,6 +20,17 @@ config_schema = Map(
         "database": Map(
             {
                 "db_uri": Str(),
+            }
+        ),
+        Optional("mail", drop_if_none=True): EmptyDict()
+        | Map(
+            {
+                Optional("server", default=""): Str(),
+                Optional("port", default=587): Int(),
+                Optional("username", default=""): Str(),
+                Optional("password", default=""): Str(),
+                Optional("tls", default=True): Bool(),
+                Optional("ssl", default=False): Bool(),
             }
         ),
         "components": Map(

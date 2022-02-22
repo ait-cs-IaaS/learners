@@ -60,6 +60,26 @@ class Configuration:
         # Set database configuration
         self.db_uri = learners_config.get("database").get("db_uri")
 
+        # Set mail configuration
+        if learners_config.get("mail") is not None:
+            self.mail = True
+            self.mail_server = learners_config.get("mail").get("server")
+            self.mail_port = learners_config.get("mail").get("port")
+            self.mail_username = learners_config.get("mail").get("username")
+            self.mail_password = learners_config.get("mail").get("password")
+            self.mail_tls = learners_config.get("mail").get("tls")
+            self.mail_ssl = learners_config.get("mail").get("ssl")
+        elif os.getenv("MAIL"):
+            self.mail = True
+            self.mail_server = os.getenv("MAIL_SERVER") or ""
+            self.mail_port = os.getenv("MAIL_PORT") or 587
+            self.mail_username = os.getenv("MAIL_USERNAME") or ""
+            self.mail_password = os.getenv("MAIL_PASSWORD") or ""
+            self.mail_tls = os.getenv("MAIL_TLS") or True
+            self.mail_ssl = os.getenv("MAIL_SSL") or False
+        else:
+            self.mail = False
+
         # Set components configuration
         self.url_novnc = learners_config.get("components").get("urls").get("novnc")
         self.url_callback = learners_config.get("components").get("urls").get("callback")
@@ -124,3 +144,11 @@ def config_app(app):
     app.config["CORS_HEADERS"] = "Content-Type"
     app.config["CORS_ORIGINS"] = cfg.cors_origins
     app.config["CORS_SUPPORTS_CREDENTIALS"] = True
+
+    if cfg.mail:
+        app.config["MAIL_SERVER"] = cfg.mail_server
+        app.config["MAIL_PORT"] = cfg.mail_port
+        app.config["MAIL_USERNAME"] = cfg.mail_username
+        app.config["MAIL_PASSWORD"] = cfg.mail_password
+        app.config["MAIL_USE_TLS"] = cfg.mail_tls
+        app.config["MAIL_USE_SSL"] = cfg.mail_ssl
