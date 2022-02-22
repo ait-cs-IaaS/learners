@@ -43,6 +43,17 @@ def main():
 
         init_jwt(app)
 
+        """
+        Initialize Mail manager
+
+        In order to enable the option to send Emails, the mail manager is initialized in the
+        following function.
+        """
+
+        from learners.mail_manager import init_mail
+
+        init_mail(app)
+
         CORS(app)
         Bcrypt(app)
 
