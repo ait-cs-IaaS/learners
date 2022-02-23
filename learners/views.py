@@ -20,7 +20,7 @@ import uuid
 import time
 from datetime import datetime
 
-from learners.helpers import utc_to_local
+from learners.helpers import utc_to_local, get_history_from_DB
 from learners.database import User, Post, Form
 from learners.conf.config import cfg
 from learners.database import db
@@ -207,7 +207,7 @@ def access():
 # ---------------------------------------------------------------------------------------
 
 
-@bp.route("/execute_script/<script>", methods=["POST"])
+@bp.route("/execute/<script>", methods=["POST"])
 @cross_origin()
 @jwt_required()
 def call_venjix(script):
@@ -279,7 +279,8 @@ def callback(call_uuid):
     db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
     db_entry.response_time = datetime.utcnow()
     db_entry.response_content = json.dumps(feedback)
-    db_entry.completed = int(feedback["returncode"] == 0)
+    db_entry.completed = int(feedback.get("returncode") == 0)
+    db_entry.msg = feedback.get("msg") or None
     db.session.commit()
 
     return jsonify(completed=True)
@@ -290,43 +291,26 @@ def callback(call_uuid):
 # ---------------------------------------------------------------------------------------
 
 
-@bp.route("/current_state/<script>")
+@bp.route("/history/<script>")
 @cross_origin()
 @jwt_required()
-def get_state(script):
+def get_history(script):
 
     """
     This function returns the last 10 results of the requested script, executed by the current
     user (identified via JWT token Identity).
     """
 
-    db_entries = (
-        db.session.query(Post)
-        .filter_by(script_name=script)
-        .join(User)
-        .filter_by(username=get_jwt_identity())
-        .order_by(Post.response_time.desc())
-        .limit(10)
-        .all()
-    )
+    executed, completed, history = get_history_from_DB(script, get_jwt_identity())
 
-    history = {
-        str(i + 1): {
-            "start_time": utc_to_local(db_entry.start_time, date=True),
-            "response_time": utc_to_local(db_entry.response_time, date=False),
-            "completed": db_entry.completed,
-        }
-        for i, db_entry in enumerate(db_entries)
-    }
-
-    if db_entries:
+    if executed:
         return jsonify(
-            script_executed=bool(db_entries[0]),
-            completed=db_entries[0].completed,
+            executed=executed,
+            completed=completed,
             history=history,
         )
     else:
-        return jsonify(exercises=None)
+        return jsonify(never_executed=True)
 
 
 # ---------------------------------------------------------------------------------------
@@ -334,10 +318,10 @@ def get_state(script):
 # ---------------------------------------------------------------------------------------
 
 
-@bp.route("/check_completion/<call_uuid>")
+@bp.route("/monitor/<call_uuid>")
 @cross_origin()
 @jwt_required()
-def check_completion(call_uuid):
+def monitor(call_uuid):
 
     """
     This function executes a repeated query of the database and monitors whether a response to a
@@ -352,7 +336,8 @@ def check_completion(call_uuid):
         if db_entry is None:
             return jsonify(completed=False)
         elif db_entry.response_time != None:
-            return jsonify(completed=db_entry.completed)
+            _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
+            return jsonify(completed=db_entry.completed, msg=db_entry.msg, history=history)
 
         # force new query on db in the next iteration
         db.session.close()
@@ -383,9 +368,9 @@ def get_formdata(form_name):
         """
 
         if prio_submission is not None:
-            return jsonify(script_executed=True, completed=True)
+            return jsonify(executed=True, completed=True)
         else:
-            return jsonify(script_executed=False, completed=False)
+            return jsonify(never_executed=True)
 
     if request.method == "POST":
         """
