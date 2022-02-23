@@ -99,14 +99,23 @@ h5 {
   left: -99999;
 }
 
-#client-resume {
+.resumePage {
   z-index: 8000;
-  width: auto;
-  margin-top: 10%;
+  margin-top: -5%;
+  height: auto;
+  display: block;
+  position: relative;
+  top: 50%;
 
   & h2 {
     font-weight: 700;
     color: $primary;
+  }
+  & .center-content {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 

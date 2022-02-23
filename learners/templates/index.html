@@ -17,13 +17,15 @@ content %}
   frameborder="0"
 ></iframe>
 
-<div id="client-resume" class="hideContent center-content pager">
-  <h2>Resume VNC Client here</h2>
-  <p>
-    The VNC Client is currently opened in a different browser-tab. <br />
-    Only one instance can be run simultaneously.
-  </p>
-  <button id="resume-btn" class="btn gray-btn">Resume here</button>
+<div id="client-resume" class="hideContent content-container pager">
+  <div class="center-content">
+    <h2>Resume VNC Client here</h2>
+    <p>
+      The VNC Client is currently opened in a different browser-tab. <br />
+      Only one instance can be run simultaneously.
+    </p>
+    <button id="resume-btn" class="btn gray-btn">Resume here</button>
+  </div>
 </div>
 
 {% for vnc_client, client_info in vnc_clients.items() %}
