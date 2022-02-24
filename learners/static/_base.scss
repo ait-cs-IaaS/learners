@@ -100,12 +100,10 @@ h5 {
 }
 
 .resumePage {
-  z-index: 8000;
-  margin-top: -5%;
-  height: auto;
-  display: block;
-  position: relative;
-  top: 50%;
+  z-index: 500;
+  display: flex;
+  position: absolute;
+  top: 0;
 
   & h2 {
     font-weight: 700;

@@ -30,12 +30,12 @@ components:
       vnc_clients:
         soc_client:
           target: 1
-          tooltip: "Access SOC client"
+          tooltip: "SOC client"
           username: csirt1
           password: placeholder
         pps_client:
           target: 3
-          tooltip: "Access PPS client"
+          tooltip: "PPS client"
           username: csirt3
           password: placeholder
       ports:
@@ -45,7 +45,7 @@ components:
       vnc_clients:
         soc_client:
           target: 1
-          tooltip: "Access SOC client"
+          tooltip: "SOC client"
           username: csirt2
           password: placeholder
       ports:
