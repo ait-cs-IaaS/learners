@@ -2,8 +2,20 @@ from flask import Flask
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 
+import os
+import logging
+
 
 def main():
+
+    if os.getenv("DEBUG"):
+        logging.warn("  ******** Running in DEBUG Mode. ******************* ")
+        logging.warn("  ******** Deleting DB file for testing. ************ ")
+        logging.warn("  ******** (Set 'DEBUG'='false' to keep it.) ******** ")
+        try:
+            os.remove(os.path.join(os.getcwd(), "learners", "learners_tracker.db"))
+        except:
+            pass
 
     app = Flask(__name__)
 

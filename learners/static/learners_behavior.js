@@ -1,162 +1,169 @@
-$(function () {
+var noVNC_clients = {};
 
-    var client_iframe_url;
+$(function () {
+    $.each($(".novnc_client"), function () {
+        key = $(this).attr("id");
+        value = $(this).attr("src");
+        noVNC_clients[key] = value;
+    });
 
     // menu tooltips
     (function () {
-        'use strict'
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        "use strict";
+        var tooltipTriggerList = [].slice.call(
+            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
         tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-            new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    })()
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    })();
 
-    function CheckOpenedVncTab() {
-        try {
-            // try opening a window
-            var winref = window.open('', 'viewer-tab', '', true);
-            // if it succeeded: No viewer-tab opened, close it
-            if (winref.location.href === 'about:blank') {
-                winref.close();
-            }
-            return false;
-        } catch (error) {
-            // if CORS-object error
-            return true;
-        }
-    }
-
-    if (CheckOpenedVncTab()) {
-        client_iframe_url = $('#client').attr('src');
-        $("#client").attr('src', '');
-        $('.pager').addClass('hideContent').removeClass('visibleContent');
-        $('#client-resume').removeClass('hideContent')
-    }
-
-    function toggleContent(href = null) {
-
-        var default_anker = '#docs';
-        var anker = null;
-
-        if (!href) {
-            anker = $(location).attr('hash');
-        } else {
-            anker = '#' + href.split('#')[1];
-        }
-
-        // define default anker
-        if (!anker || anker == '#') {
-            anker = default_anker;
-        }
-
-        var href = $(location).attr('pathname') + anker
-        $('nav a').removeClass('active');
-        $('nav a[href="' + href + '"]').addClass('active');
-
-        // toggle content
-        $('.pager').addClass('hideContent').removeClass('visibleContent');
-
-        if ((anker == '#client') && ($("#client").attr('src') == '')) {
-            $('#client-resume').removeClass('hideContent')
-        } else {
-            $(anker).removeClass('hideContent').addClass('visibleContent');
-        }
-        $(anker).addClass('visibleContent');
-
-        $('#menu-newtab').unbind().click(function () {
-            newTab();
-        })
-
-    }
-
-    function newTab() {
-        current_location = $('.visibleContent').attr('src');
-
-        if ($("#client").hasClass("visibleContent") &&
-            $("#client").attr('src') != '') {
-            // save location
-            client_iframe_url = current_location
-            // unload iframe
-            $("#client").attr('src', '')
-            // open noVNC in new tab
-            let w = window.open(current_location, '_blank');
-            w.name = "viewer-tab";
-
-            $('.pager').addClass('hideContent').removeClass('visibleContent');
-            $('#client-resume').removeClass('hideContent')
-        } else {
-            window.open(current_location, '_blank')
-        }
-    }
-
-    // function newTab() {
-    //     var current_location = $('.visibleContent').attr('src');
-    //     var current_client = $(".novnc_client.visibleContent")
-
-    //     console.log(current_client)
-
-    //     if (current_client &&
-    //         current_client.attr('src') != '') {
-    //         console.log("opened")
-    //         // save location
-    //         client_iframe_url = current_location
-    //         // unload iframe
-    //         current_client.attr('src', '')
-    //         // open noVNC in new tab
-    //         let w = window.open(current_location, '_blank');
-    //         w.name = "viewer-tab";
-
-    //         // ###########################################################################################
-    //         // ###########################################################################################
-    //         // ########################### ADD SUPPORT FOR MULTIPLE CLIENTS ##############################
-    //         // Generate Resume view in js (per client)
-    //         // new window with unique name
-    //         // resume correct client
-    //         //
-    //         // ###########################################################################################
-    //         // ###########################################################################################
-    //         $('.pager').addClass('hideContent').removeClass('visibleContent');
-    //         $('#client-resume').removeClass('hideContent')
-    //     } else {
-    //         window.open(current_location, '_blank')
-    //     }
-    // }
-
-    $('#resume-btn').click(function () {
-        // get control over tab
-        let w = window.open("", "viewer-tab");
-        // close tab
-        w.close('viewer-tab')
-
-        if (CheckOpenedVncTab()) {
-            alert("Close tab manually")
-        } else {
-            // return to iFrame viewer
-            $("#client").attr('src', client_iframe_url)
-
-            $('.pager').addClass('hideContent').removeClass('visibleContent');
-            $('#client').removeClass('hideContent').addClass('visibleContent');
-        }
-    })
+    $("#menu-newtab").click(function () {
+        newTab();
+    });
 
     // remove preloader
-    $('#preloader').addClass('hideContent');
+    $("#preloader").addClass("hideContent");
 
     // initial marking of menu
-    toggleContent()
+    toggleContent();
 
     // menu behaviour
-    $('nav a').click(function () {
-        toggleContent(href = $(this).attr("href"));
-    })
+    $("nav a").click(function () {
+        toggleContent($(this).attr("href"));
+    });
 
     // chat toggle
-    $('#menu-chat').click(function () {
-
+    $("#menu-chat").click(function () {
         // mark menu item
-        $(this).toggleClass('active');
-        $('#chat-container').toggleClass('hideContent');
-
-    })
-
+        $(this).toggleClass("active");
+        $("#chat-container").toggleClass("hideContent");
+    });
 });
+
+
+/**
+ * This function is used to open the currently active/visible content in a new tab.
+ * Depending on whether a noVNC client or a normal page is currently active, the
+ * local content is duplicated or replaced by a temporary resume page that can also
+ * close the open tab again.
+ */
+
+function newTab() {
+    let iframe = $(".visibleContent");
+    let id = iframe.attr("id");
+
+    if (iframe.hasClass("novnc_client")) {
+        // Currently visible page is a noVNC instance
+
+        // unload iframe
+        let original_url = noVNC_clients[id];
+        iframe.attr("original_url", "");
+        iframe.addClass("opened hideContent").removeClass("visibleContent");
+
+        // open new tab
+        let newTab = window.open(original_url, "_blank");
+        newTab.name = "noVNC_" + id;
+
+        // Create DOM object from the resume-Page template
+        createResumePage(iframe, original_url);
+
+        // init button functionality of created DOM object
+        $(document).on("click", "#resume-btn", function () {
+            let resumePage = $(this).closest(".resumePage");
+            let id = resumePage.attr("id");
+            closeTab("noVNC_" + id);
+            reinitFrame(id, resumePage);
+        });
+    } else {
+        // Currently visible page is NOT a noVNC instance
+
+        let src = iframe.attr("src");
+        if (src) {
+            // open new tab
+            let newTab = window.open(src, "_blank");
+            newTab.name = id + "_tab";
+        }
+    }
+}
+
+/**
+ * This function is responsible for switching the visible content. It does
+ * this depending on the hash of the url or on the clicked icon in the nav bar.
+ * Furthermore it distinguishes if a VNC client is opened in a new tab and
+ * therefore the resume page is displayed.
+ *
+ * @param {*} href      url with target hash (default = null)
+ */
+
+function toggleContent(href = null) {
+    // anker is either given in 'href' parameter or in the url address,
+    // if not the fallback '#docs' is used
+    let anker = href
+        ? "#" + href.split("#")[1]
+        : $(location).attr("hash") || "#docs";
+
+    let baseurl = $(location).attr("pathname");
+    $("nav a").removeClass("active");
+    $('nav a[href="' + (baseurl + anker) + '"]').addClass("active");
+
+    // toggle content
+    $(".pager").addClass("hideContent").removeClass("visibleContent");
+
+    let resumePage = $(anker + ".resumePage");
+    if (resumePage.length) {
+        resumePage.removeClass("hideContent").addClass("visibleContent");
+    } else {
+        $(anker).removeClass("hideContent").addClass("visibleContent");
+    }
+}
+
+/**
+ * This function creates the resume page which allows the participant
+ * to continue the noVNC session after opening the tab here.
+ * For this purpose, the existing template in the DOM is cloned,
+ * adapted and inserted into the DOM.
+ *
+ * @param {*} iframe        associated iFrame
+ * @param {*} original_url  src of the original iFrame
+ */
+
+function createResumePage(iframe, original_url) {
+    let resumeTemplate = $("#client-resume");
+    let resumePage = resumeTemplate.clone();
+    resumePage
+        .attr("id", iframe.attr("id"))
+        .addClass("resumePage visibleContent")
+        .removeClass("hideContent");
+    resumePage.find("h2").html("Resume '" + iframe.attr("name") + "' here");
+
+    // Add original_url to the resume-button
+    resumePage.find("#resume-btn").attr("value", original_url);
+    // Append resume page to main
+    iframe.parent().append(resumePage);
+}
+
+/**
+ * Function used to close an opened tab
+ *
+ * @param {*} tabID     window name of opened tab
+ */
+
+function closeTab(tabID) {
+    let tab = window.open("", tabID);
+    tab.close(tabID);
+}
+
+/**
+ * Function to reinitialize a iFrame after the opened Tab has been closed.
+ *
+ * @param {*} id            target iFrame ID
+ * @param {*} resumePage    resume-Page to be removed
+ */
+
+function reinitFrame(id, resumePage) {
+    let iframe = $("#" + id + ".opened");
+    iframe.attr("src", noVNC_clients[id]);
+    iframe.addClass("visibleContent").removeClass("hideContent");
+    resumePage.remove();
+}
