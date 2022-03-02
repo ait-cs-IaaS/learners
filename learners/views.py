@@ -39,8 +39,7 @@ def home():
 
     try:
         verify_jwt_in_request()
-        response = redirect("/access")
-        return response
+        return redirect("/access")
     except:
         return render_template("login.html", **cfg.template)
 

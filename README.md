@@ -11,6 +11,14 @@ Webinterface for accessing CR exercises.
 python3 -m build
 ```
 
+## Run
+
+```bash
+gunicorn --bind 127.0.0.1:5000 learners:app
+# or
+flask run
+```
+
 ## Develop
 
 ```bash

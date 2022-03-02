@@ -7,7 +7,6 @@ import logging
 
 
 def main():
-
     if os.getenv("DEBUG"):
         logging.warn(" ******** Running in DEBUG Mode. ******** ")
     if os.getenv("REMOVE_DB"):
@@ -16,7 +15,6 @@ def main():
             os.remove(os.path.join(os.getcwd(), "learners", "learners_tracker.db"))
         except:
             pass
-
     app = Flask(__name__)
 
     with app.app_context():
@@ -45,3 +43,6 @@ def main():
     app.register_blueprint(views.bp)
 
     return app
+
+
+app = main()
