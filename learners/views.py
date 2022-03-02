@@ -113,12 +113,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template[
-            "exercises_url"
-        ] = f'{cfg.url_exercises}:\
-            {cfg.user_assignments[user_id].get("ports").get("exercises")}/\
-            {cfg.language}\
-            ?auth={jwt_token}'
+        cfg.template["exercises_url"] = (
+            f"{cfg.url_exercises}:" + f"{cfg.user_assignments[user_id].get('ports').get('exercises')}/" + f"{cfg.language}?auth={jwt_token}"
+        )
 
         cfg.template["docs_url"] = cfg.url_documentation
 
@@ -163,20 +160,16 @@ def access():
                     "username": str(client_details["username"]),
                     "password": str(client_details["password"]),
                 }
-                auth_url = (
-                    "https://"
-                    + client_details["server"]
-                    + "?auth="
-                    + str(
-                        create_access_token(
-                            identity=user_id,
-                            additional_claims=additional_claims,
-                        )
-                    )
-                )
+                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
             else:
-                auth_url = "https://" + client_details["username"] + ":" + client_details["password"] + "@" + client_details["server"]
+                auth_url = (
+                    f"https://{client_details['server']}?"
+                    + f"username={client_details['username']}&password={client_details['password']}&"
+                    + f"target={client_details['target']}"
+                )
 
+            print(auth_url)
             cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
 
     except:
@@ -398,15 +391,11 @@ def get_formdata(form_name):
 
 @bp.route("/documentation/", methods=["GET"])
 @bp.route("/documentation", methods=["GET"])
-@cross_origin()
-@jwt_required()
 def serve_documentation_index():
     return send_from_directory("static/documentation", "index.html")
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
-@cross_origin()
-@jwt_required()
 def serve_documentation(path):
     full_path = path if not path.endswith("/") else "{0}index.html".format(path)
     return send_from_directory("static/documentation", full_path)
