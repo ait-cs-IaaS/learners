@@ -4,6 +4,7 @@ from flask import redirect
 from flask import jsonify
 from flask import request
 from flask import Blueprint
+from flask import send_from_directory
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -109,34 +110,18 @@ def access():
     try:
 
         """
-        Since the exercises are defined specifically for each user, it is important that the
-        user can authenticate against them. The integration of the Exercises page is done via
-        an iFrame, therefore the token must be transmitted via the query string of the url and
-        is attached here.
-
-        The exercises_url is composed of the base exercise url from the app-config, the port
-        assigned to the user, the language setting and the JWT token:
-
-        'base_url:port/en?auth=jwt_token'
+        JWT In query string to pass to iframe
+        'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["exercises_url"] = (
-            cfg.url_exercises
-            + ":"
-            + str(cfg.user_assignments[user_id].get("ports").get("exercises"))
-            + "/"
-            + cfg.language
-            + "?auth="
-            + str(jwt_token)
-        )
+        cfg.template[
+            "exercises_url"
+        ] = f'{cfg.url_exercises}:\
+            {cfg.user_assignments[user_id].get("ports").get("exercises")}/\
+            {cfg.language}\
+            ?auth={jwt_token}'
 
-        """
-        The documentation URL is not as strict and only needs to be appended to the corresponding port.
-
-        'base_url:port'
-        """
-
-        cfg.template["docs_url"] = cfg.url_documentation + ":" + str(cfg.user_assignments[user_id].get("ports").get("docs"))
+        cfg.template["docs_url"] = cfg.url_documentation
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -234,7 +219,7 @@ def call_venjix(script):
         {
             "script": script,
             "user_id": user_jwt_identity,
-            "callback": cfg.url_callback + "/" + str(call_uuid),
+            "callback": f"{cfg.url_callback}/{str(call_uuid)}",
         }
     )
 
@@ -249,7 +234,7 @@ def call_venjix(script):
         url=cfg.url_venjix + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": "Bearer " + cfg.venjix_auth_secret,
+            "Authorization": f"Bearer {cfg.venjix_auth_secret}",
         },
         data=payload,
     )
@@ -378,38 +363,51 @@ def get_formdata(form_name):
         by the "Method" parameter in the header, send the results by mail to the exercise administrator.
         """
 
-        if prio_submission is None:
+        if prio_submission is not None:
+            return jsonify(completed=False, msg="Form was already submitted.")
 
-            form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
+        form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
 
-            # Create database entry
-            new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
-            db.session.add(new_form)
-            db.session.commit()
+        # Create database entry
+        new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
+        db.session.add(new_form)
+        db.session.commit()
 
-            # if specified, send form data via email
-            if request.headers.get("Method") == "mail":
-                subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
+        # if specified, send form data via email
+        if request.headers.get("Method") == "mail":
+            subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
 
-                mailbody = "<h1>Results</h1>"
-                mailbody += "<h2>Information:</h2>"
-                mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
-                mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
-                mailbody += "<h2>Data:</h2>"
+            mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
+            mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
+            mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
+            mailbody += "<h2>Data:</h2>"
 
-                data = ""
-                for (key, value) in request.form.to_dict().items():
-                    if not value:
-                        value = "<i>-- emtpy --</i>"
-                    data += "<strong>{}</strong>: {}</br>".format(key, value)
+            data = ""
+            for (key, value) in request.form.to_dict().items():
+                if not value:
+                    value = "<i>-- emtpy --</i>"
+                data += "<strong>{}</strong>: {}</br>".format(key, value)
 
-                mailbody += "<p>{}</p></br>".format(data)
+            mailbody += "<p>{}</p></br>".format(data)
 
-                msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
-                msg.html = mailbody
-                mail.send(msg)
+            msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
+            msg.html = mailbody
+            mail.send(msg)
 
-            return jsonify(executed=True)
-        else:
-            msg = "Form was already submitted."
-            return jsonify(completed=False, msg=msg)
+        return jsonify(executed=True)
+
+
+@bp.route("/documentation/", methods=["GET"])
+@bp.route("/documentation", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def serve_documentation_index():
+    return send_from_directory("static/documentation", "index.html")
+
+
+@bp.route("/documentation/<path:path>", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def serve_documentation(path):
+    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
+    return send_from_directory("static/documentation", full_path)

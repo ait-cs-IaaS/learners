@@ -1,3 +1,4 @@
+---
 learners:
   htpasswd: "temp_htpasswd"
   # theme: "light"
@@ -22,7 +23,7 @@ components:
   urls:
     venjix: "http://127.0.0.1:5001"
     callback: "http://127.0.0.1:5000/callback"
-    documentation: "http://localhost"
+    documentation: "http://localhost:5000/documentation"
     exercises: "http://localhost"
     novnc: "10.17.4.219"
   user_assignments:
