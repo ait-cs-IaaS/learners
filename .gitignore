@@ -4,7 +4,8 @@
 learners/learners_tracker.db
 develop_config.yml
 temp_htpasswd
-learners/static/gen/
+learners/static/gen
+learners/static/documentation
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -128,8 +129,6 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
-learners/static/gen
-learners/static/documentation
 
 # Coverage reports
 htmlcov/
