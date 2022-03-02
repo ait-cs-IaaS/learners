@@ -4,6 +4,7 @@
 learners/learners_tracker.db
 develop_config.yml
 temp_htpasswd
+learners/static/gen/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
