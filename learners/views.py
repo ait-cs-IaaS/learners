@@ -38,8 +38,8 @@ def home():
 
     try:
         verify_jwt_in_request()
-        success_msg = "Logged in as %s" % get_jwt_identity()
-        return render_template("login.html", **cfg.template, success=success_msg)
+        response = redirect("/access")
+        return response
     except:
         return render_template("login.html", **cfg.template)
 
