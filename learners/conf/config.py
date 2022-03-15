@@ -95,8 +95,8 @@ class Configuration:
             "branding": self.branding,
             "theme": self.theme,
             "vnc_clients": None,
-            "docs_url": None,
-            "exercises_url": None,
+            "url_documentation": None,
+            "url_exercises": None,
         }
 
         # Set user mappings

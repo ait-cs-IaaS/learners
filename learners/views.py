@@ -20,6 +20,7 @@ import requests
 import uuid
 import time
 from datetime import datetime
+import logging
 
 from learners.helpers import utc_to_local, get_history_from_DB
 from learners.database import User, Post, Form
@@ -42,6 +43,7 @@ def home():
         User.query.filter_by(username=get_jwt_identity()).first().id
         return redirect("/access")
     except:
+        logging.info("No valid token present.")
         return render_template("login.html", **cfg.template)
 
 
@@ -98,8 +100,8 @@ def access():
         branding (boolean)      -> wheiter or not to display branding on the login page
         theme (string)          -> 'dark' or 'light'
         vnc_clients (dict)      -> dict of vnc clients
-        docs_url (string)       -> url of documentation page
-        exercises_url (string)  -> url of exercise control page
+        url_documentation (string)       -> url of documentation page
+        url_exercises (string)  -> url of exercise control page
     """
 
     # Get JWT Token and append it to the exercises URL via query string
@@ -114,9 +116,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["exercises_url"] = f"{cfg.url_exercises}/" + f"{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_exercises"] = f"{cfg.url_exercises}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
-        cfg.template["docs_url"] = cfg.url_documentation + f"{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_documentation"] = f"{cfg.url_documentation}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
