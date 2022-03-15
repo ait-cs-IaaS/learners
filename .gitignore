@@ -6,6 +6,7 @@ develop_config.yml
 temp_htpasswd
 learners/static/gen
 learners/static/documentation
+learners/static/exercises
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
