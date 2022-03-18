@@ -1,7 +1,12 @@
 import time
 from datetime import datetime
 
-from learners.database import User, Post, Form
+import os
+import pathlib
+import json
+from bs4 import BeautifulSoup
+
+from learners.database import User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
 from learners.database import db
 
@@ -16,11 +21,11 @@ def utc_to_local(utc_datetime, date=True):
 
 def get_history_from_DB(script_name, username):
     db_entries = (
-        db.session.query(Post)
+        db.session.query(ScriptExercise)
         .filter_by(script_name=script_name)
         .join(User)
         .filter_by(username=username)
-        .order_by(Post.response_time.desc())
+        .order_by(ScriptExercise.response_time.desc())
         .limit(10)
         .all()
     )
@@ -38,3 +43,30 @@ def get_history_from_DB(script_name, username):
     completed = db_entries[0].completed if db_entries else False
 
     return executed, completed, history
+
+
+def get_exercises():
+    exercises = [{'id': 'all', 'type': 'all', 'exerciseWeight': 0, 'parentWeight': '0', 'name': 'all'}]
+    root_directory = "./learners/static/exercises/en/"
+    for path, subdirs, files in os.walk(root_directory):
+        for file in files:
+            if file.endswith('.html'):
+                f = open(pathlib.PurePath(path, file), "r")
+                html = f.read()
+                parsed_html = BeautifulSoup(html, features="html.parser")
+                exerciseInfos = parsed_html.body.find_all('input', attrs={'class':'exercise-info'})
+                for exerciseInfo in exerciseInfos:
+                    exercises.append(json.loads(exerciseInfo.get('value')))
+    
+    for exercise in exercises:
+        exerciseWeight = int(exercise['exerciseWeight'])
+        parentWeight = int(exercise['parentWeight'])
+        if parentWeight == 0:
+            exercise['exerciseWeight'] = exerciseWeight * 10
+        else:
+            exercise['exerciseWeight'] = parentWeight * 10 + exerciseWeight
+        
+        exercise['name'] = exercise['id'].replace("_", " ")
+
+    exercises = sorted(exercises, key=lambda d: d['exerciseWeight'])
+    return exercises
