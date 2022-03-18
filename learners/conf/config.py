@@ -95,8 +95,8 @@ class Configuration:
             "branding": self.branding,
             "theme": self.theme,
             "vnc_clients": None,
-            "docs_url": None,
-            "exercises_url": None,
+            "url_documentation": None,
+            "url_exercises": None,
         }
 
         # Set user mappings
@@ -105,8 +105,8 @@ class Configuration:
         # set CORS configuration
         self.cors_origins = []
         for user in self.user_assignments:
-            self.cors_origins.append(self.url_documentation + ":" + str(self.user_assignments.get(user).get("ports").get("docs")))
-            self.cors_origins.append(self.url_exercises + ":" + str(self.user_assignments.get(user).get("ports").get("exercises")))
+            self.cors_origins.append(f'{self.url_documentation}:{self.user_assignments.get(user).get("ports").get("docs")}')
+            self.cors_origins.append(f'{self.url_exercises}:{self.user_assignments.get(user).get("ports").get("exercises")}')
 
 
 def build_config(app):

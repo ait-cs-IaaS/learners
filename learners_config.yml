@@ -1,3 +1,4 @@
+---
 learners:
   htpasswd: "temp_htpasswd"
   # theme: "light"
@@ -22,19 +23,19 @@ components:
   urls:
     venjix: "http://127.0.0.1:5001"
     callback: "http://127.0.0.1:5000/callback"
-    documentation: "http://localhost"
-    exercises: "http://localhost"
+    documentation: "http://127.0.0.1:5000/documentation"
+    exercises: "http://127.0.0.1:5000/exercises"
     novnc: "10.17.4.219"
   user_assignments:
     test:
       vnc_clients:
         soc_client:
-          target: 1
+          target: placeholder_1
           tooltip: "SOC client"
           username: csirt1
           password: placeholder
         pps_client:
-          target: 3
+          target: placeholder_3
           tooltip: "PPS client"
           username: csirt3
           password: placeholder
@@ -44,7 +45,7 @@ components:
     ben:
       vnc_clients:
         soc_client:
-          target: 1
+          target: placeholder_2
           tooltip: "SOC client"
           username: csirt2
           password: placeholder

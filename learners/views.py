@@ -4,6 +4,7 @@ from flask import redirect
 from flask import jsonify
 from flask import request
 from flask import Blueprint
+from flask import send_from_directory
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -19,6 +20,7 @@ import requests
 import uuid
 import time
 from datetime import datetime
+import logging
 
 from learners.helpers import utc_to_local, get_history_from_DB
 from learners.database import User, Post, Form
@@ -38,9 +40,10 @@ def home():
 
     try:
         verify_jwt_in_request()
-        response = redirect("/access")
-        return response
+        User.query.filter_by(username=get_jwt_identity()).first().id
+        return redirect("/access")
     except:
+        logging.info("No valid token present.")
         return render_template("login.html", **cfg.template)
 
 
@@ -97,8 +100,8 @@ def access():
         branding (boolean)      -> wheiter or not to display branding on the login page
         theme (string)          -> 'dark' or 'light'
         vnc_clients (dict)      -> dict of vnc clients
-        docs_url (string)       -> url of documentation page
-        exercises_url (string)  -> url of exercise control page
+        url_documentation (string)       -> url of documentation page
+        url_exercises (string)  -> url of exercise control page
     """
 
     # Get JWT Token and append it to the exercises URL via query string
@@ -109,34 +112,13 @@ def access():
     try:
 
         """
-        Since the exercises are defined specifically for each user, it is important that the
-        user can authenticate against them. The integration of the Exercises page is done via
-        an iFrame, therefore the token must be transmitted via the query string of the url and
-        is attached here.
-
-        The exercises_url is composed of the base exercise url from the app-config, the port
-        assigned to the user, the language setting and the JWT token:
-
-        'base_url:port/en?auth=jwt_token'
+        JWT In query string to pass to iframe
+        'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["exercises_url"] = (
-            cfg.url_exercises
-            + ":"
-            + str(cfg.user_assignments[user_id].get("ports").get("exercises"))
-            + "/"
-            + cfg.language
-            + "?auth="
-            + str(jwt_token)
-        )
+        cfg.template["url_exercises"] = f"{cfg.url_exercises}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
-        """
-        The documentation URL is not as strict and only needs to be appended to the corresponding port.
-
-        'base_url:port'
-        """
-
-        cfg.template["docs_url"] = cfg.url_documentation + ":" + str(cfg.user_assignments[user_id].get("ports").get("docs"))
+        cfg.template["url_documentation"] = f"{cfg.url_documentation}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -179,20 +161,16 @@ def access():
                     "username": str(client_details["username"]),
                     "password": str(client_details["password"]),
                 }
-                auth_url = (
-                    "https://"
-                    + client_details["server"]
-                    + "?auth="
-                    + str(
-                        create_access_token(
-                            identity=user_id,
-                            additional_claims=additional_claims,
-                        )
-                    )
-                )
+                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
             else:
-                auth_url = "https://" + client_details["username"] + ":" + client_details["password"] + "@" + client_details["server"]
+                auth_url = (
+                    f"https://{client_details['server']}?"
+                    + f"username={client_details['username']}&password={client_details['password']}&"
+                    + f"target={client_details['target']}"
+                )
 
+            print(auth_url)
             cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
 
     except:
@@ -234,7 +212,7 @@ def call_venjix(script):
         {
             "script": script,
             "user_id": user_jwt_identity,
-            "callback": cfg.url_callback + "/" + str(call_uuid),
+            "callback": f"{cfg.url_callback}/{str(call_uuid)}",
         }
     )
 
@@ -249,7 +227,7 @@ def call_venjix(script):
         url=cfg.url_venjix + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": "Bearer " + cfg.venjix_auth_secret,
+            "Authorization": f"Bearer {cfg.venjix_auth_secret}",
         },
         data=payload,
     )
@@ -356,29 +334,32 @@ def get_formdata(form_name):
     # Get user identification
     verify_jwt_in_request(locations="headers")
     user_jwt_identity = get_jwt_identity()
-    user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
-    # Check whether the form was already submitted
-    prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
+    try:
+        user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
-    if request.method == "GET":
-        """
-        This function checks if the requested form has already been received. Returns 'completed'
-        if an entry is found.
-        """
+        # Check whether the form was already submitted
+        prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
 
-        if prio_submission is not None:
-            return jsonify(executed=True, completed=True)
-        else:
-            return jsonify(never_executed=True)
+        if request.method == "GET":
+            """
+            This function checks if the requested form has already been received. Returns 'completed'
+            if an entry is found.
+            """
 
-    if request.method == "POST":
-        """
-        This function takes form data and stores it in the database and can additionally, if specified
-        by the "Method" parameter in the header, send the results by mail to the exercise administrator.
-        """
+            if prio_submission is not None:
+                return jsonify(executed=True, completed=True)
+            else:
+                return jsonify(never_executed=True)
 
-        if prio_submission is None:
+        if request.method == "POST":
+            """
+            This function takes form data and stores it in the database and can additionally, if specified
+            by the "Method" parameter in the header, send the results by mail to the exercise administrator.
+            """
+
+            if prio_submission is not None:
+                return jsonify(completed=False, msg="Form was already submitted.")
 
             form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
 
@@ -391,8 +372,7 @@ def get_formdata(form_name):
             if request.headers.get("Method") == "mail":
                 subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
 
-                mailbody = "<h1>Results</h1>"
-                mailbody += "<h2>Information:</h2>"
+                mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
                 mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
                 mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
                 mailbody += "<h2>Data:</h2>"
@@ -410,6 +390,34 @@ def get_formdata(form_name):
                 mail.send(msg)
 
             return jsonify(executed=True)
-        else:
-            msg = "Form was already submitted."
-            return jsonify(completed=False, msg=msg)
+
+    except:
+        return jsonify(executed=False, completed=False, msg="Failed to find user in database. Please login again.")
+
+
+@bp.route("/documentation/", methods=["GET"])
+@bp.route("/documentation", methods=["GET"])
+@jwt_required()
+def serve_documentation_index():
+    return send_from_directory("static/documentation", "index.html")
+
+
+@bp.route("/documentation/<path:path>", methods=["GET"])
+@jwt_required()
+def serve_documentation(path):
+    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
+    return send_from_directory("static/documentation", full_path)
+
+
+@bp.route("/exercises/", methods=["GET"])
+@bp.route("/exercises", methods=["GET"])
+@jwt_required()
+def serve_exercises_index():
+    return send_from_directory("static/exercises", "index.html")
+
+
+@bp.route("/exercises/<path:path>", methods=["GET"])
+@jwt_required()
+def serve_exercises(path):
+    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
+    return send_from_directory("static/exercises", full_path)
