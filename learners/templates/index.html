@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% block title %} CyberRange {% endblock %} {% block
-content %}
+{% extends 'base.html' %} 
+{% block title %} 
+CyberRange 
+{% endblock %} 
+{% block content %}
+
 <iframe
   id="exercises"
   class="content-container pager"
@@ -8,6 +12,7 @@ content %}
   src="{{ url_exercises }}"
   frameborder="0"
 ></iframe>
+
 <iframe
   id="docs"
   class="content-container pager"
@@ -28,6 +33,7 @@ content %}
   </div>
 </div>
 
+{% if vnc_clients %} 
 {% for vnc_client, client_info in vnc_clients.items() %}
 <iframe
   id="{{ vnc_client }}"
@@ -37,7 +43,8 @@ content %}
   src="{{ client_info.url }}"
   name="{{ client_info.tooltip }}"
 ></iframe>
-{% endfor %}
+{% endfor %} 
+{% endif %}
 
 <div id="preloader" class="content-container pager">
   <div class="lds-ring">
