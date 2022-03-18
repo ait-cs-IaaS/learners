@@ -91,6 +91,7 @@ class Configuration:
         # define the render template
         self.template = {
             "authenticated": False,
+            "chat": False,
             "user_id": None,
             "branding": self.branding,
             "theme": self.theme,
