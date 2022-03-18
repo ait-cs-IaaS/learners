@@ -39,6 +39,23 @@ $(function () {
         $(this).toggleClass("active");
         $("#chat-container").toggleClass("hideContent");
     });
+
+
+    $('table tr').hover(function() {             
+        $(this).addClass('current-tr');
+    }, function() {
+        $(this).removeClass('current-tr');
+    });
+   
+    $("table td").hover(function() {
+        var index = $(this).index();
+        $(this).addClass('current-cell');
+        $("table th, table td").filter(":nth-child(" + (index+1) + ")").addClass("current-td");
+    }, function() {
+        var index = $(this).index();
+        $(this).removeClass('current-cell');
+        $("table th, table td").removeClass("current-td");
+    });
 });
 
 
@@ -167,3 +184,5 @@ function reinitFrame(id, resumePage) {
     iframe.addClass("visibleContent").removeClass("hideContent");
     resumePage.remove();
 }
+
+
