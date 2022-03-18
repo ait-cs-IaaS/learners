@@ -1,0 +1,158 @@
+#admin_area {
+  background-color: #ffffff;
+
+  & .content {
+    padding: 4rem 2rem;
+    max-width: 1400px;
+    margin: auto;
+    position: relative;
+  }
+
+  & h1 {
+    font-size: 3.2em !important;
+    font-weight: 700;
+    font-family: "Rubik", sans-serif;
+    color: $main-text-color;
+    text-align: left;
+    text-transform: none;
+    margin: 0.85rem 0 1.7rem 0;
+    text-rendering: optimizeLegibility;
+    line-height: 1.6;
+  }
+
+  & table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  & th,
+  td {
+    text-align: left;
+    padding: 8px;
+  }
+  & th, td, tr {
+    transition: all 100ms;
+  }
+
+  & th {
+    font-size: 0.8em;
+    max-width: 100px;
+    background-color: $main-text-color;
+    vertical-align: bottom;
+  }
+
+  & tr:nth-child(odd) {
+    background-color: #f6f6f6;
+  }
+
+  & tr.current-tr, td.current-td {
+    background-color: #ececec;
+  }   
+  & th.current-td {
+      color: $main-text-color;
+      background-color: $main-bg-color;
+  }
+  & td.current-cell {
+      background-color:  #e0e0e0;
+  }
+  & a {
+      text-align: center;
+      font-weight: 700;
+  }
+}
+
+
+.loading .stat_check,
+.loading .stat_cross {
+    display: none;
+}
+
+.loading .stat_icon {
+    animation: none;
+}
+
+.stat_indicator {
+    width: auto;
+    float: left;
+    margin: 2px 8px 0 0;
+}
+
+.stat_icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 4;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    position: relative;
+    margin: auto;
+    top: 15%;
+}
+
+.stat_circle {
+    stroke: none;
+    border: 0;
+}
+
+.success .stat_icon {
+    box-shadow: inset 0px 0px 0px $green-mid;
+    animation:
+        fill_green 0.8s ease-in-out .4s forwards,
+        scale .3s ease-in-out .9s both;
+}
+
+.failed .stat_icon {
+    box-shadow: inset 0px 0px 0px $red-light;
+    animation:
+        fill_red 0.8s ease-in-out .4s forwards,
+        scale .3s ease-in-out .9s both;
+}
+
+.stat_check,
+.stat_cross {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation:
+        stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+.failed .stat_check {
+    display: none;
+}
+
+.success .stat_cross {
+    display: none;
+}
+
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes scale {
+
+    0%,
+    100% {
+        transform: none;
+    }
+
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+
+@keyframes fill_green {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px $green-mid;
+    }
+}
+
+@keyframes fill_red {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px $red-light;
+    }
+}
