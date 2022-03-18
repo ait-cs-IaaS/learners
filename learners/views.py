@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
+from flask_jwt_extended import get_jwt
 
 from flask_mail import Message
 
@@ -22,13 +23,15 @@ import time
 from datetime import datetime
 import logging
 
-from learners.helpers import utc_to_local, get_history_from_DB
-from learners.database import User, Post, Form
+from learners.helpers import utc_to_local, get_history_from_DB, get_exercises
+from learners.database import User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
+from learners.jwt_manager import admin_required
 
 bp = Blueprint("views", __name__)
+exercises = get_exercises()
 
 
 @bp.route("/")
@@ -41,7 +44,12 @@ def home():
     try:
         verify_jwt_in_request()
         User.query.filter_by(username=get_jwt_identity()).first().id
-        return redirect("/access")
+
+        claims = get_jwt()
+        if claims["admin"]:
+            return redirect("/admin")
+        else:
+            return redirect("/access")
     except:
         logging.info("No valid token present.")
         return render_template("login.html", **cfg.template)
@@ -79,8 +87,13 @@ def login():
         db.session.add(authorized_user)
         db.session.commit()
 
-    response = redirect("/access")
-    access_token = create_access_token(identity=username)
+    access_token = create_access_token(identity=username, additional_claims={"admin": (username == "admin")})
+
+    if username == "admin":
+        response = redirect("/admin")
+    else:
+        response = redirect("/access")
+
     set_access_cookies(response, access_token)
     cfg.template["authenticated"] = True
 
@@ -150,28 +163,28 @@ def access():
               password (string) -> Password of client
 
         """
-
-        cfg.template["vnc_clients"] = cfg.user_assignments[user_id]["vnc_clients"]
-        for vnc_client, client_details in cfg.user_assignments[user_id]["vnc_clients"].items():
-            if client_details["server"] == "default":
-                client_details["server"] = cfg.url_novnc
-            if cfg.jwt_for_vnc_access:
-                additional_claims = {
-                    "target": str(client_details["target"]),
-                    "username": str(client_details["username"]),
-                    "password": str(client_details["password"]),
-                }
-                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
-            else:
-                auth_url = (
-                    f"https://{client_details['server']}?"
-                    + f"username={client_details['username']}&password={client_details['password']}&"
-                    + f"target={client_details['target']}"
-                )
-
-            print(auth_url)
+        if user_id in cfg.user_assignments:
+            cfg.template["vnc_clients"] = cfg.user_assignments[user_id]["vnc_clients"]
+            for vnc_client, client_details in cfg.user_assignments[user_id]["vnc_clients"].items():
+                if client_details["server"] == "default":
+                    client_details["server"] = cfg.url_novnc
+                if cfg.jwt_for_vnc_access:
+                    additional_claims = {
+                        "target": str(client_details["target"]),
+                        "username": str(client_details["username"]),
+                        "password": str(client_details["password"]),
+                    }
+                    vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                    auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
+                else:
+                    auth_url = (
+                        f"https://{client_details['server']}?"
+                        + f"username={client_details['username']}&password={client_details['password']}&"
+                        + f"target={client_details['target']}"
+                    )
             cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
+        else:
+            cfg.template["vnc_clients"] = None
 
     except:
         error_msg = "No exercises for this user."
@@ -218,7 +231,7 @@ def call_venjix(script):
 
     user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
-    new_entry = Post(script_name=script, call_uuid=call_uuid, user_id=user_id)
+    new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
     db.session.add(new_entry)
     db.session.commit()
 
@@ -254,7 +267,7 @@ def callback(call_uuid):
 
     feedback = request.get_json()
 
-    db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
+    db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
     db_entry.response_time = datetime.utcnow()
     db_entry.response_content = json.dumps(feedback)
     db_entry.completed = int(feedback.get("returncode") == 0)
@@ -309,7 +322,7 @@ def monitor(call_uuid):
     while True:
         time.sleep(0.5)
 
-        db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
+        db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
 
         if db_entry is None:
             return jsonify(completed=False)
@@ -339,7 +352,7 @@ def get_formdata(form_name):
         user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
         # Check whether the form was already submitted
-        prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
+        prio_submission = db.session.query(FormExercise).filter_by(user_id=user_id).filter_by(name=form_name).first()
 
         if request.method == "GET":
             """
@@ -364,7 +377,7 @@ def get_formdata(form_name):
             form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
 
             # Create database entry
-            new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
+            new_form = FormExercise(user_id=user_id, name=form_name, data=form_data, timestamp=datetime.utcnow())
             db.session.add(new_form)
             db.session.commit()
 
@@ -421,3 +434,98 @@ def serve_exercises_index():
 def serve_exercises(path):
     full_path = path if not path.endswith("/") else "{0}index.html".format(path)
     return send_from_directory("static/exercises", full_path)
+
+
+@bp.route("/admin")
+@admin_required()
+def admin_area():
+
+    executions = []
+
+    user_list = [{"id": 0, "username": "all"}]
+    users = User.query.all()
+    for user in users:
+        user_list.append({"id": user.id, "username": user.username})
+
+        executedScriptExercises = []
+        for executedScriptExercise in user.scriptExercises:
+            executedScriptExercises.append(executedScriptExercise.script_name)
+
+        executedFormExercises = []
+        for executedFormExercise in user.formExercises:
+            executedFormExercises.append(executedFormExercise.name)
+
+        execution = {"user_id": user.id, "username": user.username}
+        for exercise in exercises[1:]:
+            execution[exercise["id"]] = 0
+            if exercise["type"] == "form":
+                if exercise["id"] in executedFormExercises:
+                    execution[exercise["id"]] = 1
+            if exercise["type"] == "script":
+                if exercise["script"] in executedScriptExercises:
+                    execution[exercise["id"]] = 1
+
+        executions.append(execution)
+
+    #     print("\n--------------------------------------")
+    #     print("USER")
+    #     print("  {}, id: {}".format(user.username, user.id))
+
+    #     print("SCRIPT EXERCISES:")
+
+    #     for scriptExercise in user.scriptExercises:
+    #         print("  - {}".format(scriptExercise.script_name))
+
+    #     print("\nFORM EXERCISES:")
+    #     for formExercise in user.formExercises:
+    #         print("  - {}".format(formExercise.name))
+
+    # print("\n--------------------------------------\n")
+
+    # print("--------------------------------------")
+    # print("--------------------------------------")
+    # print("Exercises")
+    # for exercise in exercises[1:]:
+    #     print("  - " + exercise['id'])
+    # print("Executions")
+    # for execution in executions:
+    #     print(execution)
+    # print("--------------------------------------")
+    # print("--------------------------------------")
+    # print(executions)
+
+    columns = [{"name": "id", "id": "user_id"}, {"name": "user", "id": "username"}]
+    for exercise in exercises[1:]:
+        columns.append({"name": exercise["name"], "id": exercise["id"]})
+
+    table = {"columns": columns, "data": executions}
+
+    return render_template("admin.html", name="name", data="", exercises=exercises, users=user_list, table=table)
+
+
+@bp.route("/results/<user_id>/<exercise_id>")
+@admin_required()
+def get_exercise_results(user_id, exercise_id):
+
+    exercise = next(exercise for exercise in exercises if exercise["id"] == exercise_id)
+    print(exercise)
+
+    if exercise["type"] == "form":
+        try:
+            result = FormExercise.query.filter_by(user_id=user_id).filter_by(name=exercise["id"]).first().data
+            return jsonify(user_id=user_id, exercise_id=exercise_id, data=json.loads(result))
+        except:
+            return jsonify(user_id=user_id, exercise_id=exercise_id, data="no data")
+    elif exercise["type"] == "script":
+        try:
+            username = User.query.filter_by(id=user_id).first().username
+            executed, completed, history = get_history_from_DB(exercise["script"], username)
+            data = {"executed": executed, "completed": completed, "history": history}
+            return jsonify(user_id=user_id, exercise_id=exercise_id, data=data)
+        except:
+            return jsonify(user_id=user_id, exercise_id=exercise_id, data="no data")
+
+    else:
+        return jsonify(error="Exercise type unknown.")
+
+    return jsonify(user_id, exercise_id)
