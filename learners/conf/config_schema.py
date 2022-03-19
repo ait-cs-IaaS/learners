@@ -6,7 +6,6 @@ config_schema = Map(
             {
                 Optional("theme", default="dark"): Str(),
                 Optional("branding", default=False): Bool(),
-                "htpasswd": Str(),
                 Optional("language", default="en"): Str(),
             }
         ),
@@ -33,6 +32,27 @@ config_schema = Map(
                 Optional("ssl", default=False): Bool(),
             }
         ),
+        "users": MapPattern(
+            Str(),
+            Map(
+                {
+                    "password": Str(),
+                    "vnc_clients": MapPattern(
+                        Str(),
+                        Map(
+                            {
+                                "target": Str(),
+                                Optional("tooltip", default="Access client"): Str(),
+                                Optional("server", default="default"): Str(),
+                                Optional("username"): Str(),
+                                Optional("password"): Str(),
+                            }
+                        ),
+                        minimum_keys=1,
+                    ),
+                }
+            ),
+        ),
         "components": Map(
             {
                 "venjix_auth_secret": Str(),
@@ -44,32 +64,6 @@ config_schema = Map(
                         "exercises": Str(),
                         "novnc": Str(),
                     }
-                ),
-                "user_assignments": MapPattern(
-                    Str(),
-                    Map(
-                        {
-                            "vnc_clients": MapPattern(
-                                Str(),
-                                Map(
-                                    {
-                                        "target": Str(),
-                                        Optional("tooltip", default="Access client"): Str(),
-                                        Optional("server", default="default"): Str(),
-                                        Optional("username"): Str(),
-                                        Optional("password"): Str(),
-                                    }
-                                ),
-                                minimum_keys=1,
-                            ),
-                            "ports": Map(
-                                {
-                                    "docs": Int(),
-                                    "exercises": Int(),
-                                }
-                            ),
-                        }
-                    ),
                 ),
             }
         ),

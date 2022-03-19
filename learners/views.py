@@ -52,10 +52,13 @@ def login():
     """
     GET: The plain login form is displayed to the user.
 
-    POST: Username and password are validated if they are present in the htpasswd file
+    POST: Username and password are validated if they are present in the configuration file
     and therefore authorized. If successful, a JWT token is created and the user is
     redirected to the /access route.
     """
+
+    def check_password(usermap, user, password):
+        return user in usermap and usermap[user]["password"] == password
 
     if request.method == "GET":
         return render_template("login.html", **cfg.template)
@@ -63,7 +66,7 @@ def login():
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
-    if not cfg.htpasswd.check_password(username, password):
+    if not check_password(cfg.usermap, username, password):
         error_msg = "Invalid username or password"
         cfg.template["authenticated"] = False
         return render_template("login.html", **cfg.template, error=error_msg)

@@ -1,7 +1,6 @@
 ---
 learners:
-  htpasswd: "temp_htpasswd"
-  # theme: "light"
+  theme: "dark"
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -28,6 +27,7 @@ components:
     novnc: "10.17.4.219"
   user_assignments:
     test:
+      password: test
       vnc_clients:
         soc_client:
           target: placeholder_1
@@ -39,16 +39,11 @@ components:
           tooltip: "PPS client"
           username: csirt3
           password: placeholder
-      ports:
-        docs: 8080
-        exercises: 8888
     ben:
+      password: ben
       vnc_clients:
         soc_client:
           target: placeholder_2
           tooltip: "SOC client"
           username: csirt2
           password: placeholder
-      ports:
-        docs: 8080
-        exercises: 8888

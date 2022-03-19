@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-from passlib.apache import HtpasswdFile
 
 from flask_assets import Environment
 from learners.assets import get_bundle
@@ -50,7 +49,6 @@ class Configuration:
         self.theme = learners_config.get("learners").get("theme")
         self.branding = learners_config.get("learners").get("branding")
         self.language = learners_config.get("learners").get("language")
-        self.htpasswd = HtpasswdFile(learners_config.get("learners").get("htpasswd"))
 
         # Set jwt related configuration
         self.jwt_secret_key = learners_config.get("jwt", {}).get("jwt_secret_key", "53CR3T")
@@ -79,6 +77,8 @@ class Configuration:
             self.mail_ssl = os.getenv("MAIL_SSL") or False
         else:
             self.mail = False
+
+        self.users = learners_config.get("users")
 
         # Set components configuration
         self.url_novnc = learners_config.get("components").get("urls").get("novnc")
