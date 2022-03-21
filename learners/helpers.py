@@ -46,27 +46,27 @@ def get_history_from_DB(script_name, username):
 
 
 def get_exercises():
-    exercises = [{'id': 'all', 'type': 'all', 'exerciseWeight': 0, 'parentWeight': '0', 'name': 'all'}]
+    exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all"}]
     root_directory = "./learners/static/exercises/en/"
     for path, subdirs, files in os.walk(root_directory):
         for file in files:
-            if file.endswith('.html'):
+            if file.endswith(".html"):
                 f = open(pathlib.PurePath(path, file), "r")
                 html = f.read()
                 parsed_html = BeautifulSoup(html, features="html.parser")
-                exerciseInfos = parsed_html.body.find_all('input', attrs={'class':'exercise-info'})
+                exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
                 for exerciseInfo in exerciseInfos:
-                    exercises.append(json.loads(exerciseInfo.get('value')))
-    
-    for exercise in exercises:
-        exerciseWeight = int(exercise['exerciseWeight'])
-        parentWeight = int(exercise['parentWeight'])
-        if parentWeight == 0:
-            exercise['exerciseWeight'] = exerciseWeight * 10
-        else:
-            exercise['exerciseWeight'] = parentWeight * 10 + exerciseWeight
-        
-        exercise['name'] = exercise['id'].replace("_", " ")
+                    exercises.append(json.loads(exerciseInfo.get("value")))
 
-    exercises = sorted(exercises, key=lambda d: d['exerciseWeight'])
+    for exercise in exercises:
+        exerciseWeight = int(exercise["exerciseWeight"])
+        parentWeight = int(exercise["parentWeight"])
+        if parentWeight == 0:
+            exercise["exerciseWeight"] = exerciseWeight * 10
+        else:
+            exercise["exerciseWeight"] = parentWeight * 10 + exerciseWeight
+
+        exercise["name"] = exercise["id"].replace("_", " ")
+
+    exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
     return exercises

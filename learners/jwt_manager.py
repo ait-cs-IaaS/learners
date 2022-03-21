@@ -27,6 +27,7 @@ def token_missing(callback):
     error_msg = "Authorization is missing."
     return render_template("login.html", **cfg.template, error=error_msg)
 
+
 def admin_required():
     def wrapper(fn):
         @wraps(fn)
