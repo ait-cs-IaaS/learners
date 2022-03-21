@@ -1,26 +1,15 @@
-{% extends 'base.html' %} 
-{% block title %} 
-CyberRange 
-{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}
+CyberRange
+{% endblock %}
 {% block content %}
 
 <div id="admin_area" class="content-container">
   <div class="content">
   <h1>Admin Area</h1>
 
-    <select class="" name="exercises-select">
-      {% for exercise in exercises %}
-          <option value="{{ exercise.id }}">{{ exercise.name }}</option>
-      {% endfor %}
-    </select>
-
-    <select class="" name="users-select">
-      {% for user in users %}
-          <option value="{{ user.id }}">{{ user.username }}</option>
-      {% endfor %}
-    </select>
-
-    <table>
+  <h3>Results</h3>
+    <table id="results_exercises">
       <tr>
         {% for column in table.columns %}
           <th>
@@ -29,22 +18,22 @@ CyberRange
           </th>
         {% endfor %}
       </tr>
-  
+
       {% for entry in table.data %}
         <tr>
           {% for key, value in entry.items() %}
-            <td> 
-              {% if key != "user_id" and key != "username"  %} 
+            <td>
+              {% if key != "user_id" and key != "username"  %}
                 {% if value == 1 %}
-                
+
                   <div class="stat_indicator success">
                     <svg class="bi stat_icon" width="24" height="24" role="img">
                       <use xlink:href="#success"></use>
                     </svg>
                   </div>
-                
+
                 {% else %}
-                
+
                 <div class="stat_indicator failed">
                   <svg class="bi stat_icon" width="24" height="24" role="img">
                     <use xlink:href="#fail"></use>
@@ -52,7 +41,7 @@ CyberRange
                 </div>
                 {% endif %}
               <a href='/results/{{ entry["user_id"] }}/{{ key }}'>
-                ?
+                details
               </a>
               {% else %}
                 {{ value }}
@@ -62,6 +51,28 @@ CyberRange
         </tr>
       {% endfor %}
     </table>
+
+
+  <div class="filter-container">
+
+    <h4>Filter results:</h4>
+
+    <label for="exercises-select">Exercise:</label>
+    <select id="exercises-select" name="exercises-select">
+      {% for exercise in exercises %}
+          <option value="{{ exercise.id }}">{{ exercise.name }}</option>
+      {% endfor %}
+    </select>
+    <br/>
+
+    <label for="users-select">User:</label>
+    <select id="users-select" name="users-select">
+      {% for user in users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+      {% endfor %}
+    </select>
+
+  </div>
 
   </div>
 
