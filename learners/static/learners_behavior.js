@@ -40,24 +40,49 @@ $(function () {
         $("#chat-container").toggleClass("hideContent");
     });
 
+    $("table td").hover(
+        function () {
+            var index = $(this).index();
+            $(this).addClass("current-cell");
+            $(this).parent().addClass("current-tr");
+            $(this).parent().parent().find("th, td")
+                .filter(`:nth-child(${index + 1})`)
+                .addClass("current-td");
+        },
+        function () {
+            $(this).removeClass("current-cell");
+            $(this).parent().removeClass("current-tr");
+            $(this).parent().parent().find("th, td").removeClass("current-td");
+        }
+    );
 
-    $('table tr').hover(function() {             
-        $(this).addClass('current-tr');
-    }, function() {
-        $(this).removeClass('current-tr');
+    $("#exercises-select").change(function () {
+        let index = $(`table th:has(input[value='${$(this).val()}'])`).index() + 1;
+        let cells = $(`table th, table td`)
+
+        if (index == 0) {
+            cells.fadeIn("slow");
+        } else {
+            cells.not(`:nth-child(-n +2)`).hide();
+            cells.filter(`:nth-child(-n +2)`).show();
+            cells.filter(`:nth-child(${index})`).fadeIn("slow");
+        }
     });
-   
-    $("table td").hover(function() {
-        var index = $(this).index();
-        $(this).addClass('current-cell');
-        $("table th, table td").filter(":nth-child(" + (index+1) + ")").addClass("current-td");
-    }, function() {
-        var index = $(this).index();
-        $(this).removeClass('current-cell');
-        $("table th, table td").removeClass("current-td");
+
+    $("#users-select").change(function () {
+        var index =
+            $(`table tr td:contains('${$(this).val()}')`)
+                .parent()
+                .index() + 1;
+
+        if (index == 0) {
+            $(`table tr`).fadeIn("slow");
+        } else {
+            $(`table tr`).not(`:nth-child(1)`).hide();
+            $(`table tr`).filter(`:nth-child(${index})`).fadeIn("slow");
+        }
     });
 });
-
 
 /**
  * This function is used to open the currently active/visible content in a new tab.
@@ -184,5 +209,3 @@ function reinitFrame(id, resumePage) {
     iframe.addClass("visibleContent").removeClass("hideContent");
     resumePage.remove();
 }
-
-
