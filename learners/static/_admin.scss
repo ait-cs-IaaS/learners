@@ -29,130 +29,191 @@
   td {
     text-align: left;
     padding: 8px;
-  }
-  & th, td, tr {
-    transition: all 100ms;
+    transition: all 250ms ease-in-out;
   }
 
   & th {
     font-size: 0.8em;
     max-width: 100px;
-    background-color: $main-text-color;
     vertical-align: bottom;
+    border-bottom: 2px solid $main-bg-color;
   }
 
-  & tr:nth-child(odd) {
+  & tr:nth-child(odd):not(:first-child) {
     background-color: #f6f6f6;
   }
 
-  & tr.current-tr, td.current-td {
-    background-color: #ececec;
-  }   
+  & tr.current-tr,
+  td.current-td {
+    background-color: #ececec !important;
+  }
   & th.current-td {
-      color: $main-text-color;
-      background-color: $main-bg-color;
+    background-color: #ececec;
   }
   & td.current-cell {
-      background-color:  #e0e0e0;
+    background-color: #e0e0e0 !important;
+  }
+  & td:nth-child(1) {
+    width: 30px !important;
+  }
+  & td:nth-child(2) {
+    width: 100px !important;
+  }
+  & td,
+  th {
+    max-width: 100px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    opacity: 1;
+  }
+  & td.hidden,
+  th.hidden {
+    max-width: 0px;
+    opacity: 0.2;
+  }
+  & th.hidden {
+    font-size: 0px;
+    height: 0;
+  }
+  & td.hidden .stat_indicator {
+    height: 0;
+    width: 0;
+  }
+  & tr {
+    height: 30px;
+    transition: all 250ms ease-in-out;
+    visibility: visible;
+  }
+  & tr.hidden {
+    height: 0px;
+    display: none;
+    font-size: 0px;
+    // margin:0;
+    visibility: collapse;
   }
   & a {
-      text-align: center;
-      font-weight: 700;
+    text-align: left;
+    font-weight: 400;
+    font-size: 12px;
+  }
+  & select {
+    padding: 10px;
+    min-width: 200px;
+    width: 25%;
+    min-height: 42px;
+    background-color: #f6f6f6;
+    color: $main-bg-color;
+    border-color: #f6f6f6;
+    font-size: 0.8em;
+    cursor: pointer;
+  }
+  & .filter-container {
+    display: block;
+    padding: 50px 0px 20px 0px;
+  }
+  & label {
+    font-size: 0.8em;
+    color: $main-bg-color;
+    width: 8%;
+    min-width: 100px;
+  }
+
+  & h3 {
+    padding-bottom: 5px;
+  }
+  & h4 {
+    color: $main-bg-color;
+    font-size: 1em;
+    padding-bottom: 5px;
   }
 }
-
 
 .loading .stat_check,
 .loading .stat_cross {
-    display: none;
+  display: none;
 }
 
 .loading .stat_icon {
-    animation: none;
+  animation: none;
 }
 
 .stat_indicator {
-    width: auto;
-    float: left;
-    margin: 2px 8px 0 0;
+  width: auto;
+  float: left;
+  margin: 2px 8px 0 0;
 }
 
 .stat_icon {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 4;
-    stroke: #fff;
-    stroke-miterlimit: 10;
-    position: relative;
-    margin: auto;
-    top: 15%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 4;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  position: relative;
+  margin: auto;
+  top: 15%;
 }
 
 .stat_circle {
-    stroke: none;
-    border: 0;
+  stroke: none;
+  border: 0;
 }
 
 .success .stat_icon {
-    box-shadow: inset 0px 0px 0px $green-mid;
-    animation:
-        fill_green 0.8s ease-in-out .4s forwards,
-        scale .3s ease-in-out .9s both;
+  box-shadow: inset 0px 0px 0px $green-mid;
+  animation: fill_green 0.8s ease-in-out 0.4s forwards,
+    scale 0.3s ease-in-out 0.9s both;
 }
 
 .failed .stat_icon {
-    box-shadow: inset 0px 0px 0px $red-light;
-    animation:
-        fill_red 0.8s ease-in-out .4s forwards,
-        scale .3s ease-in-out .9s both;
+  box-shadow: inset 0px 0px 0px $red-light;
+  animation: fill_red 0.8s ease-in-out 0.4s forwards,
+    scale 0.3s ease-in-out 0.9s both;
 }
 
 .stat_check,
 .stat_cross {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation:
-        stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
 .failed .stat_check {
-    display: none;
+  display: none;
 }
 
 .success .stat_cross {
-    display: none;
+  display: none;
 }
 
-
 @keyframes stroke {
-    100% {
-        stroke-dashoffset: 0;
-    }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes scale {
+  0%,
+  100% {
+    transform: none;
+  }
 
-    0%,
-    100% {
-        transform: none;
-    }
-
-    50% {
-        transform: scale3d(1.1, 1.1, 1);
-    }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
 }
 
 @keyframes fill_green {
-    100% {
-        box-shadow: inset 0px 0px 0px 30px $green-mid;
-    }
+  100% {
+    box-shadow: inset 0px 0px 0px 30px $green-mid;
+  }
 }
 
 @keyframes fill_red {
-    100% {
-        box-shadow: inset 0px 0px 0px 30px $red-light;
-    }
+  100% {
+    box-shadow: inset 0px 0px 0px 30px $red-light;
+  }
 }
