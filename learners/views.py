@@ -519,4 +519,3 @@ def get_exercise_results(user_id, exercise_id):
 
     else:
         return jsonify(error="Exercise type unknown.")
-
