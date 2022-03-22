@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import request
 from flask import Blueprint
 from flask import send_from_directory
+from flask import abort
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -12,6 +13,8 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
+
+from werkzeug.exceptions import NotFound
 
 from flask_mail import Message
 
@@ -23,12 +26,14 @@ import time
 from datetime import datetime
 import logging
 
-from learners.helpers import utc_to_local, get_history_from_DB, get_exercises
+from learners.helpers import get_history_from_DB, get_exercises
 from learners.database import User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
 from learners.jwt_manager import admin_required
+from learners.logger import logger
+
 
 bp = Blueprint("views", __name__)
 exercises = get_exercises()
@@ -43,16 +48,11 @@ def home():
 
     try:
         verify_jwt_in_request()
-        User.query.filter_by(username=get_jwt_identity()).first().id
+        return redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
 
-        claims = get_jwt()
-        if claims["admin"]:
-            return redirect("/admin")
-        else:
-            return redirect("/access")
     except:
-        logging.info("No valid token present.")
-        return render_template("login.html", **cfg.template)
+        logger.info("No valid token present.")
+        return redirect("/login")
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -60,10 +60,16 @@ def login():
     """
     GET: The plain login form is displayed to the user.
 
-    POST: Username and password are validated if they are present in the htpasswd file
+    POST: Username and password are validated if they are present in the configuration file
     and therefore authorized. If successful, a JWT token is created and the user is
     redirected to the /access route.
     """
+
+    def check_password(usermap, user, password):
+        return user in usermap and usermap.get(user).get("password") == password
+
+    def is_admin(user):
+        return cfg.users.get(user).get("is_admin")
 
     if request.method == "GET":
         return render_template("login.html", **cfg.template)
@@ -71,7 +77,7 @@ def login():
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
-    if not cfg.htpasswd.check_password(username, password):
+    if not check_password(cfg.users, username, password):
         error_msg = "Invalid username or password"
         cfg.template["authenticated"] = False
         return render_template("login.html", **cfg.template, error=error_msg)
@@ -87,12 +93,8 @@ def login():
         db.session.add(authorized_user)
         db.session.commit()
 
-    access_token = create_access_token(identity=username, additional_claims={"admin": (username == "admin")})
-
-    if username == "admin":
-        response = redirect("/admin")
-    else:
-        response = redirect("/access")
+    response = redirect("/admin") if is_admin(username) else redirect("/access")
+    access_token = create_access_token(identity=username, additional_claims={"is_admin": is_admin(username)})
 
     set_access_cookies(response, access_token)
     cfg.template["authenticated"] = True
@@ -129,9 +131,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["url_exercises"] = f"{cfg.url_exercises}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
-        cfg.template["url_documentation"] = f"{cfg.url_documentation}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -163,25 +165,27 @@ def access():
               password (string) -> Password of client
 
         """
-        if user_id in cfg.user_assignments:
-            cfg.template["vnc_clients"] = cfg.user_assignments[user_id]["vnc_clients"]
-            for vnc_client, client_details in cfg.user_assignments[user_id]["vnc_clients"].items():
-                if client_details["server"] == "default":
-                    client_details["server"] = cfg.url_novnc
-                if cfg.jwt_for_vnc_access:
-                    additional_claims = {
-                        "target": str(client_details["target"]),
-                        "username": str(client_details["username"]),
-                        "password": str(client_details["password"]),
-                    }
-                    vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                    auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
-                else:
-                    auth_url = (
-                        f"https://{client_details['server']}?"
-                        + f"username={client_details['username']}&password={client_details['password']}&"
-                        + f"target={client_details['target']}"
-                    )
+
+        cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
+        for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
+            if client_details["server"] == "default":
+                client_details["server"] = cfg.novnc.get("server")
+            if cfg.jwt_for_vnc_access:
+                additional_claims = {
+                    "target": str(client_details["target"]),
+                    "username": str(client_details["username"]),
+                    "password": str(client_details["password"]),
+                }
+                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
+            else:
+                auth_url = (
+                    f"https://{client_details['server']}?"
+                    + f"username={client_details['username']}&password={client_details['password']}&"
+                    + f"target={client_details['target']}"
+                )
+
+            print(auth_url)
             cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
         else:
             cfg.template["vnc_clients"] = None
@@ -237,10 +241,10 @@ def call_venjix(script):
 
     # send POST request
     response = requests.post(
-        url=cfg.url_venjix + "/{0}".format(script),
+        url=cfg.venjix.get("url") + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": f"Bearer {cfg.venjix_auth_secret}",
+            "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
         },
         data=payload,
     )
@@ -383,7 +387,7 @@ def get_formdata(form_name):
 
             # if specified, send form data via email
             if request.headers.get("Method") == "mail":
-                subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
+                subject = f"Form Submission: {user_jwt_identity} - {form_name}"
 
                 mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
                 mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
@@ -394,9 +398,9 @@ def get_formdata(form_name):
                 for (key, value) in request.form.to_dict().items():
                     if not value:
                         value = "<i>-- emtpy --</i>"
-                    data += "<strong>{}</strong>: {}</br>".format(key, value)
+                    data += f"<strong>{key}</strong>: {value}</br>"
 
-                mailbody += "<p>{}</p></br>".format(data)
+                mailbody += f"<p>{data}</p></br>"
 
                 msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
                 msg.html = mailbody
@@ -410,30 +414,46 @@ def get_formdata(form_name):
 
 @bp.route("/documentation/", methods=["GET"])
 @bp.route("/documentation", methods=["GET"])
-@jwt_required()
 def serve_documentation_index():
-    return send_from_directory("static/documentation", "index.html")
+    try:
+        verify_jwt_in_request()
+        return send_from_directory(cfg.documentation.get("directory"), "index.html")
+    except Exception as e:
+        logger.exception("Loading documentation failed")
+        abort(e.code)
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
-@jwt_required()
 def serve_documentation(path):
-    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
-    return send_from_directory("static/documentation", full_path)
+    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    try:
+        verify_jwt_in_request()
+        return send_from_directory(cfg.documentation.get("directory"), full_path)
+    except Exception as e:
+        logger.exception("Loading documentation failed")
+        abort(e.code)
 
 
 @bp.route("/exercises/", methods=["GET"])
 @bp.route("/exercises", methods=["GET"])
-@jwt_required()
 def serve_exercises_index():
-    return send_from_directory("static/exercises", "index.html")
+    try:
+        verify_jwt_in_request()
+        return send_from_directory(cfg.exercises.get("directory"), "index.html")
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
-@jwt_required()
 def serve_exercises(path):
-    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
-    return send_from_directory("static/exercises", full_path)
+    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    try:
+        verify_jwt_in_request()
+        return send_from_directory(cfg.exercises.get("directory"), full_path)
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/admin")
@@ -467,33 +487,6 @@ def admin_area():
 
         executions.append(execution)
 
-    #     print("\n--------------------------------------")
-    #     print("USER")
-    #     print("  {}, id: {}".format(user.username, user.id))
-
-    #     print("SCRIPT EXERCISES:")
-
-    #     for scriptExercise in user.scriptExercises:
-    #         print("  - {}".format(scriptExercise.script_name))
-
-    #     print("\nFORM EXERCISES:")
-    #     for formExercise in user.formExercises:
-    #         print("  - {}".format(formExercise.name))
-
-    # print("\n--------------------------------------\n")
-
-    # print("--------------------------------------")
-    # print("--------------------------------------")
-    # print("Exercises")
-    # for exercise in exercises[1:]:
-    #     print("  - " + exercise['id'])
-    # print("Executions")
-    # for execution in executions:
-    #     print(execution)
-    # print("--------------------------------------")
-    # print("--------------------------------------")
-    # print(executions)
-
     columns = [{"name": "id", "id": "user_id"}, {"name": "user", "id": "username"}]
     for exercise in exercises[1:]:
         columns.append({"name": exercise["name"], "id": exercise["id"]})
@@ -508,7 +501,6 @@ def admin_area():
 def get_exercise_results(user_id, exercise_id):
 
     exercise = next(exercise for exercise in exercises if exercise["id"] == exercise_id)
-    print(exercise)
 
     if exercise["type"] == "form":
         try:
@@ -528,4 +520,3 @@ def get_exercise_results(user_id, exercise_id):
     else:
         return jsonify(error="Exercise type unknown.")
 
-    return jsonify(user_id, exercise_id)

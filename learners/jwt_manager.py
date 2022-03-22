@@ -33,12 +33,12 @@ def admin_required():
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
-            claims = get_jwt()
-            if claims["admin"]:
+
+            if get_jwt().get("is_admin"):
                 cfg.template["authenticated"] = True
                 return fn(*args, **kwargs)
             else:
-                error_msg = "Admin only!"
+                error_msg = "Admins only!"
                 cfg.template["authenticated"] = False
                 return render_template("login.html", **cfg.template, error=error_msg)
 

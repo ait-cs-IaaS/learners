@@ -1,16 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt
 
 import os
-import logging
+from learners.logger import logger
 
 
 def main():
-    if os.getenv("DEBUG"):
-        logging.warn(" ******** Running in DEBUG Mode. ******** ")
     if os.getenv("REMOVE_DB"):
-        logging.warn(" ******** REMOVE_DB is set. Deleting DB file ******** ")
+        logger.warn(" ******** REMOVE_DB is set. Deleting DB file ******** ")
         try:
             os.remove(os.path.join(os.getcwd(), "learners", "learners_tracker.db"))
         except:
@@ -36,7 +33,6 @@ def main():
         init_mail(app)
 
         CORS(app)
-        Bcrypt(app)
 
     from learners import views
 

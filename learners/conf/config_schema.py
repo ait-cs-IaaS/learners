@@ -2,11 +2,10 @@ from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, Empt
 
 config_schema = Map(
     {
-        "learners": Map(
+        Optional("learners", default={"theme": "dark", "branding": False, "language": "en"}): Map(
             {
                 Optional("theme", default="dark"): Str(),
                 Optional("branding", default=False): Bool(),
-                "htpasswd": Str(),
                 Optional("language", default="en"): Str(),
             }
         ),
@@ -33,44 +32,53 @@ config_schema = Map(
                 Optional("ssl", default=False): Bool(),
             }
         ),
-        "components": Map(
-            {
-                "venjix_auth_secret": Str(),
-                "urls": Map(
-                    {
-                        "venjix": Str(),
-                        "callback": Str(),
-                        "documentation": Str(),
-                        "exercises": Str(),
-                        "novnc": Str(),
-                    }
-                ),
-                "user_assignments": MapPattern(
-                    Str(),
-                    Map(
-                        {
-                            "vnc_clients": MapPattern(
-                                Str(),
-                                Map(
-                                    {
-                                        "target": Str(),
-                                        Optional("tooltip", default="Access client"): Str(),
-                                        Optional("server", default="default"): Str(),
-                                        Optional("username"): Str(),
-                                        Optional("password"): Str(),
-                                    }
-                                ),
-                                minimum_keys=1,
-                            ),
-                            "ports": Map(
-                                {
-                                    "docs": Int(),
-                                    "exercises": Int(),
-                                }
-                            ),
-                        }
+        "users": MapPattern(
+            Str(),
+            Map(
+                {
+                    Optional("is_admin", default=False): Bool(),
+                    "password": Str(),
+                    Optional("vnc_clients"): MapPattern(
+                        Str(),
+                        Map(
+                            {
+                                "target": Str(),
+                                Optional("tooltip", default="Access client"): Str(),
+                                Optional("server", default="default"): Str(),
+                                Optional("username"): Str(),
+                                Optional("password"): Str(),
+                            }
+                        ),
                     ),
-                ),
+                }
+            ),
+        ),
+        "venjix": Map(
+            {
+                "auth_secret": Str(),
+                "url": Str(),
+            }
+        ),
+        Optional("documentation", default={"directory": "static/documentation", "endpoint": "/documentation"}): Map(
+            {
+                Optional("directory", default="static/documentation"): Str(),
+                Optional("endpoint", default="/documentation"): Str(),
+            }
+        ),
+        Optional("exercises", default={"directory": "static/exercises", "endpoint": "/exercises"}): Map(
+            {
+                Optional("directory", default="static/exercises"): Str(),
+                Optional("endpoint", default="/exercises"): Str(),
+            }
+        ),
+        Optional("callback", default={"endpoint": "/callback"}): Map(
+            {
+                Optional("endpoint", default="/callback"): Str(),
+            }
+        ),
+        "novnc": Map(
+            {
+                "server": Str(),
             }
         ),
     }
