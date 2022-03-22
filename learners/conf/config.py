@@ -91,6 +91,7 @@ class Configuration:
         # define the render template
         self.template = {
             "authenticated": False,
+            "chat": False,
             "user_id": None,
             "branding": self.branding,
             "theme": self.theme,
@@ -99,14 +100,8 @@ class Configuration:
             "url_exercises": None,
         }
 
-        # Set user mappings
-        self.user_assignments = learners_config.get("components").get("user_assignments")
-
         # set CORS configuration
         self.cors_origins = []
-        for user in self.user_assignments:
-            self.cors_origins.append(f'{self.url_documentation}:{self.user_assignments.get(user).get("ports").get("docs")}')
-            self.cors_origins.append(f'{self.url_exercises}:{self.user_assignments.get(user).get("ports").get("exercises")}')
 
 
 def build_config(app):
