@@ -1,5 +1,4 @@
 # learners:
-  # htpasswd: "temp_htpasswd"
   # theme: "dark"
 
 jwt:

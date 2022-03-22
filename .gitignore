@@ -3,7 +3,6 @@
 .envrc
 learners/learners_tracker.db
 develop_config.yml
-temp_htpasswd
 learners/static/gen
 learners/static/documentation
 learners/static/exercises
