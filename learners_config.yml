@@ -1,6 +1,6 @@
----
-learners:
-  theme: "dark"
+# learners:
+  # htpasswd: "temp_htpasswd"
+  # theme: "dark"
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -20,30 +20,34 @@ database:
 components:
   venjix_auth_secret: "53CR3T"
   urls:
-    venjix: "http://127.0.0.1:5001"
-    callback: "http://127.0.0.1:5000/callback"
-    documentation: "http://127.0.0.1:5000/documentation"
-    exercises: "http://127.0.0.1:5000/exercises"
+    venjix: "http://localhost:5001"
+    callback: "http://localhost:5000/callback"
+    documentation: "http://localhost:5000/documentation/"
+    exercises: "http://localhost:5000/exercises/"
     novnc: "10.17.4.219"
-  user_assignments:
-    test:
-      password: test
-      vnc_clients:
-        soc_client:
-          target: placeholder_1
-          tooltip: "SOC client"
-          username: csirt1
-          password: placeholder
-        pps_client:
-          target: placeholder_3
-          tooltip: "PPS client"
-          username: csirt3
-          password: placeholder
-    ben:
-      password: ben
-      vnc_clients:
-        soc_client:
-          target: placeholder_2
-          tooltip: "SOC client"
-          username: csirt2
-          password: placeholder
+
+users:
+  test:
+    password: test
+    vnc_clients:
+      soc_client:
+        target: placeholder_1
+        tooltip: "SOC client"
+        username: csirt1
+        password: placeholder
+      pps_client:
+        target: placeholder_3
+        tooltip: "PPS client"
+        username: csirt3
+        password: placeholder
+  ben:
+    password: ben
+    vnc_clients:
+      soc_client:
+        target: placeholder_2
+        tooltip: "SOC client"
+        username: csirt2
+        password: placeholder
+  admin:
+    is_admin: True
+    password: admin
