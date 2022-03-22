@@ -21,9 +21,9 @@ components:
   venjix_auth_secret: "53CR3T"
   urls:
     venjix: "http://localhost:5001"
-    callback: "http://localhost:5000/callback"
-    documentation: "http://localhost:5000/documentation/"
-    exercises: "http://localhost:5000/exercises/"
+    callback: "/callback"
+    documentation: "/documentation/"
+    exercises: "/exercises/"
     novnc: "10.17.4.219"
 
 users:

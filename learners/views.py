@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import request
 from flask import Blueprint
 from flask import send_from_directory
+from flask import abort
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -12,6 +13,8 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
+
+from werkzeug.exceptions import NotFound
 
 from flask_mail import Message
 
@@ -21,7 +24,6 @@ import requests
 import uuid
 import time
 from datetime import datetime
-import logging
 
 from learners.helpers import get_history_from_DB
 from learners.database import User, Post, Form
@@ -29,6 +31,8 @@ from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
 from learners.jwt_manager import admin_required
+from learners.logger import logger
+
 
 bp = Blueprint("views", __name__)
 
@@ -45,8 +49,8 @@ def home():
         return redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
 
     except:
-        logging.info("No valid token present.")
-        return render_template("login.html", **cfg.template)
+        logger.info("No valid token present.")
+        return redirect("/login")
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -379,20 +383,20 @@ def get_formdata(form_name):
 
             # if specified, send form data via email
             if request.headers.get("Method") == "mail":
-                subject = "Form Submission: {} - {}".format(user_jwt_identity, form_name)
+                subject = f"Form Submission: {user_jwt_identity} - {form_name}"
 
-                mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
-                mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
-                mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
+                mailbody = "<h1>Results</h1><h2>Information:</h2>"
+                mailbody += f"<strong>User:</strong> {user_jwt_identity}</br>"
+                mailbody += f"<strong>Form:</strong> {form_name}</br>"
                 mailbody += "<h2>Data:</h2>"
 
                 data = ""
                 for (key, value) in request.form.to_dict().items():
                     if not value:
                         value = "<i>-- emtpy --</i>"
-                    data += "<strong>{}</strong>: {}</br>".format(key, value)
+                    data += f"<strong>{key}</strong>: {value}</br>"
 
-                mailbody += "<p>{}</p></br>".format(data)
+                mailbody += f"<p>{data}</p></br>"
 
                 msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
                 msg.html = mailbody
@@ -410,8 +414,9 @@ def serve_documentation_index():
     try:
         verify_jwt_in_request()
         return send_from_directory("static/documentation", "index.html")
-    except:
-        return jsonify(msg="JWT Token missing"), 401
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
@@ -420,8 +425,9 @@ def serve_documentation(path):
     try:
         verify_jwt_in_request()
         return send_from_directory("static/documentation", full_path)
-    except:
-        return jsonify(msg="JWT Token missing"), 401
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/exercises/", methods=["GET"])
@@ -430,8 +436,9 @@ def serve_exercises_index():
     try:
         verify_jwt_in_request()
         return send_from_directory("static/exercises", "index.html")
-    except:
-        return jsonify(msg="JWT Token missing"), 401
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
@@ -440,8 +447,9 @@ def serve_exercises(path):
     try:
         verify_jwt_in_request()
         return send_from_directory("static/exercises", full_path)
-    except:
-        return jsonify(msg="JWT Token missing"), 401
+    except Exception as e:
+        logger.exception("Loading exercises failed")
+        abort(e.code)
 
 
 @bp.route("/admin")
