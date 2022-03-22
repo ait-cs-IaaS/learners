@@ -44,26 +44,30 @@
         </a>
       </li>
 
-      {% for vnc_client, client_info in vnc_clients.items() %}
-      <li class="nav-item">
-        <a
-          href="/access#{{ vnc_client }}"
-          class="nav-link py-3"
-          data-bs-toggle="tooltip"
-          data-bs-placement="right"
-          data-bs-original-title="{{ client_info.tooltip }}"
-        >
-          <svg class="bi" width="22" height="22" role="img">
-            <use xlink:href="#vnc"></use>
-          </svg>
-          {% if vnc_clients | length > 1 %}
-          <div class="client_index">
-            <span>{{ loop.index }}</span>
-          </div>
-          {% endif %}
-        </a>
-      </li>
-      {% endfor %} {% endif %}
+      {% if vnc_clients %}
+        {% for vnc_client, client_info in vnc_clients.items() %}
+        <li class="nav-item">
+          <a
+            href="/access#{{ vnc_client }}"
+            class="nav-link py-3"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            data-bs-original-title="{{ client_info.tooltip }}"
+          >
+            <svg class="bi" width="22" height="22" role="img">
+              <use xlink:href="#vnc"></use>
+            </svg>
+            {% if vnc_clients | length > 1 %}
+            <div class="client_index">
+              <span>{{ loop.index }}</span>
+            </div>
+            {% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      {% endif %}
+
+      {% endif %}
     </ul>
   </nav>
 
@@ -83,6 +87,7 @@
   </div>
   {% endif %}
 
+  {% if chat %}
   <div class="nav-item">
     <span
       href="#"
@@ -97,4 +102,7 @@
       </svg>
     </span>
   </div>
+  {% endif %}
+
+
 </div>
