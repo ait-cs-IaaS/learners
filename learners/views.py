@@ -14,8 +14,6 @@ from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 
-from werkzeug.exceptions import NotFound
-
 from flask_mail import Message
 
 from flask_cors import cross_origin
@@ -167,26 +165,28 @@ def access():
         """
 
         cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
-        for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
-            if client_details["server"] == "default":
-                client_details["server"] = cfg.novnc.get("server")
-            if cfg.jwt_for_vnc_access:
-                additional_claims = {
-                    "target": str(client_details["target"]),
-                    "username": str(client_details["username"]),
-                    "password": str(client_details["password"]),
-                }
-                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
-            else:
-                auth_url = (
-                    f"https://{client_details['server']}?"
-                    + f"username={client_details['username']}&password={client_details['password']}&"
-                    + f"target={client_details['target']}"
-                )
-
-            print(auth_url)
-            cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
+        if cfg.template["vnc_clients"]:
+            for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
+                if client_details["server"] == "default":
+                    client_details["server"] = cfg.novnc.get("server")
+                print(client_details["server"])
+                if cfg.jwt_for_vnc_access:
+                    additional_claims = {
+                        "target": str(client_details["target"]),
+                        "username": str(client_details["username"]),
+                        "password": str(client_details["password"]),
+                    }
+                    vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                    auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
+                else:
+                    auth_url = (
+                        f"https://{client_details['server']}?"
+                        + f"username={client_details['username']}&password={client_details['password']}&"
+                        + f"target={client_details['target']}"
+                    )
+                print(auth_url)
+                cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
+                print(cfg.template["vnc_clients"])
         else:
             cfg.template["vnc_clients"] = None
 
@@ -194,6 +194,7 @@ def access():
         error_msg = "No exercises for this user."
         return render_template("login.html", **cfg.template, error=error_msg)
 
+    print(cfg.template)
     return render_template("index.html", **cfg.template)
 
 
@@ -229,7 +230,7 @@ def call_venjix(script):
         {
             "script": script,
             "user_id": user_jwt_identity,
-            "callback": f"{cfg.url_callback}/{str(call_uuid)}",
+            "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
         }
     )
 
@@ -417,7 +418,8 @@ def get_formdata(form_name):
 def serve_documentation_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory(cfg.documentation.get("directory"), "index.html")
+        path = "{0}/{1}/".format(cfg.documentation.get("directory"), get_jwt_identity())
+        return send_from_directory(path, "index.html")
     except Exception as e:
         logger.exception("Loading documentation failed")
         abort(e.code)
@@ -425,9 +427,11 @@ def serve_documentation_index():
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
 def serve_documentation(path):
-    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+
     try:
         verify_jwt_in_request()
+        path = "{0}index.html".format(path) if path.endswith("/") else path
+        full_path = "{}/{}".format(get_jwt_identity(), path)
         return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
         logger.exception("Loading documentation failed")
@@ -439,7 +443,8 @@ def serve_documentation(path):
 def serve_exercises_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory(cfg.exercises.get("directory"), "index.html")
+        path = "{0}/{1}/".format(cfg.exercises.get("directory"), get_jwt_identity())
+        return send_from_directory(path, "index.html")
     except Exception as e:
         logger.exception("Loading exercises failed")
         abort(e.code)
@@ -450,6 +455,8 @@ def serve_exercises(path):
     full_path = "{0}index.html".format(path) if path.endswith("/") else path
     try:
         verify_jwt_in_request()
+        path = "{0}index.html".format(path) if path.endswith("/") else path
+        full_path = "{}/{}".format(get_jwt_identity(), path)
         return send_from_directory(cfg.exercises.get("directory"), full_path)
     except Exception as e:
         logger.exception("Loading exercises failed")

@@ -1,12 +1,5 @@
-<<<<<<< HEAD
----
-learners:
-  htpasswd: "temp_htpasswd"
-  # theme: "light"
-=======
 # learners:
   # theme: "dark"
->>>>>>> origin/master
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -37,7 +30,7 @@ exercises:
   endpoint: "/exercises"
 
 callback:
-  endpoint: "/callback"
+  endpoint: "http://127.0.0.1:5000/callback"
 
 novnc:
   server: "10.17.5.119"

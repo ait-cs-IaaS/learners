@@ -111,6 +111,7 @@ class Configuration:
 
         # set CORS configuration
         self.cors_origins = []
+        self.cors_origins.append(self.venjix.get("url"))
 
 
 def build_config(app):
