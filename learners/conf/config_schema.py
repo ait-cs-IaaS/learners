@@ -2,7 +2,7 @@ from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, Empt
 
 config_schema = Map(
     {
-        "learners": Map(
+        Optional("learners", default={"theme": "dark", "branding": False, "language": "en"}): Map(
             {
                 Optional("theme", default="dark"): Str(),
                 Optional("branding", default=False): Bool(),
@@ -36,8 +36,9 @@ config_schema = Map(
             Str(),
             Map(
                 {
+                    Optional("is_admin", default=False): Bool(),
                     "password": Str(),
-                    "vnc_clients": MapPattern(
+                    Optional("vnc_clients"): MapPattern(
                         Str(),
                         Map(
                             {
@@ -48,7 +49,6 @@ config_schema = Map(
                                 Optional("password"): Str(),
                             }
                         ),
-                        minimum_keys=1,
                     ),
                 }
             ),
