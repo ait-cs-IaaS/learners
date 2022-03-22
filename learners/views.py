@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
+from flask_jwt_extended import get_jwt
 
 from flask_mail import Message
 
@@ -22,11 +23,12 @@ import time
 from datetime import datetime
 import logging
 
-from learners.helpers import utc_to_local, get_history_from_DB
+from learners.helpers import get_history_from_DB
 from learners.database import User, Post, Form
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
+from learners.jwt_manager import admin_required
 
 bp = Blueprint("views", __name__)
 
@@ -40,8 +42,9 @@ def home():
 
     try:
         verify_jwt_in_request()
-        User.query.filter_by(username=get_jwt_identity()).first().id
-        return redirect("/access")
+        response = redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
+        return response
+
     except:
         logging.info("No valid token present.")
         return render_template("login.html", **cfg.template)
@@ -58,7 +61,10 @@ def login():
     """
 
     def check_password(usermap, user, password):
-        return user in usermap and usermap[user]["password"] == password
+        return user in usermap and usermap.get(user).get("password") == password
+
+    def is_admin(user):
+        return cfg.users.get(user).get("is_admin")
 
     if request.method == "GET":
         return render_template("login.html", **cfg.template)
@@ -66,7 +72,7 @@ def login():
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
-    if not check_password(cfg.usermap, username, password):
+    if not check_password(cfg.users, username, password):
         error_msg = "Invalid username or password"
         cfg.template["authenticated"] = False
         return render_template("login.html", **cfg.template, error=error_msg)
@@ -82,8 +88,9 @@ def login():
         db.session.add(authorized_user)
         db.session.commit()
 
-    response = redirect("/access")
-    access_token = create_access_token(identity=username)
+    response = redirect("/admin") if is_admin(username) else redirect("/access")
+    access_token = create_access_token(identity=username, additional_claims={"is_admin": is_admin(username)})
+
     set_access_cookies(response, access_token)
     cfg.template["authenticated"] = True
 
@@ -154,8 +161,8 @@ def access():
 
         """
 
-        cfg.template["vnc_clients"] = cfg.user_assignments[user_id]["vnc_clients"]
-        for vnc_client, client_details in cfg.user_assignments[user_id]["vnc_clients"].items():
+        cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
+        for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
             if client_details["server"] == "default":
                 client_details["server"] = cfg.url_novnc
             if cfg.jwt_for_vnc_access:
@@ -424,3 +431,9 @@ def serve_exercises_index():
 def serve_exercises(path):
     full_path = path if not path.endswith("/") else "{0}index.html".format(path)
     return send_from_directory("static/exercises", full_path)
+
+
+@bp.route("/admin")
+@admin_required()
+def admin_area():
+    return jsonify(admin=True)
