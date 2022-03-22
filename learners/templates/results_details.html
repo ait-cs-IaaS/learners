@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content">
+    <h1>Result Details</h1>
+
+    <strong>User:</strong> {{ user }} <br/>
+    <strong>Exercise:</strong> {{ exercise }} <br/>
+    <strong>Info:</strong> <br/>
+
+    {% if data %}
+      {% for key, value in data.items() %}
+      <strong>{{ key | replace("_", " ") }}</strong>: <br/>
+        {% if value %}
+          {{value}} <br/>
+        {% else %}
+          <i>empty</i> <br/>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <i>no data</i>
+    {% endif %}
+
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

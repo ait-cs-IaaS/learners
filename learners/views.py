@@ -169,7 +169,6 @@ def access():
             for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
                 if client_details["server"] == "default":
                     client_details["server"] = cfg.novnc.get("server")
-                print(client_details["server"])
                 if cfg.jwt_for_vnc_access:
                     additional_claims = {
                         "target": str(client_details["target"]),
@@ -184,9 +183,7 @@ def access():
                         + f"username={client_details['username']}&password={client_details['password']}&"
                         + f"target={client_details['target']}"
                     )
-                print(auth_url)
                 cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
-                print(cfg.template["vnc_clients"])
         else:
             cfg.template["vnc_clients"] = None
 
@@ -194,7 +191,6 @@ def access():
         error_msg = "No exercises for this user."
         return render_template("login.html", **cfg.template, error=error_msg)
 
-    print(cfg.template)
     return render_template("index.html", **cfg.template)
 
 
@@ -500,7 +496,7 @@ def admin_area():
 
     table = {"columns": columns, "data": executions}
 
-    return render_template("admin.html", name="name", data="", exercises=exercises, users=user_list, table=table)
+    return render_template("results.html", exercises=exercises, users=user_list, table=table)
 
 
 @bp.route("/results/<user_id>/<exercise_id>")
@@ -508,21 +504,28 @@ def admin_area():
 def get_exercise_results(user_id, exercise_id):
 
     exercise = next(exercise for exercise in exercises if exercise["id"] == exercise_id)
+    exercise_type = exercise["type"]
+    data = None
 
-    if exercise["type"] == "form":
-        try:
-            result = FormExercise.query.filter_by(user_id=user_id).filter_by(name=exercise["id"]).first().data
-            return jsonify(user_id=user_id, exercise_id=exercise_id, data=json.loads(result))
-        except:
-            return jsonify(user_id=user_id, exercise_id=exercise_id, data="no data")
-    elif exercise["type"] == "script":
-        try:
-            username = User.query.filter_by(id=user_id).first().username
+    try:
+        username = User.query.filter_by(id=user_id).first().username
+    except:
+        logger.warn("User not found.")
+
+    try:
+        if exercise_type == "form":
+            data = json.loads(FormExercise.query.filter_by(user_id=user_id).filter_by(name=exercise["id"]).first().data)
+        elif exercise_type == "script":
             executed, completed, history = get_history_from_DB(exercise["script"], username)
             data = {"executed": executed, "completed": completed, "history": history}
-            return jsonify(user_id=user_id, exercise_id=exercise_id, data=data)
-        except:
-            return jsonify(user_id=user_id, exercise_id=exercise_id, data="no data")
+        else:
+            return jsonify(error="Exercise type unknown.")
+    except:            
+        logger.warn("No data found.")
 
-    else:
-        return jsonify(error="Exercise type unknown.")
+    return render_template("results_details.html", user=username, exercise=exercise["name"], data=data)
+
+
+
+
+    
