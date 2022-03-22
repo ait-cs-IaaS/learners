@@ -42,8 +42,7 @@ def home():
 
     try:
         verify_jwt_in_request()
-        response = redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
-        return response
+        return redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
 
     except:
         logging.info("No valid token present.")
@@ -407,30 +406,42 @@ def get_formdata(form_name):
 
 @bp.route("/documentation/", methods=["GET"])
 @bp.route("/documentation", methods=["GET"])
-@jwt_required()
 def serve_documentation_index():
-    return send_from_directory("static/documentation", "index.html")
+    try:
+        verify_jwt_in_request()
+        return send_from_directory("static/documentation", "index.html")
+    except:
+        return jsonify(msg="JWT Token missing"), 401
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
-@jwt_required()
 def serve_documentation(path):
-    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
-    return send_from_directory("static/documentation", full_path)
+    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    try:
+        verify_jwt_in_request()
+        return send_from_directory("static/documentation", full_path)
+    except:
+        return jsonify(msg="JWT Token missing"), 401
 
 
 @bp.route("/exercises/", methods=["GET"])
 @bp.route("/exercises", methods=["GET"])
-@jwt_required()
 def serve_exercises_index():
-    return send_from_directory("static/exercises", "index.html")
+    try:
+        verify_jwt_in_request()
+        return send_from_directory("static/exercises", "index.html")
+    except:
+        return jsonify(msg="JWT Token missing"), 401
 
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
-@jwt_required()
 def serve_exercises(path):
-    full_path = path if not path.endswith("/") else "{0}index.html".format(path)
-    return send_from_directory("static/exercises", full_path)
+    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    try:
+        verify_jwt_in_request()
+        return send_from_directory("static/exercises", full_path)
+    except:
+        return jsonify(msg="JWT Token missing"), 401
 
 
 @bp.route("/admin")
