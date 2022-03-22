@@ -237,7 +237,7 @@ def call_venjix(script):
 
     # send POST request
     response = requests.post(
-        url=cfg.venjix.get('url') + "/{0}".format(script),
+        url=cfg.venjix.get("url") + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
             "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",

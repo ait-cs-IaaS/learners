@@ -53,28 +53,33 @@ config_schema = Map(
                 }
             ),
         ),
-        
-        "venjix": Map({
-            "auth_secret": Str(),
-            "url": Str(),
-        }),
-
-        Optional("documentation", default={"directory": "static/documentation", "endpoint": "/documentation"}): Map({
-            Optional("directory", default="static/documentation"): Str(),
-            Optional("endpoint", default="/documentation"): Str(),
-        }),
-
-        Optional("exercises", default={"directory": "static/exercises", "endpoint": "/exercises"}): Map({
-            Optional("directory", default="static/exercises"): Str(),
-            Optional("endpoint", default="/exercises"): Str(),
-        }),
-
-        Optional("callback", default={"endpoint": "/callback"}): Map({
-            Optional("endpoint", default="/callback"): Str(),
-        }),
-
-        "novnc": Map({
-            "server": Str(),
-        }),
+        "venjix": Map(
+            {
+                "auth_secret": Str(),
+                "url": Str(),
+            }
+        ),
+        Optional("documentation", default={"directory": "static/documentation", "endpoint": "/documentation"}): Map(
+            {
+                Optional("directory", default="static/documentation"): Str(),
+                Optional("endpoint", default="/documentation"): Str(),
+            }
+        ),
+        Optional("exercises", default={"directory": "static/exercises", "endpoint": "/exercises"}): Map(
+            {
+                Optional("directory", default="static/exercises"): Str(),
+                Optional("endpoint", default="/exercises"): Str(),
+            }
+        ),
+        Optional("callback", default={"endpoint": "/callback"}): Map(
+            {
+                Optional("endpoint", default="/callback"): Str(),
+            }
+        ),
+        "novnc": Map(
+            {
+                "server": Str(),
+            }
+        ),
     }
 )
