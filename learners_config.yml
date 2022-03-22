@@ -1,7 +1,5 @@
----
-learners:
-  htpasswd: "temp_htpasswd"
-  # theme: "light"
+# learners:
+  # theme: "dark"
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -18,37 +16,47 @@ database:
 #   tls: True
 #   ssl: False
 
-components:
-  venjix_auth_secret: "53CR3T"
-  urls:
-    venjix: "http://127.0.0.1:5001"
-    callback: "http://127.0.0.1:5000/callback"
-    documentation: "http://127.0.0.1:5000/documentation"
-    exercises: "http://127.0.0.1:5000/exercises"
-    novnc: "10.17.4.219"
-  user_assignments:
-    test:
-      vnc_clients:
-        soc_client:
-          target: placeholder_1
-          tooltip: "SOC client"
-          username: csirt1
-          password: placeholder
-        pps_client:
-          target: placeholder_3
-          tooltip: "PPS client"
-          username: csirt3
-          password: placeholder
-      ports:
-        docs: 8080
-        exercises: 8888
-    ben:
-      vnc_clients:
-        soc_client:
-          target: placeholder_2
-          tooltip: "SOC client"
-          username: csirt2
-          password: placeholder
-      ports:
-        docs: 8080
-        exercises: 8888
+
+venjix:
+  auth_secret: "53CR3T"
+  url: "http://localhost:5001"
+
+documentation:
+  directory: "static/documentation"
+  endpoint: "/documentation"
+
+exercises:
+  directory: "static/exercises"
+  endpoint: "/exercises"
+
+callback:
+  endpoint: "/callback"
+
+novnc:
+  server: "10.17.5.119"
+
+users:
+  test:
+    password: test
+    vnc_clients:
+      soc_client:
+        target: placeholder_1
+        tooltip: "SOC client"
+        username: csirt1
+        password: placeholder
+      pps_client:
+        target: placeholder_3
+        tooltip: "PPS client"
+        username: csirt3
+        password: placeholder
+  ben:
+    password: ben
+    vnc_clients:
+      soc_client:
+        target: placeholder_2
+        tooltip: "SOC client"
+        username: csirt2
+        password: placeholder
+  admin:
+    is_admin: True
+    password: admin

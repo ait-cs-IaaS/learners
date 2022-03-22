@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-from passlib.apache import HtpasswdFile
 
 from flask_assets import Environment
 from learners.assets import get_bundle
@@ -50,7 +49,6 @@ class Configuration:
         self.theme = learners_config.get("learners").get("theme")
         self.branding = learners_config.get("learners").get("branding")
         self.language = learners_config.get("learners").get("language")
-        self.htpasswd = HtpasswdFile(learners_config.get("learners").get("htpasswd"))
 
         # Set jwt related configuration
         self.jwt_secret_key = learners_config.get("jwt", {}).get("jwt_secret_key", "53CR3T")
@@ -80,17 +78,29 @@ class Configuration:
         else:
             self.mail = False
 
+        self.users = learners_config.get("users")
+
         # Set components configuration
-        self.url_novnc = learners_config.get("components").get("urls").get("novnc")
-        self.url_callback = learners_config.get("components").get("urls").get("callback")
-        self.url_documentation = learners_config.get("components").get("urls").get("documentation")
-        self.url_exercises = learners_config.get("components").get("urls").get("exercises")
-        self.url_venjix = learners_config.get("components").get("urls").get("venjix")
-        self.venjix_auth_secret = learners_config.get("components").get("venjix_auth_secret")
+        self.novnc = {"server": learners_config.get("novnc").get("server")}
+
+        self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
+
+        self.documentation = {
+            "directory": learners_config.get("documentation").get("directory"),
+            "endpoint": learners_config.get("documentation").get("endpoint"),
+        }
+
+        self.exercises = {
+            "directory": learners_config.get("exercises").get("directory"),
+            "endpoint": learners_config.get("exercises").get("endpoint"),
+        }
+
+        self.venjix = {"auth_secret": learners_config.get("venjix").get("auth_secret"), "url": learners_config.get("venjix").get("url")}
 
         # define the render template
         self.template = {
             "authenticated": False,
+            "chat": False,
             "user_id": None,
             "branding": self.branding,
             "theme": self.theme,
@@ -99,14 +109,8 @@ class Configuration:
             "url_exercises": None,
         }
 
-        # Set user mappings
-        self.user_assignments = learners_config.get("components").get("user_assignments")
-
         # set CORS configuration
         self.cors_origins = []
-        for user in self.user_assignments:
-            self.cors_origins.append(f'{self.url_documentation}:{self.user_assignments.get(user).get("ports").get("docs")}')
-            self.cors_origins.append(f'{self.url_exercises}:{self.user_assignments.get(user).get("ports").get("exercises")}')
 
 
 def build_config(app):
