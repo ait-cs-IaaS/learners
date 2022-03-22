@@ -129,9 +129,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["url_exercises"] = f"{cfg.url_exercises}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
-        cfg.template["url_documentation"] = f"{cfg.url_documentation}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -167,7 +167,7 @@ def access():
         cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
         for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
             if client_details["server"] == "default":
-                client_details["server"] = cfg.url_novnc
+                client_details["server"] = cfg.novnc.get("server")
             if cfg.jwt_for_vnc_access:
                 additional_claims = {
                     "target": str(client_details["target"]),
@@ -237,10 +237,10 @@ def call_venjix(script):
 
     # send POST request
     response = requests.post(
-        url=cfg.url_venjix + "/{0}".format(script),
+        url=cfg.venjix.get("url") + "/{0}".format(script),
         headers={
             "Content-type": "application/json",
-            "Authorization": f"Bearer {cfg.venjix_auth_secret}",
+            "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
         },
         data=payload,
     )
@@ -413,9 +413,9 @@ def get_formdata(form_name):
 def serve_documentation_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory("static/documentation", "index.html")
+        return send_from_directory(cfg.documentation.get("directory"), "index.html")
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception("Loading documentation failed")
         abort(e.code)
 
 
@@ -424,9 +424,9 @@ def serve_documentation(path):
     full_path = "{0}index.html".format(path) if path.endswith("/") else path
     try:
         verify_jwt_in_request()
-        return send_from_directory("static/documentation", full_path)
+        return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception("Loading documentation failed")
         abort(e.code)
 
 
@@ -435,7 +435,7 @@ def serve_documentation(path):
 def serve_exercises_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory("static/exercises", "index.html")
+        return send_from_directory(cfg.exercises.get("directory"), "index.html")
     except Exception as e:
         logger.exception("Loading exercises failed")
         abort(e.code)
@@ -446,7 +446,7 @@ def serve_exercises(path):
     full_path = "{0}index.html".format(path) if path.endswith("/") else path
     try:
         verify_jwt_in_request()
-        return send_from_directory("static/exercises", full_path)
+        return send_from_directory(cfg.exercises.get("directory"), full_path)
     except Exception as e:
         logger.exception("Loading exercises failed")
         abort(e.code)

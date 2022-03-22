@@ -16,14 +16,24 @@ database:
 #   tls: True
 #   ssl: False
 
-components:
-  venjix_auth_secret: "53CR3T"
-  urls:
-    venjix: "http://localhost:5001"
-    callback: "/callback"
-    documentation: "/documentation/"
-    exercises: "/exercises/"
-    novnc: "10.17.4.219"
+
+venjix:
+  auth_secret: "53CR3T"
+  url: "http://localhost:5001"
+
+documentation:
+  directory: "static/documentation"
+  endpoint: "/documentation"
+
+exercises:
+  directory: "static/exercises"
+  endpoint: "/exercises"
+
+callback:
+  endpoint: "/callback"
+
+novnc:
+  server: "10.17.5.119"
 
 users:
   test:
