@@ -47,7 +47,7 @@ def get_history_from_DB(script_name, username):
 
 def get_exercises():
     exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all"}]
-    root_directory = "./learners/static/exercises/en/"
+    root_directory = "./learners/static/exercises/{0}/en/".format(list(cfg.users.keys())[0])
     for path, subdirs, files in os.walk(root_directory):
         for file in files:
             if file.endswith(".html"):
