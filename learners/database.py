@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from learners.conf.config import cfg
+
+from sqlalchemy import event
 
 
 """
@@ -40,7 +43,16 @@ class Form(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
+@event.listens_for(User.__table__, "after_create")
+def insert_initial_users(*args, **kwargs):
+    for user, _ in cfg.users.items():
+        db.session.add(User(username=user))
+
+    db.session.commit()
+
+
 def build_db(app):
     global db
     db.init_app(app)
+
     db.create_all()
