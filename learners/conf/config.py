@@ -81,12 +81,28 @@ class Configuration:
         self.users = learners_config.get("users")
 
         # Set components configuration
-        self.url_novnc = learners_config.get("components").get("urls").get("novnc")
-        self.url_callback = learners_config.get("components").get("urls").get("callback")
-        self.url_documentation = learners_config.get("components").get("urls").get("documentation")
-        self.url_exercises = learners_config.get("components").get("urls").get("exercises")
-        self.url_venjix = learners_config.get("components").get("urls").get("venjix")
-        self.venjix_auth_secret = learners_config.get("components").get("venjix_auth_secret")
+        self.novnc = {
+            "server": learners_config.get("novnc").get("server")
+        }
+
+        self.callback = {
+            "endpoint": learners_config.get("callback").get("endpoint")
+        }
+
+        self.documentation = {
+            "directory": learners_config.get("documentation").get("directory"),
+            "endpoint": learners_config.get("documentation").get("endpoint")
+        }
+
+        self.exercises = {
+            "directory": learners_config.get("exercises").get("directory"),
+            "endpoint": learners_config.get("exercises").get("endpoint")
+        }
+
+        self.venjix = {
+            "auth_secret": learners_config.get("venjix").get("auth_secret"),
+            "url": learners_config.get("venjix").get("url")
+        }
 
         # define the render template
         self.template = {
