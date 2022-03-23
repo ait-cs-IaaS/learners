@@ -176,10 +176,10 @@ def access():
                         "password": str(client_details["password"]),
                     }
                     vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                    auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
+                    auth_url = f"{client_details['server']}?auth={vnc_auth_token}"
                 else:
                     auth_url = (
-                        f"https://{client_details['server']}?"
+                        f"{client_details['server']}?"
                         + f"username={client_details['username']}&password={client_details['password']}&"
                         + f"target={client_details['target']}"
                     )
