@@ -175,10 +175,10 @@ def access():
                     "password": str(client_details["password"]),
                 }
                 vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                auth_url = f"https://{client_details['server']}?auth={vnc_auth_token}"
+                auth_url = f"{client_details['server']}?auth={vnc_auth_token}"
             else:
                 auth_url = (
-                    f"https://{client_details['server']}?"
+                    f"{client_details['server']}?"
                     + f"username={client_details['username']}&password={client_details['password']}&"
                     + f"target={client_details['target']}"
                 )
@@ -415,7 +415,7 @@ def serve_documentation_index():
         verify_jwt_in_request()
         return send_from_directory(cfg.documentation.get("directory"), "index.html")
     except Exception as e:
-        logger.exception("Loading documentation failed")
+        logger.exception(f"Loading exercises from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
@@ -426,7 +426,7 @@ def serve_documentation(path):
         verify_jwt_in_request()
         return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
-        logger.exception("Loading documentation failed")
+        logger.exception(f"Loading exercises from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
@@ -437,7 +437,7 @@ def serve_exercises_index():
         verify_jwt_in_request()
         return send_from_directory(cfg.exercises.get("directory"), "index.html")
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
         abort(e.code)
 
 
@@ -448,7 +448,7 @@ def serve_exercises(path):
         verify_jwt_in_request()
         return send_from_directory(cfg.exercises.get("directory"), full_path)
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
         abort(e.code)
 
 

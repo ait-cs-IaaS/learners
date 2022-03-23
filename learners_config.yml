@@ -33,7 +33,7 @@ callback:
   endpoint: "/callback"
 
 novnc:
-  server: "10.17.5.119"
+  server: "http://localhost:5002"
 
 users:
   test:
