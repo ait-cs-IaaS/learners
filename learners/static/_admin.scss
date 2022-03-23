@@ -50,17 +50,62 @@
       background-color: #f6f6f6;
     }
 
-    & tr.mark td,
-    th.mark,
-    td.mark {
+    & tr.marked td,
+    th.marked,
+    td.marked {
       background-color: #ececec !important;
     }
 
     & td:hover,
-    td.mark:hover {
+    td.marked:hover {
       background-color: #dadada !important;
       cursor: pointer;
     }
+  }
+
+  .details_container {
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    & hr {
+      border: 2px solid $main-bg-color;
+      opacity: 1;
+    }
+
+    & label {
+      color: $main-bg-color;
+      padding: 5px 10px 0px 5px;
+      font-size: 1em;
+      // font-weight: 700;
+      width: auto;
+    }
+
+    & label.long {
+      width: 100%;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    & .detail {
+      font-size: 1em;
+      padding: 7px 10px;
+      background-color: #ececec;
+      color: $main-bg-color;
+      border-radius: 4px;
+    }
+
+    & ul {
+      list-style: none;
+      margin-top: 0px;
+      padding-left: 3%;
+    }
+
+    & ul li {
+      margin-top: 10px;
+    }
+
   }
 
   & a {
@@ -104,18 +149,8 @@
   }
 }
 
-.loading .stat_check,
-.loading .stat_cross {
-  display: none;
-}
-
-.loading .stat_icon {
-  animation: none;
-}
-
 .stat_indicator {
   width: auto;
-  // float: left;
   margin: 2px 8px 0 0;
 }
 
@@ -131,11 +166,40 @@
   margin: auto;
   top: 15%;
 }
-
-.stat_circle {
-  stroke: none;
-  border: 0;
+ 
+.loading_stat_circle {
+  stroke-dasharray: 0;
+  stroke-dashoffset: 0;
+  stroke-width: 5px;
+  stroke-miterlimit: 10;
+  stroke: #3a3a3a7c;
+  fill: none;
 }
+ 
+.loading_stat_circle_rot {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 0;
+  stroke-width: 10px;
+  stroke-miterlimit: 10;
+  stroke: #3a3a3a7c;
+  fill: none;
+  animation:
+      rot_circle 4s cubic-bezier(0.65, 0, 0.45, 1) forwards,
+      rot_circle 4s cubic-bezier(0,0,1,1) infinite,
+}
+
+@keyframes rot_circle {
+  0% {
+      stroke-dashoffset: 0;
+      stroke-dasharray: 83;
+  }
+
+  100% {
+      stroke-dashoffset: -332;
+      stroke-dasharray: 83;
+  }
+}
+
 
 .success .stat_icon {
   box-shadow: inset 0px 0px 0px $green-mid;
