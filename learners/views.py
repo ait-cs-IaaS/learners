@@ -129,9 +129,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
 
-        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -219,7 +219,7 @@ def call_venjix(script):
     user_jwt_identity = get_jwt_identity()
 
     # generate uuid
-    call_uuid = str(user_jwt_identity) + "_{0}".format(uuid.uuid4().int & (1 << 64) - 1)
+    call_uuid = f"{str(user_jwt_identity)}_{uuid.uuid4().int & (1 << 64) - 1}"
 
     try:
         user_id = User.query.filter_by(username=user_jwt_identity).first().id
@@ -230,7 +230,7 @@ def call_venjix(script):
 
         # send POST request
         response = requests.post(
-            url=cfg.venjix.get("url") + "/{0}".format(script),
+            url=f"{cfg.venjix.get('url')}/{script}",
             headers={
                 "Content-type": "application/json",
                 "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
@@ -407,8 +407,8 @@ def get_formdata(form_name):
                 subject = f"Form Submission: {user_jwt_identity} - {form_name}"
 
                 mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
-                mailbody += "<strong>User:</strong> {}</br>".format(user_jwt_identity)
-                mailbody += "<strong>Form:</strong> {}</br>".format(form_name)
+                mailbody += f"<strong>User:</strong> {user_jwt_identity}</br>"
+                mailbody += f"<strong>Form:</strong> {form_name}</br>"
                 mailbody += "<h2>Data:</h2>"
 
                 data = ""
@@ -434,10 +434,10 @@ def get_formdata(form_name):
 def serve_documentation_index():
     try:
         verify_jwt_in_request()
-        path = "{0}/{1}/".format(cfg.documentation.get("directory"), get_jwt_identity())
+        path = f"{cfg.documentation.get('directory')}/{get_jwt_identity()}/"
         return send_from_directory(path, "index.html")
     except Exception as e:
-        logger.exception("Loading documentation failed")
+        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
@@ -446,11 +446,11 @@ def serve_documentation(path):
 
     try:
         verify_jwt_in_request()
-        path = "{0}index.html".format(path) if path.endswith("/") else path
-        full_path = "{}/{}".format(get_jwt_identity(), path)
+        path = f"{path}index.html" if path.endswith("/") else path
+        full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
-        logger.exception("Loading documentation failed")
+        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
@@ -459,23 +459,23 @@ def serve_documentation(path):
 def serve_exercises_index():
     try:
         verify_jwt_in_request()
-        path = "{0}/{1}/".format(cfg.exercises.get("directory"), get_jwt_identity())
+        path = f"{cfg.exercises.get('directory')}/{get_jwt_identity()}/"
         return send_from_directory(path, "index.html")
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
         abort(e.code)
 
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
 def serve_exercises(path):
-    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    full_path = f"{path}index.html" if path.endswith("/") else path
     try:
         verify_jwt_in_request()
-        path = "{0}index.html".format(path) if path.endswith("/") else path
-        full_path = "{}/{}".format(get_jwt_identity(), path)
+        path = f"{path}index.html" if path.endswith("/") else path
+        full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.exercises.get("directory"), full_path)
     except Exception as e:
-        logger.exception("Loading exercises failed")
+        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
         abort(e.code)
 
 
