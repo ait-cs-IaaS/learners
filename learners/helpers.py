@@ -25,7 +25,7 @@ def get_history_from_DB(script_name, username):
         .filter_by(script_name=script_name)
         .join(User)
         .filter_by(username=username)
-        .order_by(ScriptExercise.response_time.desc())
+        .order_by(ScriptExercise.start_time.desc())
         .limit(10)
         .all()
     )
@@ -39,7 +39,7 @@ def get_history_from_DB(script_name, username):
         for i, db_entry in enumerate(db_entries)
     }
 
-    executed = bool(db_entries[0]) if db_entries else False
+    executed = bool(db_entries[0]) if (db_entries and db_entries[0].response_time) else False
     completed = db_entries[0].completed if db_entries else False
 
     return executed, completed, history

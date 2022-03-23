@@ -221,36 +221,48 @@ def call_venjix(script):
     # generate uuid
     call_uuid = str(user_jwt_identity) + "_{0}".format(uuid.uuid4().int & (1 << 64) - 1)
 
-    # pack payload to json object
-    payload = json.dumps(
-        {
-            "script": script,
-            "user_id": user_jwt_identity,
-            "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
-        }
-    )
+    try:
+        user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
-    user_id = User.query.filter_by(username=user_jwt_identity).first().id
+        new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
+        db.session.add(new_entry)
+        db.session.commit()
 
-    new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
-    db.session.add(new_entry)
-    db.session.commit()
+        # send POST request
+        response = requests.post(
+            url=cfg.venjix.get("url") + "/{0}".format(script),
+            headers={
+                "Content-type": "application/json",
+                "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
+            },
+            data=json.dumps(
+                {
+                    "script": script,
+                    "user_id": user_jwt_identity,
+                    "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+                }
+            ),
+        )
 
-    # send POST request
-    response = requests.post(
-        url=cfg.venjix.get("url") + "/{0}".format(script),
-        headers={
-            "Content-type": "application/json",
-            "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
-        },
-        data=payload,
-    )
+        # get response
+        init_state = response.json()
+        executed = bool(init_state["response"] == "script started")
 
-    # get response
-    init_state = response.json()
-    executed = bool(init_state["response"] == "script started")
+        return jsonify(uuid=call_uuid, executed=executed)
 
-    return jsonify(uuid=call_uuid, executed=executed)
+    except Exception as connection_exception:
+
+        try:
+            db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+            db_entry.msg = "Connection failed."
+            db_entry.connection_failed = True
+            db.session.commit()
+        except Exception as database_exception:
+            logger.exception(database_exception)
+
+        logger.exception(connection_exception)
+
+    return jsonify(uuid=call_uuid, executed=False)
 
 
 # ---------------------------------------------------------------------------------------
@@ -295,10 +307,15 @@ def get_history(script):
 
     executed, completed, history = get_history_from_DB(script, get_jwt_identity())
 
-    if executed:
+    if executed and history:
         return jsonify(
             executed=executed,
             completed=completed,
+            history=history,
+        )
+    elif history:
+        return jsonify(
+            never_executed=True,
             history=history,
         )
     else:
@@ -330,6 +347,9 @@ def monitor(call_uuid):
         elif db_entry.response_time != None:
             _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
             return jsonify(completed=db_entry.completed, msg=db_entry.msg, history=history)
+        elif db_entry.connection_failed == True:
+            _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
+            return jsonify(completed=False, msg="no response", history=history)
 
         # force new query on db in the next iteration
         db.session.close()
@@ -520,12 +540,7 @@ def get_exercise_results(user_id, exercise_id):
             data = {"executed": executed, "completed": completed, "history": history}
         else:
             return jsonify(error="Exercise type unknown.")
-    except:            
+    except:
         logger.warn("No data found.")
 
     return render_template("results_details.html", user=username, exercise=exercise["name"], data=data)
-
-
-
-
-    

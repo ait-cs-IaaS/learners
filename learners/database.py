@@ -38,6 +38,7 @@ class ScriptExercise(db.Model):
     response_time = db.Column(db.DateTime, nullable=True)
     response_content = db.Column(db.Text, nullable=True)
     completed = db.Column(db.Integer, nullable=False, default=0)
+    connection_failed = db.Column(db.Integer, nullable=False, default=0)
     msg = db.Column(db.String(240), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
