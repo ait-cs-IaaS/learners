@@ -44,14 +44,14 @@ $(function () {
         function () {
             var row = $(this).parent()
             var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
-            row.addClass("mark");
-            col.addClass("mark");
+            row.addClass("marked");
+            col.addClass("marked");
         },
         function () {
             var row = $(this).parent()
             var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
-            row.removeClass("mark");
-            col.removeClass("mark");
+            row.removeClass("marked");
+            col.removeClass("marked");
         }
     );
 
