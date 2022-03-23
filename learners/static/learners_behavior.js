@@ -42,19 +42,27 @@ $(function () {
 
     $("table td").hover(
         function () {
-            var index = $(this).index();
-            $(this).addClass("current-cell");
-            $(this).parent().addClass("current-tr");
-            $(this).parent().parent().find("th, td")
-                .filter(`:nth-child(${index + 1})`)
-                .addClass("current-td");
+            var row = $(this).parent()
+            var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
+            row.addClass("mark");
+            col.addClass("mark");
         },
         function () {
-            $(this).removeClass("current-cell");
-            $(this).parent().removeClass("current-tr");
-            $(this).parent().parent().find("th, td").removeClass("current-td");
+            var row = $(this).parent()
+            var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
+            row.removeClass("mark");
+            col.removeClass("mark");
         }
     );
+
+    $("table td").click(
+        function () {
+            var link = $(this).find("input").val()
+            if (link) {
+                location.href = link
+            }
+        }
+    )
 
     $("#exercises-select").change(function () {
         let index = $(`table th:has(input[value='${$(this).val()}'])`).index() + 1;

@@ -40,9 +40,7 @@ CyberRange
                   </svg>
                 </div>
                 {% endif %}
-              <a href='/results/{{ entry["user_id"] }}/{{ key }}'>
-                details
-              </a>
+              <input type="hidden" value='/results/{{ entry["user_id"] }}/{{ key }}'>
               {% else %}
                 {{ value }}
               {% endif %}
