@@ -12,13 +12,6 @@ Learners keeps track of the training/exercise progress of the participants, for 
 a locale database is created, which is initialized with the following function.
 """
 
-"""
-Set up the database
-
-Learners keeps track of the training/exercise progress of the participants, for this
-a locale database is created, which is initialized with the following function.
-"""
-
 db = SQLAlchemy()
 
 # User table
