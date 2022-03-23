@@ -487,26 +487,26 @@ def admin_area():
 
     user_list = [{"id": 0, "username": "all"}]
     users = User.query.all()
+
     for user in users:
+
         user_list.append({"id": user.id, "username": user.username})
-
-        executedScriptExercises = []
-        for executedScriptExercise in user.scriptExercises:
-            executedScriptExercises.append(executedScriptExercise.script_name)
-
-        executedFormExercises = []
-        for executedFormExercise in user.formExercises:
-            executedFormExercises.append(executedFormExercise.name)
-
         execution = {"user_id": user.id, "username": user.username}
+
         for exercise in exercises[1:]:
-            execution[exercise["id"]] = 0
-            if exercise["type"] == "form":
-                if exercise["id"] in executedFormExercises:
-                    execution[exercise["id"]] = 1
-            if exercise["type"] == "script":
-                if exercise["script"] in executedScriptExercises:
-                    execution[exercise["id"]] = 1
+            exercise_name = exercise["id"]
+            exercise_type = exercise["type"]
+            execution[exercise_name] = -1
+
+            if exercise_type == "form":
+                for exec in user.formExercises:
+                    if exec.name == exercise["id"]:
+                        execution[exercise_name] = 1
+
+            if exercise_type == "script":
+                for exec in user.scriptExercises:
+                    if exec.script_name == exercise["script"]:
+                        execution[exercise_name] = exec.completed
 
         executions.append(execution)
 
@@ -514,9 +514,7 @@ def admin_area():
     for exercise in exercises[1:]:
         columns.append({"name": exercise["name"], "id": exercise["id"]})
 
-    table = {"columns": columns, "data": executions}
-
-    return render_template("results.html", exercises=exercises, users=user_list, table=table)
+    return render_template("results.html", exercises=exercises, users=user_list, table={"columns": columns, "data": executions})
 
 
 @bp.route("/results/<user_id>/<exercise_id>")
