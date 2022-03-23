@@ -14,8 +14,6 @@ from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 
-from werkzeug.exceptions import NotFound
-
 from flask_mail import Message
 
 from flask_cors import cross_origin
@@ -24,9 +22,10 @@ import requests
 import uuid
 import time
 from datetime import datetime
+import logging
 
-from learners.helpers import get_history_from_DB
-from learners.database import User, Post, Form
+from learners.helpers import get_history_from_DB, get_exercises
+from learners.database import User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
@@ -35,6 +34,7 @@ from learners.logger import logger
 
 
 bp = Blueprint("views", __name__)
+exercises = get_exercises()
 
 
 @bp.route("/")
@@ -129,9 +129,9 @@ def access():
         'base_url/user/en?auth=jwt_token'
         """
 
-        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
 
-        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}" + f"/{cfg.language}/index.html?auth={jwt_token}"
+        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
 
         """
         There are two types of user-host mapping between Learners and the noVNC server, defined by
@@ -165,26 +165,27 @@ def access():
         """
 
         cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
-        for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
-            if client_details["server"] == "default":
-                client_details["server"] = cfg.novnc.get("server")
-            if cfg.jwt_for_vnc_access:
-                additional_claims = {
-                    "target": str(client_details["target"]),
-                    "username": str(client_details["username"]),
-                    "password": str(client_details["password"]),
-                }
-                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                auth_url = f"{client_details['server']}?auth={vnc_auth_token}"
-            else:
-                auth_url = (
-                    f"{client_details['server']}?"
-                    + f"username={client_details['username']}&password={client_details['password']}&"
-                    + f"target={client_details['target']}"
-                )
-
-            print(auth_url)
-            cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
+        if cfg.template["vnc_clients"]:
+            for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
+                if client_details["server"] == "default":
+                    client_details["server"] = cfg.novnc.get("server")
+                if cfg.jwt_for_vnc_access:
+                    additional_claims = {
+                        "target": str(client_details["target"]),
+                        "username": str(client_details["username"]),
+                        "password": str(client_details["password"]),
+                    }
+                    vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                    auth_url = f"{client_details['server']}?auth={vnc_auth_token}"
+                else:
+                    auth_url = (
+                        f"{client_details['server']}?"
+                        + f"username={client_details['username']}&password={client_details['password']}&"
+                        + f"target={client_details['target']}"
+                    )
+                cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
+        else:
+            cfg.template["vnc_clients"] = None
 
     except:
         error_msg = "No exercises for this user."
@@ -218,38 +219,50 @@ def call_venjix(script):
     user_jwt_identity = get_jwt_identity()
 
     # generate uuid
-    call_uuid = str(user_jwt_identity) + "_{0}".format(uuid.uuid4().int & (1 << 64) - 1)
+    call_uuid = f"{str(user_jwt_identity)}_{uuid.uuid4().int & (1 << 64) - 1}"
 
-    # pack payload to json object
-    payload = json.dumps(
-        {
-            "script": script,
-            "user_id": user_jwt_identity,
-            "callback": f"{cfg.url_callback}/{str(call_uuid)}",
-        }
-    )
+    try:
+        user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
-    user_id = User.query.filter_by(username=user_jwt_identity).first().id
+        new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
+        db.session.add(new_entry)
+        db.session.commit()
 
-    new_entry = Post(script_name=script, call_uuid=call_uuid, user_id=user_id)
-    db.session.add(new_entry)
-    db.session.commit()
+        # send POST request
+        response = requests.post(
+            url=f"{cfg.venjix.get('url')}/{script}",
+            headers={
+                "Content-type": "application/json",
+                "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
+            },
+            data=json.dumps(
+                {
+                    "script": script,
+                    "user_id": user_jwt_identity,
+                    "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+                }
+            ),
+        )
 
-    # send POST request
-    response = requests.post(
-        url=cfg.venjix.get("url") + "/{0}".format(script),
-        headers={
-            "Content-type": "application/json",
-            "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
-        },
-        data=payload,
-    )
+        # get response
+        init_state = response.json()
+        executed = bool(init_state["response"] == "script started")
 
-    # get response
-    init_state = response.json()
-    executed = bool(init_state["response"] == "script started")
+        return jsonify(uuid=call_uuid, executed=executed)
 
-    return jsonify(uuid=call_uuid, executed=executed)
+    except Exception as connection_exception:
+
+        try:
+            db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+            db_entry.msg = "Connection failed."
+            db_entry.connection_failed = True
+            db.session.commit()
+        except Exception as database_exception:
+            logger.exception(database_exception)
+
+        logger.exception(connection_exception)
+
+    return jsonify(uuid=call_uuid, executed=False)
 
 
 # ---------------------------------------------------------------------------------------
@@ -267,7 +280,7 @@ def callback(call_uuid):
 
     feedback = request.get_json()
 
-    db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
+    db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
     db_entry.response_time = datetime.utcnow()
     db_entry.response_content = json.dumps(feedback)
     db_entry.completed = int(feedback.get("returncode") == 0)
@@ -294,10 +307,15 @@ def get_history(script):
 
     executed, completed, history = get_history_from_DB(script, get_jwt_identity())
 
-    if executed:
+    if executed and history:
         return jsonify(
             executed=executed,
             completed=completed,
+            history=history,
+        )
+    elif history:
+        return jsonify(
+            never_executed=True,
             history=history,
         )
     else:
@@ -322,13 +340,16 @@ def monitor(call_uuid):
     while True:
         time.sleep(0.5)
 
-        db_entry = Post.query.filter_by(call_uuid=call_uuid).first()
+        db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
 
         if db_entry is None:
             return jsonify(completed=False)
         elif db_entry.response_time != None:
             _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
             return jsonify(completed=db_entry.completed, msg=db_entry.msg, history=history)
+        elif db_entry.connection_failed == True:
+            _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
+            return jsonify(completed=False, msg="no response", history=history)
 
         # force new query on db in the next iteration
         db.session.close()
@@ -352,7 +373,7 @@ def get_formdata(form_name):
         user_id = User.query.filter_by(username=user_jwt_identity).first().id
 
         # Check whether the form was already submitted
-        prio_submission = db.session.query(Form).filter_by(user_id=user_id).filter_by(form_name=form_name).first()
+        prio_submission = db.session.query(FormExercise).filter_by(user_id=user_id).filter_by(name=form_name).first()
 
         if request.method == "GET":
             """
@@ -377,7 +398,7 @@ def get_formdata(form_name):
             form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
 
             # Create database entry
-            new_form = Form(user_id=user_id, form_name=form_name, form_data=form_data, timestamp=datetime.utcnow())
+            new_form = FormExercise(user_id=user_id, name=form_name, data=form_data, timestamp=datetime.utcnow())
             db.session.add(new_form)
             db.session.commit()
 
@@ -385,7 +406,7 @@ def get_formdata(form_name):
             if request.headers.get("Method") == "mail":
                 subject = f"Form Submission: {user_jwt_identity} - {form_name}"
 
-                mailbody = "<h1>Results</h1><h2>Information:</h2>"
+                mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
                 mailbody += f"<strong>User:</strong> {user_jwt_identity}</br>"
                 mailbody += f"<strong>Form:</strong> {form_name}</br>"
                 mailbody += "<h2>Data:</h2>"
@@ -413,20 +434,23 @@ def get_formdata(form_name):
 def serve_documentation_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory(cfg.documentation.get("directory"), "index.html")
+        path = f"{cfg.documentation.get('directory')}/{get_jwt_identity()}/"
+        return send_from_directory(path, "index.html")
     except Exception as e:
-        logger.exception(f"Loading exercises from {cfg.documentation.get('directory')} failed")
+        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
 def serve_documentation(path):
-    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+
     try:
         verify_jwt_in_request()
+        path = f"{path}index.html" if path.endswith("/") else path
+        full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
-        logger.exception(f"Loading exercises from {cfg.documentation.get('directory')} failed")
+        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
         abort(e.code)
 
 
@@ -435,7 +459,8 @@ def serve_documentation(path):
 def serve_exercises_index():
     try:
         verify_jwt_in_request()
-        return send_from_directory(cfg.exercises.get("directory"), "index.html")
+        path = f"{cfg.exercises.get('directory')}/{get_jwt_identity()}/"
+        return send_from_directory(path, "index.html")
     except Exception as e:
         logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
         abort(e.code)
@@ -443,9 +468,11 @@ def serve_exercises_index():
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
 def serve_exercises(path):
-    full_path = "{0}index.html".format(path) if path.endswith("/") else path
+    full_path = f"{path}index.html" if path.endswith("/") else path
     try:
         verify_jwt_in_request()
+        path = f"{path}index.html" if path.endswith("/") else path
+        full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.exercises.get("directory"), full_path)
     except Exception as e:
         logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
@@ -455,4 +482,63 @@ def serve_exercises(path):
 @bp.route("/admin")
 @admin_required()
 def admin_area():
-    return jsonify(admin=True)
+
+    executions = []
+
+    user_list = [{"id": 0, "username": "all"}]
+    users = User.query.all()
+
+    for user in users:
+
+        user_list.append({"id": user.id, "username": user.username})
+        execution = {"user_id": user.id, "username": user.username}
+
+        for exercise in exercises[1:]:
+            exercise_name = exercise["id"]
+            exercise_type = exercise["type"]
+            execution[exercise_name] = -1
+
+            if exercise_type == "form":
+                for exec in user.formExercises:
+                    if exec.name == exercise["id"]:
+                        execution[exercise_name] = 1
+
+            if exercise_type == "script":
+                for exec in user.scriptExercises:
+                    if exec.script_name == exercise["script"]:
+                        execution[exercise_name] = exec.completed
+
+        executions.append(execution)
+
+    columns = [{"name": "id", "id": "user_id"}, {"name": "user", "id": "username"}]
+    for exercise in exercises[1:]:
+        columns.append({"name": exercise["name"], "id": exercise["id"]})
+
+    return render_template("results.html", exercises=exercises, users=user_list, table={"columns": columns, "data": executions})
+
+
+@bp.route("/results/<user_id>/<exercise_id>")
+@admin_required()
+def get_exercise_results(user_id, exercise_id):
+
+    exercise = next(exercise for exercise in exercises if exercise["id"] == exercise_id)
+    exercise_type = exercise["type"]
+    data = None
+
+    try:
+        username = User.query.filter_by(id=user_id).first().username
+    except:
+        logger.warn("User not found.")
+
+    try:
+        if exercise_type == "form":
+            data = json.loads(FormExercise.query.filter_by(user_id=user_id).filter_by(name=exercise["id"]).first().data)
+        elif exercise_type == "script":
+            executed, completed, history = get_history_from_DB(exercise["script"], username)
+            data = {"executed": executed, "completed": completed, "history": history}
+        else:
+            return jsonify(error="Exercise type unknown.")
+    except:
+        logger.warn("No data found.")
+
+    return render_template("results_details.html", user=username, exercise=exercise["name"], data=data)

@@ -12,7 +12,7 @@ config_schema = Map(
         "jwt": Map(
             {
                 "jwt_secret_key": Str(),
-                Optional("jwt_access_token_duration", default=120): Int(),
+                Optional("jwt_access_token_duration", default=720): Int(),
                 Optional("jwt_for_vnc_access", default=True): Bool(),
             }
         ),

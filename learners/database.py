@@ -18,11 +18,12 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    posts = db.relationship("Post", backref="user", lazy=True)
+    scriptExercises = db.relationship("ScriptExercise", backref="user", lazy=True)
+    formExercises = db.relationship("FormExercise", backref="user", lazy=True)
 
 
 # History of sent POSTs
-class Post(db.Model):
+class ScriptExercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     script_name = db.Column(db.String(120), nullable=False)
     call_uuid = db.Column(db.String(120), unique=True, nullable=False)
@@ -30,15 +31,16 @@ class Post(db.Model):
     response_time = db.Column(db.DateTime, nullable=True)
     response_content = db.Column(db.Text, nullable=True)
     completed = db.Column(db.Integer, nullable=False, default=0)
+    connection_failed = db.Column(db.Integer, nullable=False, default=0)
     msg = db.Column(db.String(240), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
 # Formdata
-class Form(db.Model):
+class FormExercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    form_name = db.Column(db.String(120), nullable=False)
-    form_data = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    data = db.Column(db.String(), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 

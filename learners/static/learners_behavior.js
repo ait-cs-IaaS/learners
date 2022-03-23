@@ -39,8 +39,58 @@ $(function () {
         $(this).toggleClass("active");
         $("#chat-container").toggleClass("hideContent");
     });
-});
 
+    $("table td").hover(
+        function () {
+            var row = $(this).parent()
+            var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
+            row.addClass("marked");
+            col.addClass("marked");
+        },
+        function () {
+            var row = $(this).parent()
+            var col = $(this).parent().parent().find("th, td").filter(`:nth-child(${$(this).index() + 1})`)
+            row.removeClass("marked");
+            col.removeClass("marked");
+        }
+    );
+
+    $("table td").click(
+        function () {
+            var link = $(this).find("input").val()
+            if (link) {
+                location.href = link
+            }
+        }
+    )
+
+    $("#exercises-select").change(function () {
+        let index = $(`table th:has(input[value='${$(this).val()}'])`).index() + 1;
+        let cells = $(`table th, table td`)
+
+        if (index == 0) {
+            cells.fadeIn("slow");
+        } else {
+            cells.not(`:nth-child(-n +2)`).hide();
+            cells.filter(`:nth-child(-n +2)`).show();
+            cells.filter(`:nth-child(${index})`).fadeIn("slow");
+        }
+    });
+
+    $("#users-select").change(function () {
+        var index =
+            $(`table tr td:contains('${$(this).val()}')`)
+                .parent()
+                .index() + 1;
+
+        if (index == 0) {
+            $(`table tr`).fadeIn("slow");
+        } else {
+            $(`table tr`).not(`:nth-child(1)`).hide();
+            $(`table tr`).filter(`:nth-child(${index})`).fadeIn("slow");
+        }
+    });
+});
 
 /**
  * This function is used to open the currently active/visible content in a new tab.
