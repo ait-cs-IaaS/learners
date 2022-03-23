@@ -32,6 +32,12 @@ CyberRange
                     </svg>
                   </div>
 
+                {% elif value == -1 %}
+                <div class="stat_indicator loading">
+                  <svg class="bi stat_icon" width="24" height="24" role="img">
+                    <use xlink:href="#pending"></use>
+                  </svg>
+                </div>
                 {% else %}
 
                 <div class="stat_indicator failed">
