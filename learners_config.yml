@@ -30,7 +30,7 @@ exercises:
   endpoint: "/exercises"
 
 callback:
-  endpoint: "/callback"
+  endpoint: "http://localhost:5000/callback"
 
 novnc:
   server: "http://localhost:5002"
@@ -38,17 +38,17 @@ novnc:
 users:
   test:
     password: test
-    vnc_clients:
-      soc_client:
-        target: placeholder_1
-        tooltip: "SOC client"
-        username: csirt1
-        password: placeholder
-      pps_client:
-        target: placeholder_3
-        tooltip: "PPS client"
-        username: csirt3
-        password: placeholder
+    # vnc_clients:
+    #   soc_client:
+    #     target: placeholder_1
+    #     tooltip: "SOC client"
+    #     username: csirt1
+    #     password: placeholder
+    #   pps_client:
+    #     target: placeholder_3
+    #     tooltip: "PPS client"
+    #     username: csirt3
+    #     password: placeholder
   ben:
     password: ben
     vnc_clients:
