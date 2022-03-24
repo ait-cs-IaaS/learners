@@ -45,6 +45,12 @@ class FormExercise(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
+
+
 @event.listens_for(User.__table__, "after_create")
 def insert_initial_users(*args, **kwargs):
     for user, _ in cfg.users.items():
