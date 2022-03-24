@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import timedelta
 
 from flask_assets import Environment
@@ -78,10 +79,10 @@ class Configuration:
         else:
             self.mail = False
 
-        self.users = learners_config.get("users")
-
-        # Set components configuration
         self.novnc = {"server": learners_config.get("novnc").get("server")}
+
+        self.users = learners_config.get("users")
+        self.users = json.loads(json.dumps(self.users).replace("default", self.novnc.get("server")))
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
 
@@ -95,18 +96,24 @@ class Configuration:
             "endpoint": learners_config.get("exercises").get("endpoint"),
         }
 
-        self.venjix = {"auth_secret": learners_config.get("venjix").get("auth_secret"), "url": learners_config.get("venjix").get("url")}
+        self.venjix = {
+            "auth_secret": learners_config.get("venjix").get("auth_secret"), 
+            "url": learners_config.get("venjix").get("url"),
+            "headers": {
+                "Content-type": "application/json",
+                "Authorization": f"Bearer {learners_config.get('venjix').get('auth_secret')}",
+            }
+        }
 
         # define the render template
         self.template = {
-            "authenticated": False,
             "chat": False,
             "user_id": None,
             "branding": self.branding,
             "theme": self.theme,
             "vnc_clients": None,
-            "url_documentation": None,
-            "url_exercises": None,
+            "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
+            "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
         }
 
         # set CORS configuration
@@ -144,7 +151,8 @@ def config_app(app):
 
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
-    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "auth"
 
     app.config["CORS_HEADERS"] = "Content-Type"
     app.config["CORS_ORIGINS"] = cfg.cors_origins
