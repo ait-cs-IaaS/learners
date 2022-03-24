@@ -97,12 +97,12 @@ class Configuration:
         }
 
         self.venjix = {
-            "auth_secret": learners_config.get("venjix").get("auth_secret"), 
+            "auth_secret": learners_config.get("venjix").get("auth_secret"),
             "url": learners_config.get("venjix").get("url"),
             "headers": {
                 "Content-type": "application/json",
                 "Authorization": f"Bearer {learners_config.get('venjix').get('auth_secret')}",
-            }
+            },
         }
 
         # define the render template
