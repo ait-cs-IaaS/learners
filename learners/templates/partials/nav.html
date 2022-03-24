@@ -1,6 +1,6 @@
 <div id="navigation" class="d-flex flex-column flex-shrink-0">
   <a
-    href="/"
+    href="/login"
     class="d-block p-3 link-dark text-decoration-none"
     title=""
     data-bs-toggle="tooltip"
@@ -14,7 +14,6 @@
 
   <nav class="mb-auto">
     <ul class="nav flex-column text-center">
-      {% if authenticated %}
       <li class="nav-item">
         <!--  add class "active" for active link -->
         <a
@@ -66,12 +65,9 @@
         </li>
         {% endfor %}
       {% endif %}
-
-      {% endif %}
     </ul>
   </nav>
 
-  {% if authenticated %}
   <div class="nav-item">
     <a
       id="menu-newtab"
@@ -85,7 +81,6 @@
       </svg>
     </a>
   </div>
-  {% endif %}
 
   {% if chat %}
   <div class="nav-item">

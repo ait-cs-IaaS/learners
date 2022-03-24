@@ -1,3 +1,4 @@
+from datetime import timezone
 from flask import json
 from flask import render_template
 from flask import redirect
@@ -22,10 +23,11 @@ import requests
 import uuid
 import time
 from datetime import datetime
+from datetime import timedelta
 import logging
 
-from learners.helpers import get_history_from_DB, get_exercises
-from learners.database import User, ScriptExercise, FormExercise
+from learners.helpers import get_history_from_DB, get_exercises, check_password, is_admin, connection_failed, call_venjix
+from learners.database import User, ScriptExercise, FormExercise, TokenBlocklist
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
@@ -39,10 +41,6 @@ exercises = get_exercises()
 
 @bp.route("/")
 def home():
-    """
-    This function verifies if a valid jwt-token is present. Depending on this,
-    the user is either shown a success message or redirected to the plain login form.
-    """
 
     try:
         verify_jwt_in_request()
@@ -55,164 +53,106 @@ def home():
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
-    """
-    GET: The plain login form is displayed to the user.
-
-    POST: Username and password are validated if they are present in the configuration file
-    and therefore authorized. If successful, a JWT token is created and the user is
-    redirected to the /access route.
-    """
-
-    def check_password(usermap, user, password):
-        return user in usermap and usermap.get(user).get("password") == password
-
-    def is_admin(user):
-        return cfg.users.get(user).get("is_admin")
 
     if request.method == "GET":
-        return render_template("login.html", **cfg.template)
+        try:
+            verify_jwt_in_request()
+            success_msg = f"Logged in as {get_jwt_identity()}."
+            return render_template("login.html", **cfg.template, success=True, success_msg=success_msg)
+        except:
+            return render_template("login.html", **cfg.template)
 
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
     if not check_password(cfg.users, username, password):
         error_msg = "Invalid username or password"
-        cfg.template["authenticated"] = False
         return render_template("login.html", **cfg.template, error=error_msg)
 
-    """
-    Keep track of users in the database. First it is checked if there is already a
-    corresponding entry for the logged in user in the database, if this is not
-    the case, it is created.
-    """
-
-    if User.query.filter_by(username=username).first() is None:
-        authorized_user = User(username=username)
-        db.session.add(authorized_user)
-        db.session.commit()
-
-    response = redirect("/admin") if is_admin(username) else redirect("/access")
     access_token = create_access_token(identity=username, additional_claims={"is_admin": is_admin(username)})
-
-    set_access_cookies(response, access_token)
-    cfg.template["authenticated"] = True
+    response = redirect("/admin") if is_admin(username) else redirect("/access")
+    response.set_cookie("auth", value=access_token, secure=True, httponly=False)
 
     return response
+
+
+@bp.route("/logout")
+@jwt_required()
+def modify_token():
+    jti = get_jwt()["jti"]
+    now = datetime.now(timezone.utc)
+    db.session.add(TokenBlocklist(jti=jti, created_at=now))
+    db.session.commit()
+    success_msg = "Successfully logged out."
+    return render_template("login.html", **cfg.template, success_msg=success_msg)
 
 
 @bp.route("/access")
 @jwt_required()
 def access():
-    """
-    This function is responsible for rendering the access page. For this the
-    'cfg.template' dict is filled with the necessary information which is
-    then rendered via the index.html template.
 
-    cfg.template:
-        user_id (string)        -> Username from JWT Token
-        branding (boolean)      -> wheiter or not to display branding on the login page
-        theme (string)          -> 'dark' or 'light'
-        vnc_clients (dict)      -> dict of vnc clients
-        url_documentation (string)       -> url of documentation page
-        url_exercises (string)  -> url of exercise control page
-    """
-
-    # Get JWT Token and append it to the exercises URL via query string
     user_id = get_jwt_identity()
-    cfg.template["authenticated"] = True
-    jwt_token = request.cookies.get("access_token_cookie")
 
-    try:
-
-        """
-        JWT In query string to pass to iframe
-        'base_url/user/en?auth=jwt_token'
-        """
-
-        cfg.template["url_exercises"] = f"{cfg.exercises.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
-
-        cfg.template["url_documentation"] = f"{cfg.documentation.get('endpoint')}/{cfg.language}/index.html?auth={jwt_token}"
-
-        """
-        There are two types of user-host mapping between Learners and the noVNC server, defined by
-        the app-config 'JWT_FOR_VNC_ACCESS':
-
-        1. JWT token with target host: The target host is defined as an additional parameter in the
-          JWT token. In this case a separate JWT token is created and apended for each host in which
-          the target host is defined.
-
-          Required config:
-
-          vnc_clients:
-            client:
-              server (string)   -> IP of the noVNC server
-              target (int)      -> target host to connect to
-              username (string) -> Username of client
-              password (string) -> Password of client
-
-        2. 1:1 Mapping: In case there is only one Client used, no target must be specified, in this
-          case a simple username + password config can be used. In order to not transmit username
-          and password over the wire option 1 can be chosen with 'target=0'.
-
-          Required config:
-
-          vnc_clients:
-            client:
-              server (string)   -> IP of the noVNC server
-              username (string) -> Username of client
-              password (string) -> Password of client
-
-        """
-
-        cfg.template["vnc_clients"] = cfg.users[user_id]["vnc_clients"]
-        if cfg.template["vnc_clients"]:
-            for vnc_client, client_details in cfg.users[user_id]["vnc_clients"].items():
-                if client_details["server"] == "default":
-                    client_details["server"] = cfg.novnc.get("server")
-                if cfg.jwt_for_vnc_access:
-                    additional_claims = {
-                        "target": str(client_details["target"]),
-                        "username": str(client_details["username"]),
-                        "password": str(client_details["password"]),
-                    }
-                    vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
-                    auth_url = f"{client_details['server']}?auth={vnc_auth_token}"
-                else:
-                    auth_url = (
-                        f"{client_details['server']}?"
-                        + f"username={client_details['username']}&password={client_details['password']}&"
-                        + f"target={client_details['target']}"
-                    )
-                cfg.template["vnc_clients"][vnc_client].setdefault("url", auth_url)
-        else:
-            cfg.template["vnc_clients"] = None
-
-    except:
-        error_msg = "No exercises for this user."
-        return render_template("login.html", **cfg.template, error=error_msg)
+    if vnc_clients := cfg.users.get(user_id).get("vnc_clients"):
+        for client, details in vnc_clients.items():
+            if cfg.jwt_for_vnc_access:
+                additional_claims = {
+                    "target": str(details.get("target")),
+                    "username": str(details.get("username")),
+                    "password": str(details.get("password")),
+                }
+                vnc_auth_token = create_access_token(identity=user_id, additional_claims=additional_claims)
+                auth_url = f"{details.get('server')}?auth={vnc_auth_token}"
+            else:
+                auth_url = (
+                    f"{details.get('server')}?"
+                    + f"username={details.get('username')}&password={details.get('password')}&"
+                    + f"target={details.get('target')}"
+                )
+            cfg.template["vnc_clients"][client].setdefault("url", auth_url)
 
     return render_template("index.html", **cfg.template)
 
 
-# ---------------------------------------------------------------------------------------
-# Run a script on the external server (Venjix)
-# ---------------------------------------------------------------------------------------
+# POST exercise -> if type script
+#                -> if type form
+# GET exercise -> if response or fail in last db else:
+#               -> loop ("monitor")
+
+
+@bp.route("/exercise/<type>", methods=["POST"])
+@jwt_required()
+def run_exercise(type):
+
+    user = get_jwt_identity()
+
+    if type == "script":
+        call_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
+        data = request.data
+
+        try:
+            user_id = User.query.filter_by(username=user).first().id
+            exercise = ScriptExercise(script_name=data, call_uuid=call_uuid, user_id=user_id)
+            db.session.add(exercise)
+            db.session.commit()
+        except Exception as e:
+            logger.exception(e)
+
+        call_venjix(user, data.script, call_uuid)
+
+        return jsonify(uuid=call_uuid, executed=False)
+
+
+@bp.route("/exercise/<id>", methods=["GET"])
+@jwt_required()
+def get_exercise(id):
+    return jsonify(id=id)
 
 
 @bp.route("/execute/<script>", methods=["POST"])
 @cross_origin()
-@jwt_required()
-def call_venjix(script):
-
-    """
-    This function allows to trigger an exercise-script on the external server 'Venjix'.
-    The request contains the script name, the user ID and a unique callback URL which is composed of
-    the user ID and a 64 character long random string (call_uuid).
-
-    'call_uuid' = <user_jwt_identity>_<64-charater-random>
-
-    This call_uuid is also stored in the database to be able to react to the callback later.
-    """
+# @jwt_required()
+def call_venjix_old(script):
 
     # get user id from JWT token
     verify_jwt_in_request(locations="headers")
@@ -265,45 +205,10 @@ def call_venjix(script):
     return jsonify(uuid=call_uuid, executed=False)
 
 
-# ---------------------------------------------------------------------------------------
-# Callback
-# ---------------------------------------------------------------------------------------
-
-
-@bp.route("/callback/<call_uuid>", methods=["POST"])
-def callback(call_uuid):
-
-    """
-    This endpoint is passed to Venjix in order to respond to an execute script. If a response
-    is received, it is recorded in the database and 'completed' returned.
-    """
-
-    feedback = request.get_json()
-
-    db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
-    db_entry.response_time = datetime.utcnow()
-    db_entry.response_content = json.dumps(feedback)
-    db_entry.completed = int(feedback.get("returncode") == 0)
-    db_entry.msg = feedback.get("msg") or None
-    db.session.commit()
-
-    return jsonify(completed=True)
-
-
-# ---------------------------------------------------------------------------------------
-# Get current state
-# ---------------------------------------------------------------------------------------
-
-
 @bp.route("/history/<script>")
 @cross_origin()
 @jwt_required()
 def get_history(script):
-
-    """
-    This function returns the last 10 results of the requested script, executed by the current
-    user (identified via JWT token Identity).
-    """
 
     executed, completed, history = get_history_from_DB(script, get_jwt_identity())
 
@@ -322,20 +227,10 @@ def get_history(script):
         return jsonify(never_executed=True)
 
 
-# ---------------------------------------------------------------------------------------
-# Check if exercise completed
-# ---------------------------------------------------------------------------------------
-
-
 @bp.route("/monitor/<call_uuid>")
 @cross_origin()
 @jwt_required()
 def monitor(call_uuid):
-
-    """
-    This function executes a repeated query of the database and monitors whether a response to a
-    given callback endpoint ('<call_uuid>') has already been received.
-    """
 
     while True:
         time.sleep(0.5)
@@ -355,11 +250,6 @@ def monitor(call_uuid):
         db.session.close()
 
 
-# ---------------------------------------------------------------------------------------
-# Get form data
-# ---------------------------------------------------------------------------------------
-
-
 @bp.route("/form/<form_name>", methods=["GET", "POST"])
 @cross_origin()
 @jwt_required()
@@ -376,10 +266,6 @@ def get_formdata(form_name):
         prio_submission = db.session.query(FormExercise).filter_by(user_id=user_id).filter_by(name=form_name).first()
 
         if request.method == "GET":
-            """
-            This function checks if the requested form has already been received. Returns 'completed'
-            if an entry is found.
-            """
 
             if prio_submission is not None:
                 return jsonify(executed=True, completed=True)
@@ -387,10 +273,6 @@ def get_formdata(form_name):
                 return jsonify(never_executed=True)
 
         if request.method == "POST":
-            """
-            This function takes form data and stores it in the database and can additionally, if specified
-            by the "Method" parameter in the header, send the results by mail to the exercise administrator.
-            """
 
             if prio_submission is not None:
                 return jsonify(completed=False, msg="Form was already submitted.")
@@ -398,7 +280,13 @@ def get_formdata(form_name):
             form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
 
             # Create database entry
-            new_form = FormExercise(user_id=user_id, name=form_name, data=form_data, timestamp=datetime.utcnow())
+            new_form = FormExercise(
+                user_id=user_id,
+                name=form_name,
+                data=form_data,
+                timestamp=datetime.now(timezone.utc),
+            )
+
             db.session.add(new_form)
             db.session.commit()
 
@@ -429,36 +317,50 @@ def get_formdata(form_name):
         return jsonify(executed=False, completed=False, msg="Failed to find user in database. Please login again.")
 
 
+@bp.route("/callback/<call_uuid>", methods=["POST"])
+def callback(call_uuid):
+
+    feedback = request.get_json()
+
+    db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+    db_entry.response_time = datetime.now(timezone.utc)
+    db_entry.response_content = json.dumps(feedback)
+    db_entry.completed = int(feedback.get("returncode") == 0)
+    db_entry.msg = feedback.get("msg") or None
+    db.session.commit()
+
+    return jsonify(completed=True)
+
+
 @bp.route("/documentation/", methods=["GET"])
 @bp.route("/documentation", methods=["GET"])
+@jwt_required()
 def serve_documentation_index():
     try:
-        verify_jwt_in_request()
         path = f"{cfg.documentation.get('directory')}/{get_jwt_identity()}/"
         return send_from_directory(path, "index.html")
     except Exception as e:
         logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
-        abort(e.code)
+        abort(e)
 
 
 @bp.route("/documentation/<path:path>", methods=["GET"])
+@jwt_required()
 def serve_documentation(path):
-
     try:
-        verify_jwt_in_request()
         path = f"{path}index.html" if path.endswith("/") else path
         full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.documentation.get("directory"), full_path)
     except Exception as e:
         logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
-        abort(e.code)
+        abort(e)
 
 
 @bp.route("/exercises/", methods=["GET"])
 @bp.route("/exercises", methods=["GET"])
+@jwt_required()
 def serve_exercises_index():
     try:
-        verify_jwt_in_request()
         path = f"{cfg.exercises.get('directory')}/{get_jwt_identity()}/"
         return send_from_directory(path, "index.html")
     except Exception as e:
@@ -467,10 +369,10 @@ def serve_exercises_index():
 
 
 @bp.route("/exercises/<path:path>", methods=["GET"])
+@jwt_required()
 def serve_exercises(path):
     full_path = f"{path}index.html" if path.endswith("/") else path
     try:
-        verify_jwt_in_request()
         path = f"{path}index.html" if path.endswith("/") else path
         full_path = f"{get_jwt_identity()}/{path}"
         return send_from_directory(cfg.exercises.get("directory"), full_path)
@@ -500,10 +402,10 @@ def admin_area():
 
             if exercise_type == "form":
                 for exec in user.formExercises:
-                    if exec.name == exercise["id"]:
+                    if exec.name == exercise_name:
                         execution[exercise_name] = 1
 
-            if exercise_type == "script":
+            elif exercise_type == "script":
                 for exec in user.scriptExercises:
                     if exec.script_name == exercise["script"]:
                         execution[exercise_name] = exec.completed
@@ -511,8 +413,7 @@ def admin_area():
         executions.append(execution)
 
     columns = [{"name": "id", "id": "user_id"}, {"name": "user", "id": "username"}]
-    for exercise in exercises[1:]:
-        columns.append({"name": exercise["name"], "id": exercise["id"]})
+    columns.extend({"name": exercise["name"], "id": exercise["id"]} for exercise in exercises[1:])
 
     return render_template("results.html", exercises=exercises, users=user_list, table={"columns": columns, "data": executions})
 
