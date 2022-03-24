@@ -121,26 +121,29 @@ def access():
 
 
 @bp.route("/exercise/<type>", methods=["POST"])
-@jwt_required()
+@jwt_required(locations="headers")
 def run_exercise(type):
 
     user = get_jwt_identity()
 
+    print(type)
+
     if type == "script":
         call_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
-        data = request.data
+        data = request.get_json()
+        script = data["script"]
 
         try:
             user_id = User.query.filter_by(username=user).first().id
-            exercise = ScriptExercise(script_name=data, call_uuid=call_uuid, user_id=user_id)
+            exercise = ScriptExercise(type=type, script_name=script, call_uuid=call_uuid, user_id=user_id)
             db.session.add(exercise)
             db.session.commit()
         except Exception as e:
             logger.exception(e)
 
-        call_venjix(user, data.script, call_uuid)
+        connected, executed = call_venjix(user, script, call_uuid)
 
-        return jsonify(uuid=call_uuid, executed=False)
+        return jsonify(uuid=call_uuid, executed=executed, connected=connected)
 
 
 @bp.route("/exercise/<id>", methods=["GET"])
