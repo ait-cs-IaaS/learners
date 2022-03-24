@@ -102,20 +102,23 @@ def call_venjix(user, script, call_uuid):
         response = requests.post(
             url=f"{cfg.venjix.get('url')}/{script}",
             headers=cfg.venjix.get("headers"),
-            data=jsonify(
-                script=script,
-                user_id=user,
-                callback=f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+            data=json.dumps(
+                {
+                    "script": script,
+                    "user_id": user,
+                    "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+                }
             ),
         )
 
         state = response.json()
-        executed = bool(state.get("response") == "script started")
-
-        return jsonify(connected=True, executed=executed)
+        executed = bool(state["response"] == "script started")
+        connected = True
 
     except Exception as connection_exception:
         connection_failed(call_uuid)
         logger.exception(connection_exception)
+        executed = False
+        connected = False
 
-        return jsonify(connected=False, executed=False)
+    return connected, executed
