@@ -1,4 +1,5 @@
 from flask import jsonify
+from flask_mail import Message
 
 import time
 from datetime import datetime
@@ -6,12 +7,12 @@ import os
 import pathlib
 import json
 import requests
-from bs4 import BeautifulSoup
 
-from learners.database import User, ScriptExercise, FormExercise
+from learners.database import Execution, Exercise, User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
 from learners.database import db
 from learners.logger import logger
+from learners.mail_manager import mail
 
 
 def utc_to_local(utc_datetime, date=True):
@@ -56,40 +57,9 @@ def is_admin(user):
     return cfg.users.get(user).get("is_admin")
 
 
-def get_exercises():
-    exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all"}]
-
-    if cfg.exercises.get("directory").startswith("/"):
-        root_directory = f"{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
-    else:
-        root_directory = f"./learners/{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
-
-    for path, subdirs, files in os.walk(root_directory):
-        for file in files:
-            if file.endswith(".html"):
-                f = open(pathlib.PurePath(path, file), "r")
-                parsed_html = BeautifulSoup(f.read(), features="html.parser")
-                exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
-                exercises.extend(json.loads(exerciseInfo.get("value")) for exerciseInfo in exerciseInfos)
-
-    for exercise in exercises:
-        exerciseWeight = int(exercise["exerciseWeight"])
-        parentWeight = int(exercise["parentWeight"])
-
-        if parentWeight == 0:
-            exercise["exerciseWeight"] = exerciseWeight * 10
-        else:
-            exercise["exerciseWeight"] = parentWeight * 10 + exerciseWeight
-
-        exercise["name"] = exercise["id"].replace("_", " ")
-
-    exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
-    return exercises
-
-
-def connection_failed(call_uuid):
+def connection_failed(execution_uuid):
     try:
-        db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+        db_entry = Execution.query.filter_by(uuid=execution_uuid).first()
         db_entry.msg = "Connection failed."
         db_entry.connection_failed = True
         db.session.commit()
@@ -97,7 +67,7 @@ def connection_failed(call_uuid):
         logger.exception(database_exception)
 
 
-def call_venjix(user, script, call_uuid):
+def call_venjix(user, script, execution_uuid):
     try:
         response = requests.post(
             url=f"{cfg.venjix.get('url')}/{script}",
@@ -106,7 +76,7 @@ def call_venjix(user, script, call_uuid):
                 {
                     "script": script,
                     "user_id": user,
-                    "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+                    "callback": f"{cfg.callback.get('endpoint')}/{str(execution_uuid)}",
                 }
             ),
         )
@@ -116,9 +86,61 @@ def call_venjix(user, script, call_uuid):
         connected = True
 
     except Exception as connection_exception:
-        connection_failed(call_uuid)
+        connection_failed(execution_uuid)
         logger.exception(connection_exception)
         executed = False
         connected = False
 
     return connected, executed
+
+
+def db_create_execution(type, data, user, execution_uuid):
+
+    name = data.get("name")
+    script = data.get("script")
+    form_data = json.dumps(data.get("form"), indent=4, sort_keys=False)
+
+    try:
+        exercise_id = Exercise.query.filter_by(name=name).first().id
+        user_id = User.query.filter_by(username=user).first().id
+
+        execution = Execution(type=type, script=script, form_data=form_data, uuid=execution_uuid, user_id=user_id, exercise_id=exercise_id)
+        db.session.add(execution)
+        db.session.commit()
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+def send_form_via_mail(user, data):
+
+    exercise_name = Exercise.query.filter_by(name=data.get("name")).first().pretty_name
+
+    subject = f"Form Submission: {user} - {exercise_name}"
+
+    mailbody = (
+        "<h1>Results</h1> <h2>Information:</h2>"
+        + f"<strong>User:</strong> {user}</br>"
+        + f"<strong>Form:</strong> {exercise_name}</br>"
+        + "<h2>Data:</h2>"
+    )
+
+    data = ""
+    for (key, value) in json.dumps(data.get("form"), indent=4, sort_keys=False).items():
+        value = value or "<i>-- emtpy --</i>"
+        data += f"<strong>{key}</strong>: {value}</br>"
+
+    mailbody += f"<p>{data}</p></br>"
+
+    try:
+        msg = Message(subject, sender=("Venjix", cfg.mail_sender), recipients=cfg.mail_recipients)
+        msg.html = mailbody
+
+        mail.send(msg)
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
