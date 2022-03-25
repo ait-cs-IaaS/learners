@@ -68,6 +68,8 @@ class Configuration:
             self.mail_password = learners_config.get("mail").get("password")
             self.mail_tls = learners_config.get("mail").get("tls")
             self.mail_ssl = learners_config.get("mail").get("ssl")
+            self.mail_sender = learners_config.get("mail").get("sender_name")
+            self.mail_recipients = learners_config.get("mail").get("recipients")
         elif os.getenv("MAIL"):
             self.mail = True
             self.mail_server = os.getenv("MAIL_SERVER") or ""
@@ -76,6 +78,8 @@ class Configuration:
             self.mail_password = os.getenv("MAIL_PASSWORD") or ""
             self.mail_tls = os.getenv("MAIL_TLS") or True
             self.mail_ssl = os.getenv("MAIL_SSL") or False
+            self.mail_sender = os.getenv("MAIL_SENDER_NAME") or self.mail_username
+            self.mail_recipients = os.getenv("MAIL_RECIPIENTS") or []
         else:
             self.mail = False
 

@@ -1,4 +1,4 @@
-from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, EmptyDict, EmptyNone
+from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, EmptyDict, EmptyNone, EmptyList
 
 config_schema = Map(
     {
@@ -30,6 +30,8 @@ config_schema = Map(
                 Optional("password", default=""): Str(),
                 Optional("tls", default=True): Bool(),
                 Optional("ssl", default=False): Bool(),
+                Optional("sender_name", default=""): Str(),
+                Optional("recipients"): EmptyList() | Seq(Str()),
             }
         ),
         "users": MapPattern(
