@@ -26,8 +26,16 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 
-from learners.helpers import get_history_from_DB, get_exercises, check_password, is_admin, connection_failed, call_venjix
-from learners.database import User, ScriptExercise, FormExercise, TokenBlocklist
+from learners.helpers import (
+    db_create_execution,
+    get_history_from_DB,
+    check_password,
+    is_admin,
+    connection_failed,
+    call_venjix,
+    send_form_via_mail,
+)
+from learners.database import Execution, Exercise, User, ScriptExercise, FormExercise, TokenBlocklist, get_exercises
 from learners.conf.config import cfg
 from learners.database import db
 from learners.mail_manager import mail
@@ -120,35 +128,33 @@ def access():
 #               -> loop ("monitor")
 
 
-@bp.route("/exercise/<type>", methods=["POST"])
+@bp.route("/execution/<type>", methods=["POST"])
 @jwt_required(locations="headers")
-def run_exercise(type):
+def run_execution(type):
 
     user = get_jwt_identity()
+    execution_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
 
-    print(type)
+    response = {"uuid": execution_uuid, "connected": False, "executed": False}
 
-    if type == "script":
-        call_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
-        data = request.get_json()
-        script = data["script"]
+    data = request.get_json()
+    if db_create_execution(type, data, user, execution_uuid):
+        if type == "script":
+            response["connected"], response["executed"] = call_venjix(user, data["script"], execution_uuid)
+        if type == "form":
+            response["connected"] = True
+            response["executed"] = True
 
-        try:
-            user_id = User.query.filter_by(username=user).first().id
-            exercise = ScriptExercise(type=type, script_name=script, call_uuid=call_uuid, user_id=user_id)
-            db.session.add(exercise)
-            db.session.commit()
-        except Exception as e:
-            logger.exception(e)
+            if request.data.get("mail"):
+                send_form_via_mail(user, data)
 
-        connected, executed = call_venjix(user, script, call_uuid)
-
-        return jsonify(uuid=call_uuid, executed=executed, connected=connected)
+    print(response)
+    return jsonify(response)
 
 
-@bp.route("/exercise/<id>", methods=["GET"])
+@bp.route("/execution/<id>", methods=["GET"])
 @jwt_required()
-def get_exercise(id):
+def get_execution(id):
     return jsonify(id=id)
 
 
