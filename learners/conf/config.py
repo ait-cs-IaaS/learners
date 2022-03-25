@@ -120,10 +120,6 @@ class Configuration:
             "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
         }
 
-        # set CORS configuration
-        self.cors_origins = []
-        self.cors_origins.append(self.venjix.get("url"))
-
 
 def build_config(app):
 
@@ -155,12 +151,7 @@ def config_app(app):
 
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
     app.config["JWT_ACCESS_COOKIE_NAME"] = "auth"
-
-    app.config["CORS_HEADERS"] = "Content-Type"
-    app.config["CORS_ORIGINS"] = cfg.cors_origins
-    app.config["CORS_SUPPORTS_CREDENTIALS"] = True
 
     if cfg.mail:
         app.config["MAIL_SERVER"] = cfg.mail_server

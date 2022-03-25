@@ -17,8 +17,6 @@ from flask_jwt_extended import get_jwt
 
 from flask_mail import Message
 
-from flask_cors import cross_origin
-
 import requests
 import uuid
 import time
@@ -129,8 +127,10 @@ def access():
 
 
 @bp.route("/execution/<type>", methods=["POST"])
-@jwt_required(locations="headers")
+@jwt_required()
 def run_execution(type):
+
+    print("execute")
 
     user = get_jwt_identity()
     execution_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
@@ -155,11 +155,15 @@ def run_execution(type):
 @bp.route("/execution/<id>", methods=["GET"])
 @jwt_required()
 def get_execution(id):
+
+    print("call")
+    user = get_jwt_identity()
+    print(user)
+
     return jsonify(id=id)
 
 
 @bp.route("/execute/<script>", methods=["POST"])
-@cross_origin()
 # @jwt_required()
 def call_venjix_old(script):
 
@@ -215,7 +219,6 @@ def call_venjix_old(script):
 
 
 @bp.route("/history/<script>")
-@cross_origin()
 @jwt_required()
 def get_history(script):
 
@@ -237,7 +240,6 @@ def get_history(script):
 
 
 @bp.route("/monitor/<call_uuid>")
-@cross_origin()
 @jwt_required()
 def monitor(call_uuid):
 
@@ -260,7 +262,6 @@ def monitor(call_uuid):
 
 
 @bp.route("/form/<form_name>", methods=["GET", "POST"])
-@cross_origin()
 @jwt_required()
 def get_formdata(form_name):
 

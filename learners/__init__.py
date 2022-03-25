@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_cors import CORS
 
 import os
 from learners.logger import logger
@@ -31,8 +30,6 @@ def main():
         from learners.mail_manager import init_mail
 
         init_mail(app)
-
-        CORS(app)
 
     from learners import views
 
