@@ -1,12 +1,11 @@
-from flask import redirect, render_template
-from flask_jwt_extended import JWTManager
-from flask_jwt_extended import verify_jwt_in_request
-from flask_jwt_extended import get_jwt
-
-from learners.conf.config import cfg
-from learners.database import db, TokenBlocklist
 from functools import wraps
 
+from flask import render_template
+from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
+
+from learners import logger
+from learners.conf.config import cfg
+from learners.database import TokenBlocklist, db
 
 jwt = JWTManager()
 
@@ -31,9 +30,13 @@ def token_missing(callback):
 
 @jwt.token_in_blocklist_loader
 def check_if_token_revoked(jwt_header, jwt_payload):
-    jti = jwt_payload["jti"]
-    token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
-    return token is not None
+    try:
+        jti = jwt_payload["jti"]
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+        return token is not None
+    except Exception as e:
+        logger.exception(e)
+        return True
 
 
 @jwt.revoked_token_loader

@@ -1,0 +1,17 @@
+from flask import Blueprint, redirect
+from flask_jwt_extended import get_jwt, verify_jwt_in_request
+from learners.logger import logger
+
+home_api = Blueprint("home_api", __name__)
+
+
+@home_api.route("/", methods=["GET"])
+def home():
+
+    try:
+        verify_jwt_in_request()
+        return redirect("/admin") if get_jwt().get("is_admin") else redirect("/access")
+
+    except:
+        logger.info("No valid token present.")
+        return redirect("/login")

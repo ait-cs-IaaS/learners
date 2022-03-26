@@ -1,12 +1,10 @@
-import os
 import json
+import os
 from datetime import timedelta
 
 from flask_assets import Environment
 from learners.assets import get_bundle
-
-from strictyaml import load, YAMLError
-
+from strictyaml import YAMLError, load
 
 cfg = None
 
@@ -132,7 +130,6 @@ def build_config(app):
     global cfg
     cfg = Configuration()
 
-    # Set flask app.config
     config_app(app)
 
 
