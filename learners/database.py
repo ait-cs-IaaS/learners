@@ -8,6 +8,7 @@ from learners.conf.config import cfg
 from bs4 import BeautifulSoup
 
 from sqlalchemy import event
+from sqlalchemy import func
 
 
 """
@@ -32,7 +33,7 @@ class Execution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(120), nullable=False)
     script = db.Column(db.String(120), nullable=True)
-    execution_timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
     response_timestamp = db.Column(db.DateTime, nullable=True)
     response_content = db.Column(db.Text, nullable=True)
     form_data = db.Column(db.String(), nullable=True)
