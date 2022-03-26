@@ -1,5 +1,6 @@
 from flask import jsonify
 from flask_mail import Message
+from sqlalchemy import nullsfirst
 
 import time
 from datetime import datetime
@@ -7,6 +8,7 @@ import os
 import pathlib
 import json
 import requests
+from datetime import timezone
 
 from learners.database import Execution, Exercise, User, ScriptExercise, FormExercise
 from learners.conf.config import cfg
@@ -57,14 +59,16 @@ def is_admin(user):
     return cfg.users.get(user).get("is_admin")
 
 
-def connection_failed(execution_uuid):
+def db_update_execution(execution_uuid, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None):
     try:
-        db_entry = Execution.query.filter_by(uuid=execution_uuid).first()
-        db_entry.msg = "Connection failed."
-        db_entry.connection_failed = True
+        execution = Execution.query.filter_by(uuid=execution_uuid).first()
+        for key, value in list(locals().items())[:-1]:
+            if value:
+                setattr(execution, key, value)
         db.session.commit()
-    except Exception as database_exception:
-        logger.exception(database_exception)
+
+    except Exception as e:
+        logger.exception(e)
 
 
 def call_venjix(user, script, execution_uuid):
@@ -81,17 +85,20 @@ def call_venjix(user, script, execution_uuid):
             ),
         )
 
-        state = response.json()
-        executed = bool(state["response"] == "script started")
-        connected = True
+        resp = response.json()
+        connection_failed = False
+        executed = bool(resp["response"] == "script started")
+        msg = resp.get("msg") or None
 
     except Exception as connection_exception:
-        connection_failed(execution_uuid)
         logger.exception(connection_exception)
-        executed = False
-        connected = False
 
-    return connected, executed
+        connection_failed = True
+        executed = False
+        msg = "Connection failed"
+
+    db_update_execution(execution_uuid, connection_failed=connection_failed, msg=msg)
+    return not connection_failed, executed
 
 
 def db_create_execution(type, data, user, execution_uuid):
@@ -104,7 +111,19 @@ def db_create_execution(type, data, user, execution_uuid):
         exercise_id = Exercise.query.filter_by(name=name).first().id
         user_id = User.query.filter_by(username=user).first().id
 
-        execution = Execution(type=type, script=script, form_data=form_data, uuid=execution_uuid, user_id=user_id, exercise_id=exercise_id)
+        execution = Execution(
+            type=type,
+            script=script,
+            form_data=form_data,
+            uuid=execution_uuid,
+            user_id=user_id,
+            exercise_id=exercise_id,
+        )
+
+        if type == "form":
+            execution.completed = True
+            execution.response_timestamp = datetime.now(timezone.utc)
+
         db.session.add(execution)
         db.session.commit()
         return True
@@ -144,3 +163,53 @@ def send_form_via_mail(user, data):
     except Exception as e:
         logger.exception(e)
         return False
+
+
+def get_current_executions(user_id, exercise_id):
+    executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
+
+    last_execution = executions.order_by(nullsfirst(Execution.response_timestamp.desc()), Execution.execution_timestamp.desc()).first()
+    executions = executions.order_by(Execution.execution_timestamp.desc()).all()
+
+    for execution in executions:
+        print(execution.response_timestamp)
+
+    return last_execution, executions
+
+
+def wait_for_response(execution_uuid):
+    while True:
+        time.sleep(0.5)
+
+        execution = Execution.query.filter_by(uuid=execution_uuid).first()
+
+        if execution.response_timestamp or execution.connection_failed:
+            return execution
+
+        print("waiting ...")
+
+        db.session.close()
+
+
+def update_execution_response(response, last_execution, executions):
+
+    response["completed"] = last_execution.completed
+    response["executed"] = not last_execution.connection_failed
+    response["msg"] = last_execution.msg
+    response["response_timestamp"] = last_execution.response_timestamp
+    response["connection_failed"] = last_execution.connection_failed
+
+    executions[0] = last_execution
+
+    history = {
+        str(i + 1): {
+            "start_time": utc_to_local(execution.execution_timestamp, date=True),
+            "response_time": utc_to_local(execution.response_timestamp, date=False),
+            "completed": execution.completed,
+            "msg": execution.msg,
+        }
+        for i, execution in enumerate(executions)
+    }
+    response["history"] = history
+
+    return response

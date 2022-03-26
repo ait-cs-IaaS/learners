@@ -7,6 +7,7 @@ from flask import request
 from flask import Blueprint
 from flask import send_from_directory
 from flask import abort
+from flask import make_response
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -26,12 +27,15 @@ import logging
 
 from learners.helpers import (
     db_create_execution,
+    db_update_execution,
+    get_current_executions,
     get_history_from_DB,
     check_password,
     is_admin,
-    connection_failed,
     call_venjix,
     send_form_via_mail,
+    update_execution_response,
+    wait_for_response,
 )
 from learners.database import Execution, Exercise, User, ScriptExercise, FormExercise, TokenBlocklist, get_exercises
 from learners.conf.config import cfg
@@ -76,7 +80,7 @@ def login():
         return render_template("login.html", **cfg.template, error=error_msg)
 
     access_token = create_access_token(identity=username, additional_claims={"is_admin": is_admin(username)})
-    response = redirect("/admin") if is_admin(username) else redirect("/access")
+    response = make_response(redirect("/admin", 302)) if is_admin(username) else make_response(redirect("/access", 302))
     response.set_cookie("auth", value=access_token, secure=True, httponly=False)
 
     return response
@@ -127,10 +131,8 @@ def access():
 
 
 @bp.route("/execution/<type>", methods=["POST"])
-@jwt_required()
+@jwt_required(locations="headers")
 def run_execution(type):
-
-    print("execute")
 
     user = get_jwt_identity()
     execution_uuid = f"{str(user)}_{uuid.uuid4().int & (1 << 64) - 1}"
@@ -145,201 +147,216 @@ def run_execution(type):
             response["connected"] = True
             response["executed"] = True
 
-            if request.data.get("mail"):
+            if data.get("mail"):
                 send_form_via_mail(user, data)
 
     print(response)
     return jsonify(response)
 
 
-@bp.route("/execution/<id>", methods=["GET"])
+@bp.route("/execution/<exercise_name>", methods=["GET"])
 @jwt_required()
-def get_execution(id):
+def get_execution(exercise_name):
 
-    print("call")
     user = get_jwt_identity()
-    print(user)
+    user_id = User.query.filter_by(username=user).first().id
+    exercise = Exercise.query.filter_by(name=exercise_name).first()
 
-    return jsonify(id=id)
+    response = {"completed": False, "executed": False, "msg": None, "response_timestamp": None, "connection_failed": False, "history": None}
+
+    last_execution, executions = get_current_executions(user_id, exercise.id)
+
+    if last_execution:
+        if exercise.type == "script" and not last_execution.response_timestamp:
+            last_execution = wait_for_response(last_execution.uuid)
+
+        response = update_execution_response(response, last_execution, executions)
+
+    print(response)
+    return jsonify(response)
 
 
-@bp.route("/execute/<script>", methods=["POST"])
+# @bp.route("/execute/<script>", methods=["POST"])
+# # @jwt_required()
+# def call_venjix_old(script):
+
+#     # get user id from JWT token
+#     verify_jwt_in_request(locations="headers")
+#     user_jwt_identity = get_jwt_identity()
+
+#     # generate uuid
+#     call_uuid = f"{str(user_jwt_identity)}_{uuid.uuid4().int & (1 << 64) - 1}"
+
+#     try:
+#         user_id = User.query.filter_by(username=user_jwt_identity).first().id
+
+#         new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
+#         db.session.add(new_entry)
+#         db.session.commit()
+
+#         # send POST request
+#         response = requests.post(
+#             url=f"{cfg.venjix.get('url')}/{script}",
+#             headers={
+#                 "Content-type": "application/json",
+#                 "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
+#             },
+#             data=json.dumps(
+#                 {
+#                     "script": script,
+#                     "user_id": user_jwt_identity,
+#                     "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
+#                 }
+#             ),
+#         )
+
+#         # get response
+#         init_state = response.json()
+#         executed = bool(init_state["response"] == "script started")
+
+#         return jsonify(uuid=call_uuid, executed=executed)
+
+#     except Exception as connection_exception:
+
+#         try:
+#             db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+#             db_entry.msg = "Connection failed."
+#             db_entry.connection_failed = True
+#             db.session.commit()
+#         except Exception as database_exception:
+#             logger.exception(database_exception)
+
+#         logger.exception(connection_exception)
+
+#     return jsonify(uuid=call_uuid, executed=False)
+
+
+# @bp.route("/history/<script>")
 # @jwt_required()
-def call_venjix_old(script):
+# def get_history(script):
 
-    # get user id from JWT token
-    verify_jwt_in_request(locations="headers")
-    user_jwt_identity = get_jwt_identity()
+#     executed, completed, history = get_history_from_DB(script, get_jwt_identity())
 
-    # generate uuid
-    call_uuid = f"{str(user_jwt_identity)}_{uuid.uuid4().int & (1 << 64) - 1}"
+#     if executed and history:
+#         return jsonify(
+#             executed=executed,
+#             completed=completed,
+#             history=history,
+#         )
+#     elif history:
+#         return jsonify(
+#             never_executed=True,
+#             history=history,
+#         )
+#     else:
+#         return jsonify(never_executed=True)
+
+
+# @bp.route("/monitor/<call_uuid>")
+# @jwt_required()
+# def monitor(call_uuid):
+
+#     while True:
+#         time.sleep(0.5)
+
+#         db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
+
+#         if db_entry is None:
+#             return jsonify(completed=False)
+#         elif db_entry.response_time != None:
+#             _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
+#             return jsonify(completed=db_entry.completed, msg=db_entry.msg, history=history)
+#         elif db_entry.connection_failed == True:
+#             _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
+#             return jsonify(completed=False, msg="no response", history=history)
+
+#         # force new query on db in the next iteration
+#         db.session.close()
+
+
+# @bp.route("/form/<form_name>", methods=["GET", "POST"])
+# @jwt_required()
+# def get_formdata(form_name):
+
+#     # Get user identification
+#     verify_jwt_in_request(locations="headers")
+#     user_jwt_identity = get_jwt_identity()
+
+#     try:
+#         user_id = User.query.filter_by(username=user_jwt_identity).first().id
+
+#         # Check whether the form was already submitted
+#         prio_submission = db.session.query(FormExercise).filter_by(user_id=user_id).filter_by(name=form_name).first()
+
+#         if request.method == "GET":
+
+#             if prio_submission is not None:
+#                 return jsonify(executed=True, completed=True)
+#             else:
+#                 return jsonify(never_executed=True)
+
+#         if request.method == "POST":
+
+#             if prio_submission is not None:
+#                 return jsonify(completed=False, msg="Form was already submitted.")
+
+#             form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
+
+#             # Create database entry
+#             new_form = FormExercise(
+#                 user_id=user_id,
+#                 name=form_name,
+#                 data=form_data,
+#                 timestamp=datetime.now(timezone.utc),
+#             )
+
+#             db.session.add(new_form)
+#             db.session.commit()
+
+#             # if specified, send form data via email
+#             if request.headers.get("Method") == "mail":
+#                 subject = f"Form Submission: {user_jwt_identity} - {form_name}"
+
+#                 mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
+#                 mailbody += f"<strong>User:</strong> {user_jwt_identity}</br>"
+#                 mailbody += f"<strong>Form:</strong> {form_name}</br>"
+#                 mailbody += "<h2>Data:</h2>"
+
+#                 data = ""
+#                 for (key, value) in request.form.to_dict().items():
+#                     if not value:
+#                         value = "<i>-- emtpy --</i>"
+#                     data += f"<strong>{key}</strong>: {value}</br>"
+
+#                 mailbody += f"<p>{data}</p></br>"
+
+#                 msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
+#                 msg.html = mailbody
+#                 mail.send(msg)
+
+#             return jsonify(executed=True)
+
+#     except:
+#         return jsonify(executed=False, completed=False, msg="Failed to find user in database. Please login again.")
+
+
+@bp.route("/callback/<execution_uuid>", methods=["POST"])
+def callback(execution_uuid):
 
     try:
-        user_id = User.query.filter_by(username=user_jwt_identity).first().id
-
-        new_entry = ScriptExercise(script_name=script, call_uuid=call_uuid, user_id=user_id)
-        db.session.add(new_entry)
-        db.session.commit()
-
-        # send POST request
-        response = requests.post(
-            url=f"{cfg.venjix.get('url')}/{script}",
-            headers={
-                "Content-type": "application/json",
-                "Authorization": f"Bearer {cfg.venjix.get('auth_secret')}",
-            },
-            data=json.dumps(
-                {
-                    "script": script,
-                    "user_id": user_jwt_identity,
-                    "callback": f"{cfg.callback.get('endpoint')}/{str(call_uuid)}",
-                }
-            ),
+        resp = request.get_json()
+        db_update_execution(
+            execution_uuid,
+            response_timestamp=datetime.now(timezone.utc),
+            response_content=json.dumps(resp),
+            completed=bool(resp.get("returncode") == 0),
+            msg=resp.get("msg") or None,
         )
+        return make_response(jsonify(success=True), 200)
 
-        # get response
-        init_state = response.json()
-        executed = bool(init_state["response"] == "script started")
-
-        return jsonify(uuid=call_uuid, executed=executed)
-
-    except Exception as connection_exception:
-
-        try:
-            db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
-            db_entry.msg = "Connection failed."
-            db_entry.connection_failed = True
-            db.session.commit()
-        except Exception as database_exception:
-            logger.exception(database_exception)
-
-        logger.exception(connection_exception)
-
-    return jsonify(uuid=call_uuid, executed=False)
-
-
-@bp.route("/history/<script>")
-@jwt_required()
-def get_history(script):
-
-    executed, completed, history = get_history_from_DB(script, get_jwt_identity())
-
-    if executed and history:
-        return jsonify(
-            executed=executed,
-            completed=completed,
-            history=history,
-        )
-    elif history:
-        return jsonify(
-            never_executed=True,
-            history=history,
-        )
-    else:
-        return jsonify(never_executed=True)
-
-
-@bp.route("/monitor/<call_uuid>")
-@jwt_required()
-def monitor(call_uuid):
-
-    while True:
-        time.sleep(0.5)
-
-        db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
-
-        if db_entry is None:
-            return jsonify(completed=False)
-        elif db_entry.response_time != None:
-            _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
-            return jsonify(completed=db_entry.completed, msg=db_entry.msg, history=history)
-        elif db_entry.connection_failed == True:
-            _, _, history = get_history_from_DB(db_entry.script_name, get_jwt_identity())
-            return jsonify(completed=False, msg="no response", history=history)
-
-        # force new query on db in the next iteration
-        db.session.close()
-
-
-@bp.route("/form/<form_name>", methods=["GET", "POST"])
-@jwt_required()
-def get_formdata(form_name):
-
-    # Get user identification
-    verify_jwt_in_request(locations="headers")
-    user_jwt_identity = get_jwt_identity()
-
-    try:
-        user_id = User.query.filter_by(username=user_jwt_identity).first().id
-
-        # Check whether the form was already submitted
-        prio_submission = db.session.query(FormExercise).filter_by(user_id=user_id).filter_by(name=form_name).first()
-
-        if request.method == "GET":
-
-            if prio_submission is not None:
-                return jsonify(executed=True, completed=True)
-            else:
-                return jsonify(never_executed=True)
-
-        if request.method == "POST":
-
-            if prio_submission is not None:
-                return jsonify(completed=False, msg="Form was already submitted.")
-
-            form_data = json.dumps(request.form.to_dict(), indent=4, sort_keys=False)
-
-            # Create database entry
-            new_form = FormExercise(
-                user_id=user_id,
-                name=form_name,
-                data=form_data,
-                timestamp=datetime.now(timezone.utc),
-            )
-
-            db.session.add(new_form)
-            db.session.commit()
-
-            # if specified, send form data via email
-            if request.headers.get("Method") == "mail":
-                subject = f"Form Submission: {user_jwt_identity} - {form_name}"
-
-                mailbody = "<h1>Results</h1>" + "<h2>Information:</h2>"
-                mailbody += f"<strong>User:</strong> {user_jwt_identity}</br>"
-                mailbody += f"<strong>Form:</strong> {form_name}</br>"
-                mailbody += "<h2>Data:</h2>"
-
-                data = ""
-                for (key, value) in request.form.to_dict().items():
-                    if not value:
-                        value = "<i>-- emtpy --</i>"
-                    data += f"<strong>{key}</strong>: {value}</br>"
-
-                mailbody += f"<p>{data}</p></br>"
-
-                msg = Message(subject, sender=("Venjix", "lenhard.reuter@e-caterva.com"), recipients=["lenhard.reuter@ait.ac.at"])
-                msg.html = mailbody
-                mail.send(msg)
-
-            return jsonify(executed=True)
-
-    except:
-        return jsonify(executed=False, completed=False, msg="Failed to find user in database. Please login again.")
-
-
-@bp.route("/callback/<call_uuid>", methods=["POST"])
-def callback(call_uuid):
-
-    feedback = request.get_json()
-
-    db_entry = ScriptExercise.query.filter_by(call_uuid=call_uuid).first()
-    db_entry.response_time = datetime.now(timezone.utc)
-    db_entry.response_content = json.dumps(feedback)
-    db_entry.completed = int(feedback.get("returncode") == 0)
-    db_entry.msg = feedback.get("msg") or None
-    db.session.commit()
-
-    return jsonify(completed=True)
+    except Exception as e:
+        logger.exception(e)
+        return make_response(jsonify(success=False, exception=e), 500)
 
 
 @bp.route("/documentation/", methods=["GET"])
