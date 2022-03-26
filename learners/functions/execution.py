@@ -6,7 +6,8 @@ import requests
 from flask_mail import Message
 from learners import logger
 from learners.conf.config import cfg
-from learners.database import Execution, Exercise, db
+from learners.conf.db_models import Execution, Exercise
+from learners.database import db
 from learners.functions.database import db_update_execution
 from learners.functions.helpers import utc_to_local
 from learners.mail_manager import mail

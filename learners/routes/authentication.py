@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from flask import Blueprint, make_response, redirect, render_template, request
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
 from learners.conf.config import cfg
-from learners.database import TokenBlocklist, db
+from learners.conf.db_models import TokenBlocklist
+from learners.database import db
 from learners.functions.authentication import check_password
 
 authentication_api = Blueprint("authentication_api", __name__)

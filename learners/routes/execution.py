@@ -3,7 +3,7 @@ import uuid
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners import logger
-from learners.database import Exercise, User
+from learners.conf.db_models import Exercise, User
 from learners.functions.database import db_create_execution, get_current_executions
 from learners.functions.execution import call_venjix, send_form_via_mail, update_execution_response, wait_for_response
 

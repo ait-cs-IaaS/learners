@@ -1,13 +1,12 @@
 from datetime import timezone
 
 from flask import Blueprint, jsonify, render_template
-from learners.database import User, get_exercises
 from learners.jwt_manager import admin_required
 from learners.logger import logger
 
 admin_api = Blueprint("admin_api", __name__)
 
-exercises = get_exercises()
+# exercises = get_exercises()
 
 
 @admin_api.route("/admin", methods=["GET"])

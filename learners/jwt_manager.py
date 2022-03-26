@@ -5,7 +5,8 @@ from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
 
 from learners import logger
 from learners.conf.config import cfg
-from learners.database import TokenBlocklist, db
+from learners.conf.db_models import TokenBlocklist
+from learners.database import db
 
 jwt = JWTManager()
 

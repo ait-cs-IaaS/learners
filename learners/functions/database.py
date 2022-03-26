@@ -3,8 +3,36 @@ from datetime import datetime, timezone
 from typing import Tuple
 
 from learners import logger
-from learners.database import Execution, Exercise, User, db
-from sqlalchemy import nullsfirst
+from learners.conf.config import cfg
+from learners.conf.db_models import Execution, Exercise, User
+from learners.database import db
+from learners.functions.helpers import get_exercises
+from sqlalchemy import event, nullsfirst
+
+
+@event.listens_for(User.__table__, "after_create")
+def insert_initial_users(*args, **kwargs):
+    for user, _ in cfg.users.items():
+        db.session.add(User(username=user))
+    db.session.commit()
+
+
+@event.listens_for(Exercise.__table__, "after_create")
+def insert_exercises(*args, **kwargs):
+
+    exercises = get_exercises()
+
+    for exercise in exercises[1:]:
+        print(exercise)
+        db.session.add(
+            Exercise(
+                type=exercise["type"],
+                name=exercise["id"],
+                pretty_name=exercise["name"],
+                weight=exercise["exerciseWeight"],
+            )
+        )
+    db.session.commit()
 
 
 def db_update_execution(
