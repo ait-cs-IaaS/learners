@@ -9,7 +9,7 @@ from learners.conf.config import cfg
 from learners.conf.db_models import Execution, Exercise
 from learners.database import db
 from learners.functions.database import db_update_execution
-from learners.functions.helpers import utc_to_local
+from learners.functions.helpers import extract_history
 from learners.mail_manager import mail
 
 
@@ -104,15 +104,6 @@ def update_execution_response(response: dict, last_execution, executions: list) 
         response["connection_failed"] = last_execution.connection_failed
         executions[0] = last_execution
 
-    history = {
-        str(i + 1): {
-            "start_time": utc_to_local(execution.execution_timestamp, date=True),
-            "response_time": utc_to_local(execution.response_timestamp, date=False),
-            "completed": execution.completed,
-            "msg": execution.msg,
-        }
-        for i, execution in enumerate(executions)
-    }
-    response["history"] = history
+    response["history"] = extract_history(executions)
 
     return response

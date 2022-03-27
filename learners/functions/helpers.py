@@ -16,7 +16,7 @@ def utc_to_local(utc_datetime: str, date: bool = True) -> str:
     return (utc_datetime + offset).strftime("%m/%d/%Y, %H:%M:%S") if date else (utc_datetime + offset).strftime("%H:%M:%S")
 
 
-def get_exercises() -> list:
+def extract_exercises() -> list:
     exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all"}]
 
     if cfg.exercises.get("directory").startswith("/"):
@@ -45,3 +45,15 @@ def get_exercises() -> list:
 
     exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
     return exercises
+
+
+def extract_history(executions):
+    return {
+        str(i + 1): {
+            "start_time": utc_to_local(execution.execution_timestamp, date=True),
+            "response_time": utc_to_local(execution.response_timestamp, date=False),
+            "completed": bool(execution.completed),
+            "msg": execution.msg,
+        }
+        for i, execution in enumerate(executions)
+    }
