@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
     executions = db.relationship("Execution", backref="user", lazy=True)
 
 
