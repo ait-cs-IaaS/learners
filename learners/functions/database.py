@@ -143,7 +143,7 @@ def get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
         return None
 
 
-def get_completed_state(user_id:int, exercise_id:int) -> list:
+def get_completed_state(user_id: int, exercise_id: int) -> list:
     try:
         return (
             db.session.query(User)
