@@ -3,8 +3,7 @@ import uuid
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners import logger
-from learners.conf.db_models import Exercise, User
-from learners.functions.database import db_create_execution, get_current_executions
+from learners.functions.database import db_create_execution, get_current_executions, get_exercise_by_name, get_user_by_name
 from learners.functions.execution import call_venjix, send_form_via_mail, update_execution_response, wait_for_response
 
 execution_api = Blueprint("execution_api", __name__)
@@ -39,13 +38,12 @@ def run_execution(type):
 def get_execution(exercise_name):
 
     response = {"completed": False, "executed": False, "msg": None, "response_timestamp": None, "connection_failed": False, "history": None}
+    username = get_jwt_identity()
 
-    try:
-        user = get_jwt_identity()
-        user_id = User.query.filter_by(username=user).first().id
-        exercise = Exercise.query.filter_by(name=exercise_name).first()
-    except Exception as e:
-        logger.exception(e)
+    user_id = get_user_by_name(username).id
+    exercise = get_exercise_by_name(exercise_name)
+
+    if not user_id or not exercise:
         return jsonify(response)
 
     last_execution, executions = get_current_executions(user_id, exercise.id)

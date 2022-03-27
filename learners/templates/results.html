@@ -13,13 +13,13 @@ CyberRange
       <tr>
         {% for column in table.columns %}
           <th>
-            {{ column.name }}
-            <input type="hidden" value="{{ column.id }}">
+            {{ column.col_name }}
+            <input type="hidden" value="{{ column.col_id }}">
           </th>
         {% endfor %}
       </tr>
 
-      {% for entry in table.data %}
+      {% for entry in table.rows %}
         <tr>
           {% for key, value in entry.items() %}
             <td>
@@ -33,11 +33,7 @@ CyberRange
                   </div>
 
                 {% elif value == -1 %}
-                <div class="stat_indicator loading">
-                  <svg class="bi stat_icon" width="24" height="24" role="img">
-                    <use xlink:href="#pending"></use>
-                  </svg>
-                </div>
+                <b class="no_value">-</b>
                 {% else %}
 
                 <div class="stat_indicator failed">
@@ -46,7 +42,7 @@ CyberRange
                   </svg>
                 </div>
                 {% endif %}
-              <input type="hidden" value='/results/{{ entry["user_id"] }}/{{ key }}'>
+              <input type="hidden" value='/result/{{ entry["user_id"] }}/{{ key }}'>
               {% else %}
                 {{ value }}
               {% endif %}

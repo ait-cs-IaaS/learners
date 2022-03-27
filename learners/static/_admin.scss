@@ -20,6 +20,15 @@
     line-height: 1.6;
   }
 
+  b.no_value {
+    color: #acacac;
+    width: 100%;
+    text-align: center;
+    display: block;
+    font-size: 160%;
+    line-height: 0;
+  }
+
   & table {
     border-collapse: collapse;
     width: 100%;
@@ -151,7 +160,7 @@
 
 .stat_indicator {
   width: auto;
-  margin: 2px 8px 0 0;
+  margin: 2px 8px 0 8px;
 }
 
 .stat_icon {
