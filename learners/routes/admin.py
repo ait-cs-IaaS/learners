@@ -1,76 +1,58 @@
-from datetime import timezone
+import json
 
 from flask import Blueprint, jsonify, render_template
+from learners.functions.database import (
+    get_all_exercises,
+    get_all_users,
+    get_executions_by_user_exercise,
+    get_exercise_by_name,
+    get_user_by_id,
+)
+from learners.functions.helpers import extract_history
+from learners.functions.results import construct_results_table
 from learners.jwt_manager import admin_required
 from learners.logger import logger
 
 admin_api = Blueprint("admin_api", __name__)
-
-# exercises = get_exercises()
 
 
 @admin_api.route("/admin", methods=["GET"])
 @admin_required()
 def admin_area():
 
-    return jsonify(WIP=True)
-    # executions = []
+    exercises = get_all_exercises()
+    users = get_all_users()
 
-    # user_list = [{"id": 0, "username": "all"}]
-    # users = User.query.all()
+    user_filter = [{"id": 0, "username": "all"}]
+    user_filter.extend({"id": user.id, "username": user.name} for user in users)
 
-    # for user in users:
+    exercises_filter = [{"id": "all", "name": "all"}]
+    exercises_filter.extend({"id": exercise.name, "name": exercise.pretty_name} for exercise in exercises)
 
-    #     user_list.append({"id": user.id, "username": user.username})
-    #     execution = {"user_id": user.id, "username": user.username}
-
-    #     for exercise in exercises[1:]:
-    #         exercise_name = exercise["id"]
-    #         exercise_type = exercise["type"]
-    #         execution[exercise_name] = -1
-
-    #         if exercise_type == "form":
-    #             for exec in user.formExercises:
-    #                 if exec.name == exercise_name:
-    #                     execution[exercise_name] = 1
-
-    #         elif exercise_type == "script":
-    #             for exec in user.scriptExercises:
-    #                 if exec.script_name == exercise["script"]:
-    #                     execution[exercise_name] = exec.completed
-
-    #     executions.append(execution)
-
-    # columns = [{"name": "id", "id": "user_id"}, {"name": "user", "id": "username"}]
-    # columns.extend({"name": exercise["name"], "id": exercise["id"]} for exercise in exercises[1:])
-
-    # return render_template("results.html", exercises=exercises, users=user_list, table={"columns": columns, "data": executions})
+    results_table = construct_results_table(exercises, users)
+    return render_template("results.html", exercises=exercises_filter, user=user_filter, table=results_table)
 
 
-@admin_api.route("/results/<user_id>/<exercise_id>", methods=["GET"])
+@admin_api.route("/result/<user_id>/<exercise_name>", methods=["GET"])
 @admin_required()
-def get_exercise_results(user_id, exercise_id):
+def get_exercise_result(user_id, exercise_name):
 
-    return jsonify(WIP=True)
+    exercise = get_exercise_by_name(exercise_name)
+    user = get_user_by_id(user_id)
+    executions = get_executions_by_user_exercise(user_id, exercise.id)
 
-    # exercise = next(exercise for exercise in exercises if exercise["id"] == exercise_id)
-    # exercise_type = exercise["type"]
-    # data = None
+    last_execution = executions[0] if executions else None
+    data = {
+        "completed": bool(last_execution.completed) if last_execution else False,
+        "executed": bool(not last_execution.connection_failed) if last_execution else False,
+        "msg": last_execution.msg if last_execution else None,
+        "response_timestamp": last_execution.response_timestamp if last_execution else None,
+        "connection_failed": bool(last_execution.connection_failed) if last_execution else False,
+    }
 
-    # try:
-    #     username = User.query.filter_by(id=user_id).first().username
-    # except:
-    #     logger.warn("User not found.")
+    if exercise.type == "form":
+        data["form"] = json.loads(last_execution.form_data) if last_execution else None
 
-    # try:
-    #     if exercise_type == "form":
-    #         data = json.loads(FormExercise.query.filter_by(user_id=user_id).filter_by(name=exercise["id"]).first().data)
-    #     elif exercise_type == "script":
-    #         executed, completed, history = get_history_from_DB(exercise["script"], username)
-    #         data = {"executed": executed, "completed": completed, "history": history}
-    #     else:
-    #         return jsonify(error="Exercise type unknown.")
-    # except:
-    #     logger.warn("No data found.")
+    data["history"] = extract_history(executions) if executions else None
 
-    # return render_template("results_details.html", user=username, exercise=exercise["name"], data=data)
+    return render_template("result_details.html", user=user.name, exercise=exercise.pretty_name, data=data)
