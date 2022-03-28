@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 
 from flask_assets import Environment
+from learners import logger
 from learners.assets import get_bundle
 from strictyaml import YAMLError, load
 
@@ -38,10 +39,10 @@ class Configuration:
                 yaml_config = stream.read()
                 learners_config = load(yaml_config, config_schema).data
         except YAMLError as yamlerr:
-            print(yamlerr)
+            logger.exception(yamlerr)
             raise
         except EnvironmentError as enverr:
-            print(enverr)
+            logger.exception(enverr)
             raise
 
         # Set learners configuration
