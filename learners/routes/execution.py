@@ -29,7 +29,6 @@ def run_execution(type):
             if data.get("mail"):
                 send_form_via_mail(username, data)
 
-    print(response)
     return jsonify(response)
 
 
@@ -54,5 +53,4 @@ def get_execution(exercise_name):
 
         response = update_execution_response(response, last_execution, executions)
 
-    print(response)
     return jsonify(response)

@@ -23,7 +23,6 @@ def insert_exercises(*args, **kwargs):
     exercises = extract_exercises()
 
     for exercise in exercises[1:]:
-        print(exercise)
         db.session.add(
             Exercise(
                 type=exercise["type"],
