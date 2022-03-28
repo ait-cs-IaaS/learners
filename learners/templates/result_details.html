@@ -33,7 +33,7 @@ CyberRange
                     {{- loop(subvalue.items()) }}
                   </ul>
                   {% else %}
-                  <span class="detail">
+                  <span class="detail {% if subvalue == True %}true{% elif subvalue == False %}false{% endif %}">
                     {% if subvalue != "" %}
                     {{subvalue}}
                     {% else %}
@@ -45,7 +45,7 @@ CyberRange
                 {% endfor %}
               </ul>
               {% else %}
-              <span class="detail">
+              <span class="detail {% if value == True %}true{% elif value == False %}false{% endif %}">
                 {{ value }}
               </span>
               {% endif %}

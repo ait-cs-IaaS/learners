@@ -43,11 +43,11 @@ def get_exercise_result(user_id, exercise_name):
 
     last_execution = executions[0] if executions else None
     data = {
-        "completed": bool(last_execution.completed) if last_execution else False,
-        "executed": bool(not last_execution.connection_failed) if last_execution else False,
+        "completed": any(execution.completed for execution in executions) if last_execution else False,
+        "executed": any(not execution.connection_failed for execution in executions) if last_execution else False,
         "msg": last_execution.msg if last_execution else None,
         "response_timestamp": last_execution.response_timestamp if last_execution else None,
-        "connection_failed": bool(last_execution.connection_failed) if last_execution else False,
+        "connection": any(not execution.connection_failed for execution in executions) if last_execution else False,
     }
 
     if exercise.type == "form":

@@ -105,6 +105,14 @@
       border-radius: 4px;
     }
 
+    & .detail.true {
+      background-color: #b7dbc6;
+    }
+
+    & .detail.false {
+      background-color: #d9949d;
+    }
+
     & ul {
       list-style: none;
       margin-top: 0px;
@@ -193,19 +201,19 @@
   stroke: #3a3a3a7c;
   fill: none;
   animation:
-      rot_circle 4s cubic-bezier(0.65, 0, 0.45, 1) forwards,
-      rot_circle 4s cubic-bezier(0,0,1,1) infinite,
+    rot_circle 4s cubic-bezier(0.65, 0, 0.45, 1) forwards,
+    rot_circle 4s cubic-bezier(0, 0, 1, 1) infinite,
 }
 
 @keyframes rot_circle {
   0% {
-      stroke-dashoffset: 0;
-      stroke-dasharray: 83;
+    stroke-dashoffset: 0;
+    stroke-dasharray: 83;
   }
 
   100% {
-      stroke-dashoffset: -332;
-      stroke-dasharray: 83;
+    stroke-dashoffset: -332;
+    stroke-dasharray: 83;
   }
 }
 
