@@ -20,7 +20,16 @@
     line-height: 1.6;
   }
 
-  b.no_value {
+  & h5 {
+    font-weight: 700;
+    color: $main-bg-color;
+    padding: 0 0 0 0;
+    text-transform: uppercase;
+    margin: 20px 0px 0px 0px;
+    display: block;
+  }
+
+  & b.no_value {
     color: #acacac;
     width: 100%;
     text-align: center;
@@ -86,7 +95,7 @@
     & label {
       color: $main-bg-color;
       padding: 5px 10px 0px 5px;
-      font-size: 1em;
+      font-size: 0.9em;
       // font-weight: 700;
       width: auto;
     }
@@ -103,6 +112,8 @@
       background-color: #ececec;
       color: $main-bg-color;
       border-radius: 4px;
+      display: block;
+      margin-left: 4px;
     }
 
     & .detail.true {
@@ -113,9 +124,19 @@
       background-color: #d9949d;
     }
 
+    & ul:first-child {
+      list-style: none;
+      margin-top: 0px;
+      padding-left: 0px;
+    }
+
     & ul {
       list-style: none;
       margin-top: 0px;
+      padding-left: 0; // 3%;
+    }
+
+    & li.mapping {
       padding-left: 3%;
     }
 

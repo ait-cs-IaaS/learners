@@ -29,6 +29,7 @@ def login():
         return render_template("login.html", **cfg.template, error=error_msg)
 
     admin = cfg.users.get(username).get("is_admin")
+    cfg.template["admin"] = admin
 
     access_token = create_access_token(identity=username, additional_claims={"is_admin": admin})
     response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))

@@ -15,19 +15,31 @@ CyberRange
         <li><label><strong>Exercise</strong></label> <span class="info">{{ exercise }}</span><br />
           <hr>
         </li>
-        <li><label><strong>Details</strong></label>
+        <li><label>
+            <h5>Details</h5>
+          </label>
 
           {% if data %}
           <ul>
             {% for key, value in data.items() %}
             <li>
               <label class="{% if key | length > 30 %}long{% endif %}">
-                {{ key | replace("_", " ") }}: </label>
+                {% if key in ["history", "details", "form"] %}
+                <h5>{{ key }}</h5>
+                {% else %}
+                {{ key | replace("_", " ") }}:
+                {% endif %}
+              </label>
               {% if value is mapping %}
               <ul>
                 {% for subkey, subvalue in value.items() recursive %}
-                <li> <label class="{% if subkey | length > 30 %}long{% endif %}">
-                    {{ subkey | replace("_", " ") }}: </label>
+                <li class="mapping"> <label class="{% if subkey | length > 30 %}long{% endif %}">
+                    {% if key == "history" and subkey | int %}
+                    <b>Submission {{ subkey }}</b>
+                    {% else %}
+                    {{ subkey | replace("_", " ") }}:
+                    {% endif %}
+                  </label>
                   {% if subvalue is mapping %}
                   <ul>
                     {{- loop(subvalue.items()) }}

@@ -1,28 +1,29 @@
 <div id="navigation" class="d-flex flex-column flex-shrink-0">
-  <a
-    href="/login"
-    class="d-block p-3 link-dark text-decoration-none"
-    title=""
-    data-bs-toggle="tooltip"
-    data-bs-placement="right"
-    data-bs-original-title="Login"
-  >
+  <a href="/login" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
+    data-bs-placement="right" data-bs-original-title="Login">
     <svg class="bi" width="28" height="28" style="margin-left: 2px">
       <use style="fill: #d34a5d" xlink:href="#learners-icon"></use>
     </svg>
   </a>
 
   <nav class="mb-auto">
+    {% if admin %}
+
     <ul class="nav flex-column text-center">
       <li class="nav-item">
-        <!--  add class "active" for active link -->
-        <a
-          href="/access#docs"
-          class="nav-link py-3"
-          data-bs-toggle="tooltip"
-          data-bs-placement="right"
-          data-bs-original-title="Documentation"
-        >
+        <a href="/admin" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          data-bs-original-title="Results">
+          <svg class="bi" width="24" height="24" role="img">
+            <use xlink:href="#doc"></use>
+          </svg>
+        </a>
+      </li>
+    </ul>
+    {% else %}
+    <ul class="nav flex-column text-center">
+      <li class="nav-item">
+        <a href="/access#docs" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          data-bs-original-title="Documentation">
           <svg class="bi" width="24" height="24" role="img">
             <use xlink:href="#doc"></use>
           </svg>
@@ -30,52 +31,38 @@
       </li>
 
       <li class="nav-item">
-        <a
-          href="/access#exercises"
-          class="nav-link py-3"
-          data-bs-toggle="tooltip"
-          data-bs-placement="right"
-          data-bs-original-title="Run Exercises"
-        >
+        <a href="/access#exercises" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          data-bs-original-title="Run Exercises">
           <svg class="bi" width="22" height="22" role="img">
             <use xlink:href="#play"></use>
           </svg>
         </a>
       </li>
+      {% endif %}
 
       {% if vnc_clients %}
-        {% for vnc_client, client_info in vnc_clients.items() %}
-        <li class="nav-item">
-          <a
-            href="/access#{{ vnc_client }}"
-            class="nav-link py-3"
-            data-bs-toggle="tooltip"
-            data-bs-placement="right"
-            data-bs-original-title="{{ client_info.tooltip }}"
-          >
-            <svg class="bi" width="22" height="22" role="img">
-              <use xlink:href="#vnc"></use>
-            </svg>
-            {% if vnc_clients | length > 1 %}
-            <div class="client_index">
-              <span>{{ loop.index }}</span>
-            </div>
-            {% endif %}
-          </a>
-        </li>
-        {% endfor %}
+      {% for vnc_client, client_info in vnc_clients.items() %}
+      <li class="nav-item">
+        <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          data-bs-original-title="{{ client_info.tooltip }}">
+          <svg class="bi" width="22" height="22" role="img">
+            <use xlink:href="#vnc"></use>
+          </svg>
+          {% if vnc_clients | length > 1 %}
+          <div class="client_index">
+            <span>{{ loop.index }}</span>
+          </div>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
       {% endif %}
     </ul>
   </nav>
 
   <div class="nav-item">
-    <a
-      id="menu-newtab"
-      class="nav-link py-3"
-      data-bs-toggle="tooltip"
-      data-bs-placement="right"
-      data-bs-original-title="Open current view in new tab"
-    >
+    <a id="menu-newtab" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+      data-bs-original-title="Open current view in new tab">
       <svg class="bi" width="24" height="24" role="img">
         <use xlink:href="#newtab"></use>
       </svg>
@@ -84,14 +71,8 @@
 
   {% if chat %}
   <div class="nav-item">
-    <span
-      href="#"
-      id="menu-chat"
-      class="nav-link py-3"
-      data-bs-toggle="tooltip"
-      data-bs-placement="right"
-      data-bs-original-title="Support Chat"
-    >
+    <span href="#" id="menu-chat" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+      data-bs-original-title="Support Chat">
       <svg class="bi" width="21" height="21" role="img">
         <use xlink:href="#chat"></use>
       </svg>

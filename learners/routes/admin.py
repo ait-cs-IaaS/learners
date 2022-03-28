@@ -1,6 +1,7 @@
 import json
 
 from flask import Blueprint, jsonify, render_template
+from learners.conf.config import cfg
 from learners.functions.database import (
     get_all_exercises,
     get_all_users,
@@ -30,7 +31,7 @@ def admin_area():
     exercises_filter.extend({"id": exercise.name, "name": exercise.pretty_name} for exercise in exercises)
 
     results_table = construct_results_table(exercises, users)
-    return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table)
+    return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
 
 
 @admin_api.route("/result/<user_id>/<exercise_name>", methods=["GET"])
@@ -55,4 +56,4 @@ def get_exercise_result(user_id, exercise_name):
 
     data["history"] = extract_history(executions) if executions else None
 
-    return render_template("result_details.html", user=user.name, exercise=exercise.pretty_name, data=data)
+    return render_template("result_details.html", user=user.name, exercise=exercise.pretty_name, data=data, **cfg.template)
