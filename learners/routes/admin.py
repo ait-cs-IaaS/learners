@@ -30,7 +30,7 @@ def admin_area():
     exercises_filter.extend({"id": exercise.name, "name": exercise.pretty_name} for exercise in exercises)
 
     results_table = construct_results_table(exercises, users)
-    return render_template("results.html", exercises=exercises_filter, user=user_filter, table=results_table)
+    return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table)
 
 
 @admin_api.route("/result/<user_id>/<exercise_name>", methods=["GET"])
