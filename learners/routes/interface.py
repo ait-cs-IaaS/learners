@@ -12,6 +12,7 @@ def access():
     user_id = get_jwt_identity()
 
     if vnc_clients := cfg.users.get(user_id).get("vnc_clients"):
+        cfg.template["vnc_clients"] = vnc_clients
         for client, details in vnc_clients.items():
             if cfg.jwt_for_vnc_access:
                 additional_claims = {
