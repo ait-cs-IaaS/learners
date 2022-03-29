@@ -14,10 +14,8 @@ def construct_results_table(exercises, users) -> Tuple[dict, dict]:
         for user in users:
             row = {"user_id": user.id, "username": user.name}
             for exercise in exercises:
-                if completed_state := get_completed_state(user.id, exercise.id):
-                    row[exercise.name] = int(any(completed_state))
-                else:
-                    row[exercise.name] = -1
+                completed_state = [state[0] for state in get_completed_state(user.id, exercise.id)]
+                row[exercise.name] = int(any(completed_state)) if completed_state else -1
             rows.append(row)
 
         columns = [{"col_name": "id", "col_id": "user_id"}, {"col_name": "user", "col_id": "username"}]
