@@ -33,7 +33,7 @@ def login():
 
     access_token = create_access_token(identity=username, additional_claims={"is_admin": admin})
     response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))
-    response.set_cookie("auth", value=access_token, secure=True, httponly=False)
+    response.set_cookie("access_token_cookie", value=access_token, secure=True, httponly=False)
 
     return response
 
