@@ -151,7 +151,7 @@ def config_app(app):
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
-    app.config["JWT_ACCESS_COOKIE_NAME"] = "auth"
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
     if cfg.mail:
         app.config["MAIL_SERVER"] = cfg.mail_server
