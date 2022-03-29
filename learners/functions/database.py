@@ -28,6 +28,7 @@ def insert_exercises(*args, **kwargs):
                 type=exercise["type"],
                 name=exercise["id"],
                 pretty_name=exercise["name"],
+                title=exercise["title"],
                 weight=exercise["exerciseWeight"],
             )
         )
@@ -142,7 +143,7 @@ def get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
         return None
 
 
-def get_completed_state(user_id: int, exercise_id: int) -> list:
+def get_completed_state(user_id: int, exercise_id: int) -> dict:
     try:
         return (
             db.session.query(User)

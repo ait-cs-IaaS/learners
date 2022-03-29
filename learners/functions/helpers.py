@@ -30,7 +30,10 @@ def extract_exercises() -> list:
                 f = open(pathlib.PurePath(path, file), "r")
                 parsed_html = BeautifulSoup(f.read(), features="html.parser")
                 exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
-                exercises.extend(json.loads(exerciseInfo.get("value")) for exerciseInfo in exerciseInfos)
+                for exerciseInfo in exerciseInfos:
+                    exerciseDict = json.loads(exerciseInfo.get("value"))
+                    exerciseDict["title"] = (parsed_html.body.find("h1").text).strip()
+                    exercises.append(exerciseDict)
 
     for exercise in exercises:
         exerciseWeight = int(exercise["exerciseWeight"])

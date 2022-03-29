@@ -30,6 +30,7 @@ class Exercise(db.Model):
     type = db.Column(db.String(120), nullable=False)
     name = db.Column(db.String(120), unique=True, nullable=False)
     pretty_name = db.Column(db.String(120), unique=True, nullable=False)
+    title = db.Column(db.String(120), nullable=True)
     weight = db.Column(db.String(120), nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
 
