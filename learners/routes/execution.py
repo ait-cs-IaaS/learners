@@ -3,7 +3,14 @@ import uuid
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners import logger
-from learners.functions.database import db_create_execution, get_current_executions, get_exercise_by_name, get_user_by_name
+from learners.functions.database import (
+    db_create_execution,
+    get_all_exercises,
+    get_completed_state,
+    get_current_executions,
+    get_exercise_by_name,
+    get_user_by_name,
+)
 from learners.functions.execution import call_venjix, send_form_via_mail, update_execution_response, wait_for_response
 
 execution_api = Blueprint("execution_api", __name__)
@@ -54,3 +61,35 @@ def get_execution(exercise_name):
         response = update_execution_response(response, last_execution, executions)
 
     return jsonify(response)
+
+
+@execution_api.route("/execution-state", methods=["GET"])
+@jwt_required()
+def get_execution_state():
+
+    username = get_jwt_identity()
+    user = get_user_by_name(username)
+
+    results = []
+    exercises = get_all_exercises()
+
+    for exercise in exercises:
+
+        # title
+        result = {"title": exercise.title, "total": 1, "done": 0}
+
+        # done
+        completed_state = int(any(state[0] for state in get_completed_state(user.id, exercise.id)))
+
+        # total
+        if index := next(
+            (ind for ind, ex in enumerate(results) if ex["title"] == exercise.title),
+            None,
+        ):
+            results[index]["total"] += 1
+            results[index]["done"] += completed_state
+        else:
+            result["done"] = completed_state
+            results.append(result)
+
+    return jsonify(success_list=results)
