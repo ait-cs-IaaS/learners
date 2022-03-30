@@ -29,6 +29,7 @@ def insert_exercises(*args, **kwargs):
                 name=exercise["id"],
                 pretty_name=exercise["name"],
                 title=exercise["title"],
+                parent=exercise["parent"],
                 weight=exercise["exerciseWeight"],
             )
         )

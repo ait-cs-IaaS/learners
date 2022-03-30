@@ -1,3 +1,4 @@
+import json
 import uuid
 
 from flask import Blueprint, jsonify, request
@@ -70,26 +71,33 @@ def get_execution_state():
     username = get_jwt_identity()
     user = get_user_by_name(username)
 
-    results = []
-    exercises = get_all_exercises()
-
-    for exercise in exercises:
-
-        # title
-        result = {"title": exercise.title, "total": 1, "done": 0}
-
-        # done
-        completed_state = int(any(state[0] for state in get_completed_state(user.id, exercise.id)))
-
-        # total
-        if index := next(
-            (ind for ind, ex in enumerate(results) if ex["title"] == exercise.title),
-            None,
-        ):
-            results[index]["total"] += 1
-            results[index]["done"] += completed_state
+    exercises = {}
+    for subexercise in get_all_exercises():
+        indicator = subexercise.parent or subexercise.title
+        if exercises.get(indicator):
+            exercises[indicator].append(subexercise)
         else:
-            result["done"] = completed_state
-            results.append(result)
+            exercises[indicator] = [subexercise]
+
+    results = {}
+    for (parent, subexercises) in exercises.items():
+        results[parent] = {"total": 0, "done": 0, "exercises": []}
+        for subexercise in subexercises:
+
+            exercise = {"title": subexercise.title, "total": 1, "done": 0}
+            exercise["done"] += int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
+
+            newItem = True
+            for (i, ex) in enumerate(results[parent].get("exercises")):
+                if ex["title"] == subexercise.title:
+                    newItem = False
+            if newItem:
+                results[parent]["exercises"].append(exercise)
+            else:
+                results[parent]["exercises"][i]["total"] += 1
+                results[parent]["exercises"][i]["done"] += exercise["done"]
+
+            results[parent]["done"] += exercise["done"]
+            results[parent]["total"] += 1
 
     return jsonify(success_list=results)
