@@ -1,11 +1,11 @@
+import json
 import os
 from datetime import timedelta
 
 from flask_assets import Environment
+from learners import logger
 from learners.assets import get_bundle
-
-from strictyaml import load, YAMLError
-
+from strictyaml import YAMLError, load
 
 cfg = None
 
@@ -39,10 +39,10 @@ class Configuration:
                 yaml_config = stream.read()
                 learners_config = load(yaml_config, config_schema).data
         except YAMLError as yamlerr:
-            print(yamlerr)
+            logger.exception(yamlerr)
             raise
         except EnvironmentError as enverr:
-            print(enverr)
+            logger.exception(enverr)
             raise
 
         # Set learners configuration
@@ -67,6 +67,8 @@ class Configuration:
             self.mail_password = learners_config.get("mail").get("password")
             self.mail_tls = learners_config.get("mail").get("tls")
             self.mail_ssl = learners_config.get("mail").get("ssl")
+            self.mail_sender = learners_config.get("mail").get("sender_name")
+            self.mail_recipients = learners_config.get("mail").get("recipients")
         elif os.getenv("MAIL"):
             self.mail = True
             self.mail_server = os.getenv("MAIL_SERVER") or ""
@@ -75,13 +77,15 @@ class Configuration:
             self.mail_password = os.getenv("MAIL_PASSWORD") or ""
             self.mail_tls = os.getenv("MAIL_TLS") or True
             self.mail_ssl = os.getenv("MAIL_SSL") or False
+            self.mail_sender = os.getenv("MAIL_SENDER_NAME") or self.mail_username
+            self.mail_recipients = os.getenv("MAIL_RECIPIENTS") or []
         else:
             self.mail = False
 
-        self.users = learners_config.get("users")
-
-        # Set components configuration
         self.novnc = {"server": learners_config.get("novnc").get("server")}
+
+        self.users = learners_config.get("users")
+        self.users = json.loads(json.dumps(self.users).replace("default", self.novnc.get("server")))
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
 
@@ -95,23 +99,26 @@ class Configuration:
             "endpoint": learners_config.get("exercises").get("endpoint"),
         }
 
-        self.venjix = {"auth_secret": learners_config.get("venjix").get("auth_secret"), "url": learners_config.get("venjix").get("url")}
+        self.venjix = {
+            "auth_secret": learners_config.get("venjix").get("auth_secret"),
+            "url": learners_config.get("venjix").get("url"),
+            "headers": {
+                "Content-type": "application/json",
+                "Authorization": f"Bearer {learners_config.get('venjix').get('auth_secret')}",
+            },
+        }
 
         # define the render template
         self.template = {
-            "authenticated": False,
             "chat": False,
+            "admin": False,
             "user_id": None,
             "branding": self.branding,
             "theme": self.theme,
             "vnc_clients": None,
-            "url_documentation": None,
-            "url_exercises": None,
+            "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
+            "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
         }
-
-        # set CORS configuration
-        self.cors_origins = []
-        self.cors_origins.append(self.venjix.get("url"))
 
 
 def build_config(app):
@@ -125,7 +132,6 @@ def build_config(app):
     global cfg
     cfg = Configuration()
 
-    # Set flask app.config
     config_app(app)
 
 
@@ -145,10 +151,7 @@ def config_app(app):
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
-
-    app.config["CORS_HEADERS"] = "Content-Type"
-    app.config["CORS_ORIGINS"] = cfg.cors_origins
-    app.config["CORS_SUPPORTS_CREDENTIALS"] = True
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
 
     if cfg.mail:
         app.config["MAIL_SERVER"] = cfg.mail_server

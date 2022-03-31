@@ -30,7 +30,7 @@ exercises:
   endpoint: "/exercises"
 
 callback:
-  endpoint: "/callback"
+  endpoint: "http://localhost:5000/callback"
 
 novnc:
   server: "http://localhost:5002"

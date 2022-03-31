@@ -1,7 +1,7 @@
-from flask import Flask
-from flask_cors import CORS
-
 import os
+
+from flask import Flask
+
 from learners.logger import logger
 
 
@@ -32,11 +32,15 @@ def main():
 
         init_mail(app)
 
-        CORS(app)
+    import learners.routes as routes
 
-    from learners import views
-
-    app.register_blueprint(views.bp)
+    app.register_blueprint(routes.home_api)
+    app.register_blueprint(routes.authentication_api)
+    app.register_blueprint(routes.interface_api)
+    app.register_blueprint(routes.execution_api)
+    app.register_blueprint(routes.callback_api)
+    app.register_blueprint(routes.statics_api)
+    app.register_blueprint(routes.admin_api)
 
     return app
 

@@ -1,11 +1,12 @@
-from flask import redirect, render_template
-from flask_jwt_extended import JWTManager
-from flask_jwt_extended import verify_jwt_in_request
-from flask_jwt_extended import get_jwt
-
-from learners.conf.config import cfg
 from functools import wraps
 
+from flask import render_template
+from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
+
+from learners import logger
+from learners.conf.config import cfg
+from learners.conf.db_models import TokenBlocklist
+from learners.database import db
 
 jwt = JWTManager()
 
@@ -25,6 +26,23 @@ def token_invalid(jwt_payload):
 @jwt.unauthorized_loader
 def token_missing(callback):
     error_msg = "Authorization is missing."
+    return render_template("login.html", **cfg.template, error=error_msg)
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    try:
+        jti = jwt_payload["jti"]
+        token = db.session.query(TokenBlocklist.id).filter_by(jti=jti).scalar()
+        return token is not None
+    except Exception as e:
+        logger.exception(e)
+        return True
+
+
+@jwt.revoked_token_loader
+def token_revoked(jwt_header, jwt_payload):
+    error_msg = "Token has been revoked."
     return render_template("login.html", **cfg.template, error=error_msg)
 
 
