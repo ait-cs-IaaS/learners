@@ -118,6 +118,10 @@ class Configuration:
             "vnc_clients": None,
             "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
             "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
+            "login_headline": learners_config.get("learners").get("login_headline"),
+            "login_headline_highlight": learners_config.get("learners").get("login_headline_highlight"),
+            "welcome_text": learners_config.get("learners").get("welcome_text"),
+            "login_text": learners_config.get("learners").get("login_text"),
         }
 
 

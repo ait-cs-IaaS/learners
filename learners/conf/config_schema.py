@@ -1,12 +1,30 @@
-from strictyaml import Map, Str, Int, Seq, Bool, Any, Optional, MapPattern, EmptyDict, EmptyNone, EmptyList
+from strictyaml import Any, Bool, EmptyDict, EmptyList, EmptyNone, Int, Map, MapPattern, Optional, Seq, Str
 
 config_schema = Map(
     {
-        Optional("learners", default={"theme": "dark", "branding": False, "language": "en"}): Map(
+        Optional(
+            "learners",
+            default={
+                "theme": "dark",
+                "branding": False,
+                "language": "en",
+                "login_headline": "Welcome to the",
+                "login_headline_highlight": "AIT CyberRange",
+                "welcome_text": "This is the default welcome text.",
+                "login_text": "In order to participate in the exercises, please log in with your credentials. You will then get access to the documentation and the introduction to the tools to be used, the Exercises-Control and get access to the VNC client from which the exercises can be performed.",
+            },
+        ): Map(
             {
                 Optional("theme", default="dark"): Str(),
                 Optional("branding", default=False): Bool(),
                 Optional("language", default="en"): Str(),
+                Optional("login_headline", default="Welcome to the"): Str(),
+                Optional("login_headline_highlight", default="AIT CyberRange"): Str(),
+                Optional("welcome_text", default="This is the default welcome text."): Str(),
+                Optional(
+                    "login_text",
+                    default="In order to participate in the exercises, please log in with your credentials. You will then get access to the documentation and the introduction to the tools to be used, the Exercises-Control and get access to the VNC client from which the exercises can be performed.",
+                ): Str(),
             }
         ),
         "jwt": Map(
