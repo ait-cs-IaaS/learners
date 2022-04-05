@@ -85,7 +85,7 @@ def db_create_execution(type: str, data: dict, username: str, execution_uuid: st
 def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
     try:
         executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
-        last_execution = executions.order_by(nullsfirst(Execution.response_timestamp.desc()), Execution.execution_timestamp.desc()).first()
+        last_execution = executions.order_by(Execution.execution_timestamp.desc(), nullsfirst(Execution.response_timestamp.desc())).first()
         executions = executions.order_by(Execution.execution_timestamp.desc()).all()
         return last_execution, executions
     except Execution as e:
