@@ -108,7 +108,7 @@ function newTab() {
 
         // unload iframe
         let original_url = noVNC_clients[id];
-        iframe.attr("original_url", "");
+        iframe.attr("src", "");
         iframe.addClass("opened hideContent").removeClass("visibleContent");
 
         // open new tab
