@@ -98,10 +98,11 @@ def update_execution_response(response: dict, last_execution, executions: list) 
 
     if last_execution:
         response["completed"] = last_execution.completed
-        response["executed"] = not last_execution.connection_failed
+        response["executed"] = int(not last_execution.connection_failed)
         response["msg"] = last_execution.msg
         response["response_timestamp"] = last_execution.response_timestamp
         response["connection_failed"] = last_execution.connection_failed
+        response["partial"] = last_execution.partial
         executions[0] = last_execution
 
     response["history"] = extract_history(executions)

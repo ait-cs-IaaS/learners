@@ -44,7 +44,15 @@ def run_execution(type):
 @jwt_required()
 def get_execution(exercise_name):
 
-    response = {"completed": False, "executed": False, "msg": None, "response_timestamp": None, "connection_failed": False, "history": None}
+    response = {
+        "completed": False,
+        "executed": False,
+        "msg": None,
+        "response_timestamp": None,
+        "connection_failed": False,
+        "history": None,
+        "partial": False,
+    }
     username = get_jwt_identity()
 
     user_id = get_user_by_name(username).id

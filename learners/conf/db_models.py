@@ -20,6 +20,7 @@ class Execution(db.Model):
     msg = db.Column(db.String(240), nullable=True)
     uuid = db.Column(db.String(120), unique=True, nullable=True)
     completed = db.Column(db.Integer, nullable=False, default=0)
+    partial = db.Column(db.Integer, nullable=False, default=0)
     connection_failed = db.Column(db.Integer, nullable=False, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
