@@ -36,11 +36,30 @@ CyberRange | Login
       {% endif %}
     </h1>
 
+    {% if branding %}
+
+      <div id="branding-container">
+        <!-- include branding -->
+        {% include "partials/branding.html" %}
+      </div>
+
+    {% else %}
+
+      <svg class="bi developed-by" width="200" role="img">
+        <use xlink:href="#developed-by"></use>
+      </svg>
+
+    {% endif %}
+
+
+
     {% if welcome_text %}
     <p style="margin-top: 2.4em">
       {{ welcome_text }}
     </p>
     {% endif %}
+
+
 
     {% if not success %}
     <h4 style="margin-top: 2.4em">Login</h4>
@@ -72,16 +91,7 @@ CyberRange | Login
     </form>
     {% endif %}
 
-    {% if branding %}
-    <div id="branding-container">
-      <!-- include branding -->
-      {% include "partials/branding.html" %}
-    </div>
-    {% endif %}
 
-    <svg class="bi developed-by" width="200" role="img">
-      <use xlink:href="#developed-by"></use>
-    </svg>
   </div>
 </div>
 
