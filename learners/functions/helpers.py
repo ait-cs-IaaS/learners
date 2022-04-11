@@ -32,16 +32,6 @@ def extract_exercises() -> list:
                 exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
                 for exerciseInfo in exerciseInfos:
                     exerciseDict = json.loads(exerciseInfo.get("value"))
-                    exerciseDict["title"] = (parsed_html.body.find("h1").text).strip()
-
-                    lis = parsed_html.body.find_all("li")
-                    exerciseDict["parent"] = None
-                    for li in lis:
-                        if li.attrs and "parent" in li.attrs["class"]:
-                            parent = (li.attrs["title"]).strip()
-                            if parent != exerciseDict["title"]:
-                                exerciseDict["parent"] = parent
-
                     exercises.append(exerciseDict)
 
     for exercise in exercises:
@@ -53,7 +43,7 @@ def extract_exercises() -> list:
         else:
             exercise["exerciseWeight"] = parentWeight * 10 + exerciseWeight
 
-        exercise["name"] = exercise["id"].replace("_", " ")
+        exercise["name"] = exercise["id"]
 
     exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
     return exercises
