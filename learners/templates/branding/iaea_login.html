@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block theme %}
+{{ theme | default('dark') }}
+{% endblock %}
+
+{% block title %}
+CyberRange | Login
+{% endblock %}
+
+{% block content %}
+asdasdasdasd
+<div class="content-container">
+  <div class="notification-box {% if error %} error {% elif success_msg %} success {% endif %}">
+    <span>
+      {% if error %}
+      <svg class="bi" width="18" height="18" role="img">
+        <use xlink:href="#error"></use>
+      </svg>
+      <strong>Error:</strong> {{ error }}
+      {% endif %}
+      {% if success_msg %}
+      <svg class="bi" width="18" height="18" role="img">
+        <use xlink:href="#ok"></use>
+      </svg>
+      <strong>Success:</strong> {{ success_msg }}
+      {% endif %}
+    </span>
+  </div>
+
+  <div class="center-content">
+    <h1>
+      {{ login_headline }}<br />
+      {% if login_headline_highlight %}
+      <span class="heading_highlight"> {{ login_headline_highlight }}</span>
+      {% endif %}
+    </h1>
+
+    <div id="branding-container">
+      <hr>
+
+      <b>Provided by:</b>
+
+      <img class="branding-logo" src="{{ url_for('static', filename='img/CYBERRANGE_Logo-Grau.png') }}"
+        alt="CyberRange Logo" />
+
+      <hr style="margin-bottom: 60px">
+
+      <img class="float-right-logo" src="{{ url_for('static', filename='img/iaea-logo.png') }}" alt="CyberRange Logo" />
+
+      <h4>The Regional Training Course</h4>
+    </div>
+
+    <p style="margin-top: 2.4em">
+      {{ welcome_text }}
+    </p>
+
+
+    {% if not success %}
+    <h4 style="margin-top: 2.4em">Login</h4>
+
+    {% if login_text %}
+    <p style="margin-bottom: 2em">
+      {{ login_text }}
+    </p>
+    {% endif %}
+
+    <form action="/login" method="post">
+      <div class="input-row">
+        <input class="{% if error %}error{% endif %}" type="text" placeholder="Username" name="username"
+          value="{{request.form.username }}" />
+      </div>
+      <div class="mb-3 input-row">
+        <input class="{% if error %}error{% endif %}" type="password" placeholder="Password" name="password"
+          value="{{request.form.password }}" />
+      </div>
+      <div class="input-row">
+        <input class="btn green-btn" type="submit" value="Login" />
+      </div>
+    </form>
+    {% else %}
+    <form action="/logout" method="get">
+      <div class="input-row">
+        <input class="btn green-btn" type="submit" value="Logout" />
+      </div>
+    </form>
+    {% endif %}
+
+
+  </div>
+</div>
+
+{% endblock %}
