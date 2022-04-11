@@ -48,6 +48,7 @@ class Configuration:
         # Set learners configuration
         self.theme = learners_config.get("learners").get("theme")
         self.branding = learners_config.get("learners").get("branding")
+        self.branded_login = learners_config.get("learners").get("branded_login")
         self.language = learners_config.get("learners").get("language")
 
         # Set jwt related configuration
@@ -108,7 +109,8 @@ class Configuration:
             },
         }
 
-        # define the render template
+        self.login_page = f"branding/{self.theme}_login.html" if self.branded_login else "login.html"
+
         self.template = {
             "chat": False,
             "admin": False,

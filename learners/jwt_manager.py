@@ -14,19 +14,19 @@ jwt = JWTManager()
 @jwt.expired_token_loader
 def token_expired(jwt_header, jwt_payload):
     error_msg = "Your token is expired. Please login again."
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.login_page, **cfg.template, error=error_msg)
 
 
 @jwt.invalid_token_loader
 def token_invalid(jwt_payload):
     error_msg = "Your token is invalid."
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.login_page, **cfg.template, error=error_msg)
 
 
 @jwt.unauthorized_loader
 def token_missing(callback):
     error_msg = "Authorization is missing."
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.login_page, **cfg.template, error=error_msg)
 
 
 @jwt.token_in_blocklist_loader
@@ -43,7 +43,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 @jwt.revoked_token_loader
 def token_revoked(jwt_header, jwt_payload):
     error_msg = "Token has been revoked."
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.login_page, **cfg.template, error=error_msg)
 
 
 def admin_required():
@@ -58,7 +58,7 @@ def admin_required():
             else:
                 error_msg = "Admins only!"
                 cfg.template["authenticated"] = False
-                return render_template("login.html", **cfg.template, error=error_msg)
+                return render_template(cfg.login_page, **cfg.template, error=error_msg)
 
         return decorator
 
