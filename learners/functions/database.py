@@ -27,8 +27,8 @@ def insert_exercises(*args, **kwargs):
             Exercise(
                 type=exercise["type"],
                 name=exercise["id"],
-                pretty_name=exercise["name"],
                 title=exercise["title"],
+                page_title=exercise["pageTitle"],
                 parent=exercise["parent"],
                 weight=exercise["exerciseWeight"],
             )
@@ -37,7 +37,7 @@ def insert_exercises(*args, **kwargs):
 
 
 def db_update_execution(
-    execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None, partial=None
+    execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None
 ) -> None:
     try:
         execution = Execution.query.filter_by(uuid=execution_uuid).first()
@@ -85,7 +85,7 @@ def db_create_execution(type: str, data: dict, username: str, execution_uuid: st
 def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
     try:
         executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
-        last_execution = executions.order_by(Execution.execution_timestamp.desc(), nullsfirst(Execution.response_timestamp.desc())).first()
+        last_execution = executions.order_by(nullsfirst(Execution.response_timestamp.desc()), Execution.execution_timestamp.desc()).first()
         executions = executions.order_by(Execution.execution_timestamp.desc()).all()
         return last_execution, executions
     except Execution as e:
@@ -115,6 +115,24 @@ def get_all_users() -> list:
 
 def get_all_exercises() -> list:
     return generic_getter(Exercise, all=True)
+
+
+def get_exercise_groups() -> list:
+    try:
+        session = db.session.query(Exercise.parent).group_by(Exercise.parent).all()
+        return [groupname for groupname, in session]
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def get_exercises_by_group(parent: str) -> list:
+    try:
+        session = db.session.query(Exercise).filter_by(parent=parent)
+        return session.all()
+    except Exception as e:
+        logger.exception(e)
+        return None
 
 
 def generic_getter(db_model, id: int = None, name: str = None, all: bool = False) -> dict:

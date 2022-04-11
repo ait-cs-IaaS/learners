@@ -46,7 +46,7 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
 def send_form_via_mail(username: str, data) -> bool:
 
     try:
-        exercise_name = Exercise.query.filter_by(name=data.get("name")).first().pretty_name
+        exercise_name = Exercise.query.filter_by(name=data.get("name")).first().name
     except Exception as e:
         logger.exception(e)
         return False
