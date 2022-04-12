@@ -37,7 +37,7 @@ def insert_exercises(*args, **kwargs):
 
 
 def db_update_execution(
-    execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None
+    execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None, partial=None
 ) -> None:
     try:
         execution = Execution.query.filter_by(uuid=execution_uuid).first()
