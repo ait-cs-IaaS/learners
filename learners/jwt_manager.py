@@ -27,6 +27,12 @@ def token_invalid(jwt_payload):
     return render_template("login.html", **cfg.template, error=error_msg)
 
 
+@jwt.token_verification_loader
+def token_valid(jwt_header, jwt_data):
+    cfg.template["authenticated"] = True
+    return jwt_data
+
+
 @jwt.unauthorized_loader
 def token_missing(callback):
     error_msg = "Authorization is missing."
