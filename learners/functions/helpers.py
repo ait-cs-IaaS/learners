@@ -53,7 +53,7 @@ def extract_history(executions):
             "response_time": utc_to_local(execution.response_timestamp, date=False),
             "completed": bool(execution.completed),
             "msg": execution.msg,
-            "partial": execution.partial,
+            "partial": bool(execution.partial),
         }
         for i, execution in enumerate(executions)
     }

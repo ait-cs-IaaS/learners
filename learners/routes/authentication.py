@@ -30,6 +30,7 @@ def login():
 
     admin = cfg.users.get(username).get("is_admin")
     cfg.template["admin"] = admin
+    cfg.template["authenticated"] = True
 
     access_token = create_access_token(identity=username, additional_claims={"is_admin": admin})
     response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))
@@ -46,4 +47,5 @@ def modify_token():
     db.session.add(TokenBlocklist(jti=jti, created_at=now))
     db.session.commit()
     success_msg = "Successfully logged out."
+    cfg.template["authenticated"] = False
     return render_template("login.html", **cfg.template, success_msg=success_msg)
