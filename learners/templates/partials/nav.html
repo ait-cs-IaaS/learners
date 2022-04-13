@@ -7,7 +7,7 @@
   </a>
 
   <nav class="mb-auto">
-    {% if admin %}
+    {% if admin and authenticated %}
 
     <ul class="nav flex-column text-center">
       <li class="nav-item">
@@ -19,7 +19,7 @@
         </a>
       </li>
     </ul>
-    {% else %}
+    {% elif authenticated %}
     <ul class="nav flex-column text-center">
       <li class="nav-item">
         <a href="/access#docs" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -40,7 +40,7 @@
       </li>
       {% endif %}
 
-      {% if vnc_clients %}
+      {% if vnc_clients and authenticated %}
       {% for vnc_client, client_info in vnc_clients.items() %}
       <li class="nav-item">
         <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"

@@ -24,7 +24,7 @@ CyberRange
             {% for key, value in data.items() %}
             <li>
               <label class="{% if key | length > 30 %}long{% endif %}">
-                {% if key in ["history", "details", "form"] %}
+                {% if value is mapping %}
                 <h5>{{ key }}</h5>
                 {% else %}
                 {{ key | replace("_", " ") }}:

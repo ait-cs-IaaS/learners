@@ -28,7 +28,7 @@ def admin_area():
     user_filter.extend({"id": user.id, "username": user.name} for user in users)
 
     exercises_filter = [{"id": "all", "name": "all"}]
-    exercises_filter.extend({"id": exercise.name, "name": exercise.pretty_name} for exercise in exercises)
+    exercises_filter.extend({"id": exercise.name, "name": exercise.title} for exercise in exercises)
 
     results_table = construct_results_table(exercises, users)
     return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
@@ -56,4 +56,4 @@ def get_exercise_result(user_id, exercise_name):
 
     data["history"] = extract_history(executions) if executions else None
 
-    return render_template("result_details.html", user=user.name, exercise=exercise.pretty_name, data=data, **cfg.template)
+    return render_template("result_details.html", user=user.name, exercise=exercise.title, data=data, **cfg.template)

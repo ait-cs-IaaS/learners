@@ -18,6 +18,7 @@ def callback(execution_uuid):
             response_content=json.dumps(resp),
             completed=bool(resp.get("returncode") == 0),
             msg=resp.get("msg") or None,
+            partial=resp.get("partial") or False,
         )
         return make_response(jsonify(success=True), 200)
 

@@ -108,12 +108,12 @@ function newTab() {
 
         // unload iframe
         let original_url = noVNC_clients[id];
-        iframe.attr("original_url", "");
+        iframe.attr("src", "");
         iframe.addClass("opened hideContent").removeClass("visibleContent");
 
         // open new tab
         let newTab = window.open(original_url, "_blank");
-        newTab.name = "noVNC_" + id;
+        newTab.name = `noVNC_${id}`;
 
         // Create DOM object from the resume-Page template
         createResumePage(iframe, original_url);
@@ -122,7 +122,7 @@ function newTab() {
         $(document).on("click", "#resume-btn", function () {
             let resumePage = $(this).closest(".resumePage");
             let id = resumePage.attr("id");
-            closeTab("noVNC_" + id);
+            closeTab(`noVNC_${id}`);
             reinitFrame(id, resumePage);
         });
     } else {
@@ -132,7 +132,7 @@ function newTab() {
         if (src) {
             // open new tab
             let newTab = window.open(src, "_blank");
-            newTab.name = id + "_tab";
+            newTab.name = `${id}_tab`;
         }
     }
 }
@@ -150,17 +150,17 @@ function toggleContent(href = null) {
     // anker is either given in 'href' parameter or in the url address,
     // if not the fallback '#docs' is used
     let anker = href
-        ? "#" + href.split("#")[1]
+        ? `#${href.split("#")[1]}` 
         : $(location).attr("hash") || "#docs";
 
     let baseurl = $(location).attr("pathname");
     $("nav a").removeClass("active");
-    $('nav a[href="' + (baseurl + anker) + '"]').addClass("active");
+    $(`nav a[href="${baseurl}${anker}"]`).addClass("active");
 
     // toggle content
     $(".pager").addClass("hideContent").removeClass("visibleContent");
 
-    let resumePage = $(anker + ".resumePage");
+    let resumePage = $(`${anker}.resumePage`);
     if (resumePage.length) {
         resumePage.removeClass("hideContent").addClass("visibleContent");
     } else {
@@ -185,7 +185,7 @@ function createResumePage(iframe, original_url) {
         .attr("id", iframe.attr("id"))
         .addClass("resumePage visibleContent")
         .removeClass("hideContent");
-    resumePage.find("h2").html("Resume '" + iframe.attr("name") + "' here");
+    resumePage.find("h2").html(`Resume ${iframe.attr("name")} here`);
 
     // Add original_url to the resume-button
     resumePage.find("#resume-btn").attr("value", original_url);
@@ -212,7 +212,7 @@ function closeTab(tabID) {
  */
 
 function reinitFrame(id, resumePage) {
-    let iframe = $("#" + id + ".opened");
+    let iframe = $(`#${id}.opened`);
     iframe.attr("src", noVNC_clients[id]);
     iframe.addClass("visibleContent").removeClass("hideContent");
     resumePage.remove();

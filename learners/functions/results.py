@@ -19,7 +19,7 @@ def construct_results_table(exercises, users) -> Tuple[dict, dict]:
             rows.append(row)
 
         columns = [{"col_name": "id", "col_id": "user_id"}, {"col_name": "user", "col_id": "username"}]
-        columns.extend({"col_id": exercise.name, "col_name": exercise.pretty_name} for exercise in exercises)
+        columns.extend({"col_id": exercise.name, "col_name": exercise.title} for exercise in exercises)
 
         return {"columns": columns, "rows": rows}
 
