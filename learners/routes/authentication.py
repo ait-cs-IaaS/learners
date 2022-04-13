@@ -18,7 +18,7 @@ def login():
             verify_jwt_in_request()
             success_msg = f"Logged in as {get_jwt_identity()}."
             return render_template("login.html", **cfg.template, success=True, success_msg=success_msg)
-        except:
+        except Exception:
             return render_template("login.html", **cfg.template)
 
     username = request.form.get("username", None)

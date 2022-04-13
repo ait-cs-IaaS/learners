@@ -59,11 +59,23 @@ def extract_history(executions):
     }
 
 
-def get_index_of_existing_element(list_obj: list, key: str, subkey: str, elementkey: str, elementvalue: str) -> int:
-    try:
-        for (index, element) in enumerate(list_obj[key].get(subkey)):
-            if element[elementkey] == elementvalue:
-                return index
-    except:
-        return None
-    return None
+def append_key_to_dict(dictobj: dict, parent: str, baseobj: dict = None) -> dict:
+    if not dictobj.get(parent):
+        dictobj[parent] = baseobj or {}
+    return dictobj
+
+
+def append_or_update_subexercise(parent_exercise: dict, child_exercise: dict) -> dict:
+
+    parent_exercise["total"] += child_exercise.get("total")
+    parent_exercise["done"] += child_exercise.get("done")
+
+    for (i, element) in enumerate(parent_exercise.get("exercises")):
+        if element.get("title") == child_exercise.get("title"):
+            parent_exercise["exercises"][i]["total"] += child_exercise.get("total")
+            parent_exercise["exercises"][i]["done"] += child_exercise.get("done")
+            return parent_exercise
+
+    parent_exercise["exercises"].append(child_exercise)
+
+    return parent_exercise
