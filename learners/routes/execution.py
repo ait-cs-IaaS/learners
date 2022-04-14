@@ -6,7 +6,6 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners import logger
 from learners.functions.database import (
     db_create_execution,
-    get_all_exercises,
     get_completed_state,
     get_current_executions,
     get_exercise_by_name,
@@ -15,6 +14,7 @@ from learners.functions.database import (
     get_user_by_name,
 )
 from learners.functions.execution import call_venjix, send_form_via_mail, update_execution_response, wait_for_response
+from learners.functions.helpers import append_key_to_dict, append_or_update_subexercise
 
 execution_api = Blueprint("execution_api", __name__)
 
@@ -80,34 +80,19 @@ def get_execution_state():
 
     username = get_jwt_identity()
     user = get_user_by_name(username)
-    group_names = get_exercise_groups()
+    parent_names = get_exercise_groups()
 
     results = {}
 
-    for group_name in group_names:
-        subexercises = get_exercises_by_group(group_name)
+    for parent_name in parent_names:
+        subexercises = get_exercises_by_group(parent_name)
 
         for subexercise in subexercises:
-            exercise_group = (subexercise.page_title) if (group_name == "Exercises") else group_name
-            results[exercise_group] = {"total": 0, "done": 0, "exercises": []}
+            parent = parent_name or subexercise.page_title
+            results = append_key_to_dict(results, parent, {"total": 0, "done": 0, "exercises": []})
 
-        for subexercise in subexercises:
-            exercise_group = (subexercise.page_title) if (group_name == "Exercises") else group_name
-            exercise = {"title": subexercise.page_title, "total": 1, "done": 0}
-            exercise["done"] += int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
-
-            newItem = True
-            for (i, ex) in enumerate(results[exercise_group].get("exercises")):
-                if ex["title"] == subexercise.page_title:
-                    newItem = False
-
-            if newItem:
-                results[exercise_group]["exercises"].append(exercise)
-            else:
-                results[exercise_group]["exercises"][i]["total"] += 1
-                results[exercise_group]["exercises"][i]["done"] += exercise["done"]
-
-            results[exercise_group]["done"] += exercise["done"]
-            results[exercise_group]["total"] += 1
+            done = int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
+            exerciseobj = {"title": subexercise.page_title, "total": 1, "done": done}
+            results[parent] = append_or_update_subexercise(results[parent], exerciseobj)
 
     return jsonify(success_list=results)

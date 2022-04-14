@@ -17,9 +17,9 @@ def login():
         try:
             verify_jwt_in_request()
             success_msg = f"Logged in as {get_jwt_identity()}."
-            return render_template(cfg.login_page, **cfg.template, success=True, success_msg=success_msg)
-        except:
-            return render_template(cfg.login_page, **cfg.template)
+            return render_template("login.html", **cfg.template, success=True, success_msg=success_msg)
+        except Exception:
+            return render_template("login.html", **cfg.template)
 
     username = request.form.get("username", None)
     password = request.form.get("password", None)
@@ -30,6 +30,7 @@ def login():
 
     admin = cfg.users.get(username).get("is_admin")
     cfg.template["admin"] = admin
+    cfg.template["authenticated"] = True
 
     access_token = create_access_token(identity=username, additional_claims={"is_admin": admin})
     response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))
@@ -46,4 +47,5 @@ def modify_token():
     db.session.add(TokenBlocklist(jti=jti, created_at=now))
     db.session.commit()
     success_msg = "Successfully logged out."
-    return render_template(cfg.login_page, **cfg.template, success_msg=success_msg)
+    cfg.template["authenticated"] = False
+    return render_template("login.html", **cfg.template, success_msg=success_msg)
