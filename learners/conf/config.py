@@ -109,13 +109,12 @@ class Configuration:
             },
         }
 
-        self.login_page = f"branding/{self.theme}_login.html" if self.branded_login else "login.html"
-
         self.template = {
+            "files": set_branded_template_files(self),
             "chat": False,
             "admin": False,
             "user_id": None,
-            "branding": self.branding,
+            "branding": bool(self.theme != "dark" and self.theme != "light"),
             "theme": self.theme,
             "vnc_clients": None,
             "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
@@ -166,3 +165,20 @@ def config_app(app):
         app.config["MAIL_PASSWORD"] = cfg.mail_password
         app.config["MAIL_USE_TLS"] = cfg.mail_tls
         app.config["MAIL_USE_SSL"] = cfg.mail_ssl
+
+
+def set_branded_template_files(cfg) -> dict:
+
+    template_files = {}
+    dirs = ["", "partials/"]
+    for dir in dirs:
+        for file in os.listdir(f"./learners/templates/{dir}"):
+            file_name, file_ext = os.path.splitext(file)
+            if os.path.exists(f"./learners/templates/branding/{cfg.theme}_{file_name}{file_ext}"):
+                file = f"branding/{cfg.theme}_{file}"
+            else:
+                file = f"{dir}{file}"
+            if file.endswith(".html"):
+                template_files[file_name] = file
+
+    return template_files

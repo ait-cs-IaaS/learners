@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends files.base %}
 
 {% block theme %}
 {{ theme | default('dark') }}
@@ -9,7 +9,10 @@ CyberRange | Login
 {% endblock %}
 
 {% block content %}
-asdasdasdasd
+
+
+<h1>{{ files.base }}</h1>
+
 <div class="content-container">
   <div class="notification-box {% if error %} error {% elif success_msg %} success {% endif %}">
     <span>

@@ -17,16 +17,16 @@ def login():
         try:
             verify_jwt_in_request()
             success_msg = f"Logged in as {get_jwt_identity()}."
-            return render_template("login.html", **cfg.template, success=True, success_msg=success_msg)
+            return render_template(cfg.template.get("files").get("login"), **cfg.template, success=True, success_msg=success_msg)
         except Exception:
-            return render_template("login.html", **cfg.template)
+            return render_template(cfg.template.get("files").get("login"), **cfg.template)
 
     username = request.form.get("username", None)
     password = request.form.get("password", None)
 
     if not check_password(cfg.users, username, password):
         error_msg = "Invalid username or password"
-        return render_template(cfg.login_page, **cfg.template, error=error_msg)
+        return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
     admin = cfg.users.get(username).get("is_admin")
     cfg.template["admin"] = admin
@@ -48,4 +48,4 @@ def modify_token():
     db.session.commit()
     success_msg = "Successfully logged out."
     cfg.template["authenticated"] = False
-    return render_template("login.html", **cfg.template, success_msg=success_msg)
+    return render_template(cfg.template.get("files").get("login"), **cfg.template, success_msg=success_msg)

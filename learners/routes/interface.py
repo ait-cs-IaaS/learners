@@ -30,4 +30,4 @@ def access():
                 )
             cfg.template["vnc_clients"][client].setdefault("url", auth_url)
 
-    return render_template("index.html", **cfg.template)
+    return render_template(cfg.template.get("files").get("index"), **cfg.template)

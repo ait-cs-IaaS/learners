@@ -6,8 +6,6 @@ config_schema = Map(
             "learners",
             default={
                 "theme": "dark",
-                "branding": False,
-                "branded_login": False,
                 "language": "en",
                 "login_headline": "Welcome to the",
                 "login_headline_highlight": "AIT CyberRange",
@@ -17,8 +15,6 @@ config_schema = Map(
         ): Map(
             {
                 Optional("theme", default="dark"): Str(),
-                Optional("branding", default=False): Bool(),
-                Optional("branded_login", default=False): Bool(),
                 Optional("language", default="en"): Str(),
                 Optional("login_headline", default="Welcome to the"): Str(),
                 Optional("login_headline_highlight", default="AIT CyberRange"): Str(),
