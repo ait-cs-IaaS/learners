@@ -1,15 +1,10 @@
-{% extends 'base.html' %}
-
-{% block theme %}
-{{ theme | default('dark') }}
-{% endblock %}
+{% extends files.base %}
 
 {% block title %}
 CyberRange | Login
 {% endblock %}
 
 {% block content %}
-
 <div class="content-container">
   <div class="notification-box {% if error %} error {% elif success_msg %} success {% endif %}">
     <span>
@@ -72,16 +67,11 @@ CyberRange | Login
     </form>
     {% endif %}
 
-    {% if branding %}
-    <div id="branding-container">
-      <!-- include branding -->
-      {% include "partials/branding.html" %}
-    </div>
-    {% endif %}
 
     <svg class="bi developed-by" width="200" role="img">
       <use xlink:href="#developed-by"></use>
     </svg>
+
   </div>
 </div>
 

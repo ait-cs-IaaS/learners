@@ -1,9 +1,23 @@
 <div id="navigation" class="d-flex flex-column flex-shrink-0">
   <a href="/login" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
     data-bs-placement="right" data-bs-original-title="Login">
+
+    {% if branding %}
+
+    <svg class="bi nav-logo">
+      <use xlink:href="#{{ theme }}"></use>
+    </svg>
+
+    {% else %}
+
     <svg class="bi" width="28" height="28" style="margin-left: 2px">
       <use style="fill: #d34a5d" xlink:href="#learners-icon"></use>
     </svg>
+
+    {% endif %}
+
+
+
   </a>
 
   <nav class="mb-auto">

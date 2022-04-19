@@ -16,7 +16,7 @@ def token_expired(jwt_header, jwt_payload):
     error_msg = "Your token is expired. Please login again."
     cfg.template["admin"] = False
     cfg.template["authenticated"] = False
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
 
 @jwt.invalid_token_loader
@@ -24,7 +24,7 @@ def token_invalid(jwt_payload):
     error_msg = "Your token is invalid."
     cfg.template["admin"] = False
     cfg.template["authenticated"] = False
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
 
 @jwt.token_verification_loader
@@ -38,7 +38,7 @@ def token_missing(callback):
     error_msg = "Authorization is missing."
     cfg.template["admin"] = False
     cfg.template["authenticated"] = False
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
 
 @jwt.token_in_blocklist_loader
@@ -55,7 +55,7 @@ def check_if_token_revoked(jwt_header, jwt_payload):
 @jwt.revoked_token_loader
 def token_revoked(jwt_header, jwt_payload):
     error_msg = "Token has been revoked."
-    return render_template("login.html", **cfg.template, error=error_msg)
+    return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
 
 def admin_required():
@@ -72,7 +72,7 @@ def admin_required():
                 error_msg = "Admins only!"
                 cfg.template["admin"] = False
                 cfg.template["authenticated"] = False
-                return render_template("login.html", **cfg.template, error=error_msg)
+                return render_template(cfg.template.get("files").get("login"), **cfg.template, error=error_msg)
 
         return decorator
 

@@ -46,12 +46,13 @@
 
   <body class="{% block theme %}{% endblock %}">
     <!-- include custom svg icons -->
-    {% include "partials/include_svglib.html" %}
+    {% include files.include_svglib %}
+    {% include files.logo %}
 
     <main>
       <div id="nav-container">
         <!-- include navigation -->
-        {% include "partials/nav.html" %}
+        {% include files.nav %}
       </div>
 
       <!-- definde content -->
@@ -73,6 +74,6 @@
     </main>
 
     <!-- include scripts definitions -->
-    {% include "partials/include_scripts.html" %}
+    {% include files.include_scripts %}
   </body>
 </html>

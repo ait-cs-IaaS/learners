@@ -150,7 +150,7 @@ function toggleContent(href = null) {
     // anker is either given in 'href' parameter or in the url address,
     // if not the fallback '#docs' is used
     let anker = href
-        ? `#${href.split("#")[1]}` 
+        ? `#${href.split("#")[1]}`
         : $(location).attr("hash") || "#docs";
 
     let baseurl = $(location).attr("pathname");
