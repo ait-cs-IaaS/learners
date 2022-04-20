@@ -15,13 +15,10 @@
     </svg>
 
     {% endif %}
-
-
-
   </a>
 
   <nav class="mb-auto">
-    {% if admin and authenticated %}
+    {% if admin and authenticated is sameas true %}
 
     <ul class="nav flex-column text-center">
       <li class="nav-item">
@@ -33,7 +30,7 @@
         </a>
       </li>
     </ul>
-    {% elif authenticated %}
+    {% elif authenticated is sameas true %}
     <ul class="nav flex-column text-center">
       <li class="nav-item">
         <a href="/access#docs" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
@@ -54,7 +51,7 @@
       </li>
       {% endif %}
 
-      {% if vnc_clients and authenticated %}
+      {% if vnc_clients and authenticated is sameas true %}
       {% for vnc_client, client_info in vnc_clients.items() %}
       <li class="nav-item">
         <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"

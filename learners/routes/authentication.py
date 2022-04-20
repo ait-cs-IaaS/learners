@@ -48,4 +48,5 @@ def modify_token():
     db.session.commit()
     success_msg = "Successfully logged out."
     cfg.template["authenticated"] = False
+    cfg.template["vnc_clients"] = None
     return render_template("login.html", **cfg.template, success_msg=success_msg)
