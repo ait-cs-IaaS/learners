@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from sqlite3 import IntegrityError
 from typing import Tuple
 
 from learners import logger
@@ -10,18 +11,17 @@ from learners.functions.helpers import extract_exercises
 from sqlalchemy import event, nullsfirst
 
 
-@event.listens_for(User.__table__, "after_create")
 def insert_initial_users(*args, **kwargs):
     for user, _ in cfg.users.items():
         db.session.add(User(name=user))
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        logger.debug("User data already initialized. Delete table to reinitialize.")
 
 
-@event.listens_for(Exercise.__table__, "after_create")
 def insert_exercises(*args, **kwargs):
-
     exercises = extract_exercises()
-
     for exercise in exercises[1:]:
         db.session.add(
             Exercise(
@@ -33,7 +33,11 @@ def insert_exercises(*args, **kwargs):
                 weight=exercise["exerciseWeight"],
             )
         )
-    db.session.commit()
+    try:
+        db.session.commit()
+
+    except Exception:
+        logger.debug("Exercises already initialized. Delete table to reinitialize.")
 
 
 def db_update_execution(

@@ -18,3 +18,6 @@ def build_db(app):
 
     db.init_app(app)
     db.create_all()
+
+    insert_initial_users()
+    insert_exercises()
