@@ -46,7 +46,9 @@ CyberRange
                   </ul>
                   {% else %}
                   <span class="detail {% if subvalue == True %}true{% elif subvalue == False %}false{% endif %}">
-                    {% if subvalue != "" %}
+                    {% if subvalue != "" and (subvalue | string).startswith('http')  %}
+                    <a href="{{subvalue}}" target="_blank">{{subvalue | truncate(150, True, ' ...') }}</a>
+                    {% elif subvalue != "" %}
                     {{subvalue}}
                     {% else %}
                     <i>empty</i>

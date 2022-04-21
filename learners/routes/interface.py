@@ -11,6 +11,9 @@ def access():
 
     user_id = get_jwt_identity()
 
+    cfg.template["mitre_url"] = cfg.users.get(user_id).get("mitre_url")
+    cfg.template["drawio_url"] = cfg.users.get(user_id).get("drawio_url")
+
     if vnc_clients := cfg.users.get(user_id).get("vnc_clients"):
         cfg.template["vnc_clients"] = vnc_clients
         for client, details in vnc_clients.items():

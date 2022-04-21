@@ -91,6 +91,10 @@ $admin-text-color: $light-2 !default;
     flex-direction: column;
     flex-wrap: wrap;
 
+    & a {
+      font-size: 100%;
+    }
+
     & hr {
       border: 2px solid $admin-bg-color;
       opacity: 1;

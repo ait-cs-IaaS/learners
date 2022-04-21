@@ -29,7 +29,7 @@ $(function () {
     toggleContent();
 
     // menu behaviour
-    $("nav a").click(function () {
+    $("nav a").not(".external-link").click(function () {
         toggleContent($(this).attr("href"));
     });
 

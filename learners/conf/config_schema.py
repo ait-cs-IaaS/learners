@@ -56,6 +56,8 @@ config_schema = Map(
                 {
                     Optional("is_admin", default=False): Bool(),
                     "password": Str(),
+                    Optional("mitre_url", default=""): Str(),
+                    Optional("drawio_url", default=""): Str(),
                     Optional("vnc_clients"): MapPattern(
                         Str(),
                         Map(

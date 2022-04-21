@@ -113,6 +113,8 @@ class Configuration:
             "user_id": None,
             "branding": bool(self.theme != "dark" and self.theme != "light"),
             "theme": self.theme,
+            "mitre_url": None,
+            "drawio_url": None,
             "vnc_clients": None,
             "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
             "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
