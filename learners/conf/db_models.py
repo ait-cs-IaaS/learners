@@ -26,6 +26,13 @@ class Execution(db.Model):
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
+class Attachment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(120), nullable=False)
+    filename_hash = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+
 class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(120), nullable=False)

@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import datetime, timezone
 from sqlite3 import IntegrityError
@@ -5,7 +6,7 @@ from typing import Tuple
 
 from learners import logger
 from learners.conf.config import cfg
-from learners.conf.db_models import Execution, Exercise, User
+from learners.conf.db_models import Attachment, Execution, Exercise, User
 from learners.database import db
 from learners.functions.helpers import extract_exercises
 from sqlalchemy import event, nullsfirst
@@ -176,6 +177,29 @@ def get_completed_state(user_id: int, exercise_id: int) -> dict:
             .with_entities(Execution.completed)
             .all()
         )
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def db_create_file(filename: str, username: str) -> str:
+    try:
+        user_id = User.query.filter_by(name=username).first().id
+        filename_hash = hashlib.md5(filename.encode("utf-8")).hexdigest()
+        file = Attachment(filename=filename, filename_hash=filename_hash, user_id=user_id)
+        db.session.add(file)
+        db.session.commit()
+        return filename_hash
+
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def get_filename_from_hash(filename_hash):
+    try:
+        session = db.session.query(Attachment).filter_by(filename_hash=filename_hash).first()
+        return session.filename
     except Exception as e:
         logger.exception(e)
         return None
