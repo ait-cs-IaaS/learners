@@ -23,6 +23,8 @@ config_schema = Map(
                     "login_text",
                     default="In order to participate in the exercises, please log in with your credentials. You will then get access to the documentation and the introduction to the tools to be used, the Exercises-Control and get access to the VNC client from which the exercises can be performed.",
                 ): Str(),
+                Optional("upload_folder", default="/var/tmp/"): Str(),
+                Optional("upload_extensions", default=["txt", "pdf", "png", "jpg", "jpeg", "gif", "json", "svg"]): Seq(Str()),
             }
         ),
         "jwt": Map(

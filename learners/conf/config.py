@@ -124,6 +124,9 @@ class Configuration:
             "login_text": learners_config.get("learners").get("login_text"),
         }
 
+        self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
+        self.upload_folder = learners_config.get("learners").get("upload_folder")
+
 
 def build_config(app):
 
