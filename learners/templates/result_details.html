@@ -48,6 +48,8 @@ CyberRange
                   <span class="detail {% if subvalue == True %}true{% elif subvalue == False %}false{% endif %}">
                     {% if subvalue != "" and (subvalue | string).startswith('http')  %}
                     <a href="{{subvalue}}" target="_blank">{{subvalue | truncate(150, True, ' ...') }}</a>
+                    {% elif subvalue != "" and (subvalue | string).startswith('/upload/')  %}
+                    <a href="{{subvalue}}" target="_blank">download attachment</a>
                     {% elif subvalue != "" %}
                     {{subvalue}}
                     {% else %}
