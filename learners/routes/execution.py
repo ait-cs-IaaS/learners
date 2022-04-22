@@ -130,11 +130,11 @@ def upload_file():
     username = get_jwt_identity()
 
     if file:
-        if not allowed_file(file.filename):
+        filename = f"{username}_{secure_filename(file.filename)}"
+        if not allowed_file(filename):
             response["msg"] = "file type not allowed"
             return jsonify(response)
         try:
-            filename = f"{username}_{secure_filename(file.filename)}"
             file.save(os.path.join(cfg.upload_folder, filename))
             filehash = db_create_file(filename, get_jwt_identity())
             response["completed"] = True
