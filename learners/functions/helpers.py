@@ -79,3 +79,22 @@ def append_or_update_subexercise(parent_exercise: dict, child_exercise: dict) ->
     parent_exercise["exercises"].append(child_exercise)
 
     return parent_exercise
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in cfg.allowed_extensions
+
+
+def replace_attachhment_with_url(formData):
+    from learners.functions.database import get_filename_from_hash
+
+    for key, value in formData.items():
+        if key == "attachment":
+            filename = get_filename_from_hash(value)
+            hyperlink = f"/upload/{filename}"
+            formData[key] = hyperlink
+        if isinstance(value, dict):
+            formData[key] = replace_attachhment_with_url(value)
+            continue
+
+    return formData
