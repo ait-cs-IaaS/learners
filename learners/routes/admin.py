@@ -9,7 +9,7 @@ from learners.functions.database import (
     get_exercise_by_name,
     get_user_by_id,
 )
-from learners.functions.helpers import extract_history
+from learners.functions.helpers import extract_history, replace_attachhment_with_url
 from learners.functions.results import construct_results_table
 from learners.jwt_manager import admin_required
 from learners.logger import logger
@@ -53,6 +53,7 @@ def get_exercise_result(user_id, exercise_name):
 
     if exercise.type == "form":
         data["form"] = json.loads(last_execution.form_data) if last_execution else None
+        data["form"] = replace_attachhment_with_url(data["form"])
 
     data["history"] = extract_history(executions) if executions else None
 
