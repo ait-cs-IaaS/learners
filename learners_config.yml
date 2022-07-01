@@ -29,6 +29,9 @@ exercises:
   directory: "static/exercises"
   endpoint: "/exercises"
 
+presentation:
+  url: "http://localhost:6088/vnc.html"
+
 callback:
   endpoint: "http://localhost:5000/callback"
 
