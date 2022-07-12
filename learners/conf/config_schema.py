@@ -57,6 +57,7 @@ config_schema = Map(
             Map(
                 {
                     Optional("is_admin", default=False): Bool(),
+                    Optional("is_presenter", default=False): Bool(),
                     "password": Str(),
                     Optional("mitre_url", default=""): Str(),
                     Optional("drawio_url", default=""): Str(),
@@ -93,12 +94,6 @@ config_schema = Map(
                 Optional("endpoint", default="/exercises"): Str(),
             }
         ),
-        Optional("presentation", drop_if_none=True): EmptyDict()
-        | Map(
-            {
-                Optional("url", default=""): Str(),
-            }
-        ),
         Optional("callback", default={"endpoint": "/callback"}): Map(
             {
                 Optional("endpoint", default="/callback"): Str(),
@@ -109,5 +104,6 @@ config_schema = Map(
                 "server": Str(),
             }
         ),
+        Optional("screenSharing", default=False): Bool(),
     }
 )
