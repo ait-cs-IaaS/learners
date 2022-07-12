@@ -47,9 +47,9 @@
         </li>
       {% endif %}
 
-      {% if url_presentation and authenticated is sameas true %}
+      {% if screenSharing is sameas true and authenticated is sameas true %}
         <li class="nav-item">
-          <a href="/access#presentation" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          <a href="/access#screensharing" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
             data-bs-original-title="view presentation">
             <svg class="bi" width="22" height="22" role="img">
               <use xlink:href="#slides"></use>
