@@ -1,0 +1,41 @@
+#presentation {
+  overflow: hidden;
+}
+
+.remote-video {
+  z-index: 10;
+  position: absolute;
+}
+
+
+#videoContainer video {
+  height: 100vh;
+  width: 100%;
+  object-fit: contain;
+}
+
+#sharingActionContainer {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+
+  & #controls {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    transform: translate(-50%, -50%);
+
+    &.streaming {
+      bottom: 0;
+
+      & .red-btn {
+        border: 0;
+      }
+    }
+  }
+}
+
+.btn-icon {
+  margin-right: 10px;
+  margin-bottom: -4px;
+}
