@@ -24,6 +24,13 @@ class Execution(db.Model):
     connection_failed = db.Column(db.Integer, nullable=False, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+    
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(120), nullable=False)
+    comment = db.Column(db.String(), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
 class Attachment(db.Model):
@@ -42,6 +49,7 @@ class Exercise(db.Model):
     parent = db.Column(db.String(120), nullable=True)
     weight = db.Column(db.String(120), nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
+    comments = db.relationship("Comment", backref="exercise", lazy=True)
 
 
 class TokenBlocklist(db.Model):
