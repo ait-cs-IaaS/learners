@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content">
+  <h1>Admin Area</h1>
+
+  <h3>Comments</h3>
+    <table id="results_exercises">
+      <tr>
+        {% for column in table.columns %}
+          <th>
+            {{ column.col_name }}
+            <input type="hidden" value="{{ column.col_id }}">
+          </th>
+        {% endfor %}
+      </tr>
+
+      {% for entry in table.rows %}
+        <tr>
+          {% for key, value in entry.items() %}
+            <td>
+              {% if key != "user_id" and key != "username"  %}
+                {% if value == 1 %}
+
+                  <div class="stat_indicator success">
+                    <svg class="bi stat_icon" width="24" height="24" role="img">
+                      <use xlink:href="#success"></use>
+                    </svg>
+                  </div>
+
+                {% elif value == -1 %}
+                <b class="no_value">-</b>
+                {% else %}
+
+                <div class="stat_indicator failed">
+                  <svg class="bi stat_icon" width="24" height="24" role="img">
+                    <use xlink:href="#fail"></use>
+                  </svg>
+                </div>
+                {% endif %}
+              <input type="hidden" value='/result/{{ entry["user_id"] }}/{{ key }}'>
+              {% else %}
+                {{ value }}
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}
