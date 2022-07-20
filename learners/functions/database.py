@@ -6,7 +6,7 @@ from typing import Tuple
 
 from learners import logger
 from learners.conf.config import cfg
-from learners.conf.db_models import Attachment, Execution, Exercise, User
+from learners.conf.db_models import Attachment, Execution, Exercise, User, Comment
 from learners.database import db
 from learners.functions.helpers import extract_exercises
 from sqlalchemy import event, nullsfirst
@@ -87,6 +87,29 @@ def db_create_execution(type: str, data: dict, username: str, execution_uuid: st
         return False
 
 
+def db_create_comment(data: dict, username: str) -> bool:
+
+    exercise_name = data.get("exercise_name")
+
+    try:
+        exercise_id = Exercise.query.filter_by(name=exercise_name).first().id
+        user_id = User.query.filter_by(name=username).first().id
+
+        comment = Comment(
+            comment=data.get("comment"),
+            user_id=user_id,
+            exercise_id=exercise_id,
+        )
+
+        db.session.add(comment)
+        db.session.commit()
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
 def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
     try:
         executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
@@ -120,6 +143,10 @@ def get_all_users() -> list:
 
 def get_all_exercises() -> list:
     return generic_getter(Exercise, all=True)
+
+
+def get_all_comments() -> list:
+    return generic_getter(Comment, all=True)
 
 
 def get_exercise_groups() -> list:
