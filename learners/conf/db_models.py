@@ -27,7 +27,6 @@ class Execution(db.Model):
     
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(120), nullable=False)
     comment = db.Column(db.String(), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
