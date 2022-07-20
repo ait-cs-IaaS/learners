@@ -86,15 +86,16 @@ def allowed_file(filename):
 
 
 def replace_attachhment_with_url(formData):
-    from learners.functions.database import get_filename_from_hash
+    if formData:
+        from learners.functions.database import get_filename_from_hash
 
-    for key, value in formData.items():
-        if key == "attachment":
-            filename = get_filename_from_hash(value)
-            hyperlink = f"/upload/{filename}"
-            formData[key] = hyperlink
-        if isinstance(value, dict):
-            formData[key] = replace_attachhment_with_url(value)
-            continue
+        for key, value in formData.items():
+            if key == "attachment":
+                filename = get_filename_from_hash(value)
+                hyperlink = f"/upload/{filename}"
+                formData[key] = hyperlink
+            if isinstance(value, dict):
+                formData[key] = replace_attachhment_with_url(value)
+                continue
 
     return formData
