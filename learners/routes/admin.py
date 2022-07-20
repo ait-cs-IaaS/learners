@@ -58,3 +58,14 @@ def get_exercise_result(user_id, exercise_name):
     data["history"] = extract_history(executions) if executions else None
 
     return render_template("result_details.html", user=user.name, exercise=exercise.title, data=data, **cfg.template)
+
+
+@admin_api.route("/comments", methods=["GET"])
+@admin_required()
+def comments_overview():
+
+    exercises = get_all_exercises()
+    users = get_all_users()
+    
+    results_table = construct_results_table(exercises, users)
+    return render_template("comments.html", table=results_table, **cfg.template)
