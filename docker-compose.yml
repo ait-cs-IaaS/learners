@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  learners:
+    image: "learners"
+    depends_on:
+      - hugo
+    build:
+      dockerfile: Containerfile
+      args:
+        - LEARNERS_VERSION=${LERNEARS_VERSION:-0.4.3}
+    ports:
+      - "${LEARNERS_PORT}:8080"
+    volumes:
+      - "learners_exercises:/opt/learners/webroot/exercises"
+      - "learners_documentation:/opt/learners/webroot/documentation"
+      - "learners_data:/opt/learners/data"
+
+volumes:
+  learners_exercises:
+  learners_documentation:
+  learners_data:
