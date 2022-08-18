@@ -6,6 +6,7 @@ develop_config.yml
 learners/static/gen
 learners/static/documentation
 learners/static/exercises
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
