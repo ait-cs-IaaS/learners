@@ -11,7 +11,7 @@ RUN python -m pip install --upgrade pip wheel &&\
 
 WORKDIR /opt/learners/
 
-RUN mkdir -p webroot/uploads &&\
+RUN mkdir -p webroot/uploads webroot/exercises webroot/documentation data &&\
     ln -s /opt/learners/.local/lib/python3.10/site-packages/learners/static webroot/static
 
 ENV LEARNERS_CONFIG=/opt/learners/data/learners_config.yml
