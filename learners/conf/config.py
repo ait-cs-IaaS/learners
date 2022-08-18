@@ -114,6 +114,7 @@ class Configuration:
         self.template = {
             "chat": False,
             "admin": False,
+            "presenter": False,
             "user_id": None,
             "branding": bool(self.theme != "dark" and self.theme != "light"),
             "theme": self.theme,
@@ -123,6 +124,7 @@ class Configuration:
             "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
             "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
             "url_presentation": self.presentation.get("url"),
+            "screenSharing": learners_config.get("screenSharing"),
             "login_headline": learners_config.get("learners").get("login_headline"),
             "login_headline_highlight": learners_config.get("learners").get("login_headline_highlight"),
             "welcome_text": learners_config.get("learners").get("welcome_text"),

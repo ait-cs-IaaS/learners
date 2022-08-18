@@ -32,6 +32,10 @@ def main():
 
         init_mail(app)
 
+        from learners.socketio import init_socketio
+
+        init_socketio(app)
+
     import learners.routes as routes
 
     app.register_blueprint(routes.home_api)
@@ -42,6 +46,7 @@ def main():
     app.register_blueprint(routes.callback_api)
     app.register_blueprint(routes.statics_api)
     app.register_blueprint(routes.admin_api)
+    app.register_blueprint(routes.screensharing_api)
 
     return app
 
