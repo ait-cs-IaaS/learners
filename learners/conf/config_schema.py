@@ -57,6 +57,7 @@ config_schema = Map(
             Map(
                 {
                     Optional("is_admin", default=False): Bool(),
+                    Optional("is_presenter", default=False): Bool(),
                     "password": Str(),
                     Optional("mitre_url", default=""): Str(),
                     Optional("drawio_url", default=""): Str(),
@@ -103,5 +104,6 @@ config_schema = Map(
                 "server": Str(),
             }
         ),
+        Optional("screenSharing", default=False): Bool(),
     }
 )

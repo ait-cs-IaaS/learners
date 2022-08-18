@@ -35,9 +35,12 @@ callback:
 novnc:
   server: "http://localhost:5002"
 
+screenSharing: True
+
 users:
   test:
     password: test
+    is_presenter: True
     vnc_clients:
       soc_client:
         target: placeholder_1
