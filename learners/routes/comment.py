@@ -36,13 +36,9 @@ def comments_overview():
 
     for comment in all_comments:
         exercise_name = get_exercise_by_id(comment.exercise_id).title
-        comment_dict = {
-            "user": get_user_by_id(comment.user_id).name,
-            "comment": comment.comment
-        }
+        comment_dict = {"user": get_user_by_id(comment.user_id).name, "comment": comment.comment}
         if not comments_dict.get(exercise_name):
             comments_dict[exercise_name] = []
         comments_dict[exercise_name].append(comment_dict)
-        
 
     return render_template("comments.html", comments=comments_dict, **cfg.template)

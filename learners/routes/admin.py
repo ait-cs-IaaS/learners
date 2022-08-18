@@ -58,4 +58,3 @@ def get_exercise_result(user_id, exercise_name):
     data["history"] = extract_history(executions) if executions else None
 
     return render_template("result_details.html", user=user.name, exercise=exercise.title, data=data, **cfg.template)
-
