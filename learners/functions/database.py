@@ -11,6 +11,8 @@ from learners.database import db
 from learners.functions.helpers import extract_exercises
 from sqlalchemy import event, nullsfirst
 
+from flask import escape
+
 
 def insert_initial_users(*args, **kwargs):
     for user, _ in cfg.users.items():
@@ -96,7 +98,7 @@ def db_create_comment(data: dict, username: str) -> bool:
         user_id = User.query.filter_by(name=username).first().id
 
         comment = Comment(
-            comment=data.get("comment"),
+            comment=escape(data.get("comment")),
             user_id=user_id,
             exercise_id=exercise_id,
         )
