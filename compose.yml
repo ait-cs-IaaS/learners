@@ -2,13 +2,7 @@ version: "3"
 
 services:
   learners:
-    image: "learners"
-    depends_on:
-      - hugo
-    build:
-      dockerfile: Containerfile
-      args:
-        - LEARNERS_VERSION=${LERNEARS_VERSION:-0.4.3}
+    image: ghcr.io/ait-cs-iaas/learners
     ports:
       - "${LEARNERS_PORT}:8080"
     volumes:
