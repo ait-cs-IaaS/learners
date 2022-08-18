@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content">
+  <h1>Comments</h1>
+
+  <div class="details_container">
+    {% if comments %}
+      <ul>
+        {% for exercise, comments in comments.items() %}
+        <li>
+          <label>
+            <h5>{{ exercise | replace("_", " ") }}:</h5>
+          </label>
+
+          <ul>
+            {% for comment in comments %}
+              <li class="mapping">
+                <b>{{ comment.user }}:</b>
+                "{{ comment.comment }}"
+              </li>
+            {% endfor %}
+          </ul>
+
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <span class="detail">
+        <i>no data</i>
+      </span>
+    {% endif %}
+    </div>
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

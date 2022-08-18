@@ -94,6 +94,12 @@ config_schema = Map(
                 Optional("endpoint", default="/exercises"): Str(),
             }
         ),
+        Optional("presentation", drop_if_none=True): EmptyDict()
+        | Map(
+            {
+                Optional("url", default=""): Str(),
+            }
+        ),
         Optional("callback", default={"endpoint": "/callback"}): Map(
             {
                 Optional("endpoint", default="/callback"): Str(),

@@ -92,6 +92,11 @@ class Configuration:
             "endpoint": learners_config.get("documentation").get("endpoint"),
         }
 
+        if learners_config.get("presentation") is not None:
+            self.presentation = {"url": learners_config.get("presentation").get("url")}
+        else:
+            self.presentation = {"url": None}
+
         self.exercises = {
             "directory": learners_config.get("exercises").get("directory"),
             "endpoint": learners_config.get("exercises").get("endpoint"),
@@ -118,6 +123,7 @@ class Configuration:
             "vnc_clients": None,
             "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
             "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
+            "url_presentation": self.presentation.get("url"),
             "screenSharing": learners_config.get("screenSharing"),
             "login_headline": learners_config.get("learners").get("login_headline"),
             "login_headline_highlight": learners_config.get("learners").get("login_headline_highlight"),

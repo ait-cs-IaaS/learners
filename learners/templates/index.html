@@ -56,6 +56,17 @@ CyberRange
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 {% endif %}
 
+{% if url_presentation %}
+<iframe
+  id="presentation"
+  class="content-container pager"
+  frameborder="0"
+  noresize="noresize"
+  src="{{ url_presentation }}"
+  frameborder="0"
+></iframe>
+{% endif %}
+
 <div id="client-resume" class="hideContent content-container pager">
   <div class="center-content">
     <h2>Resume VNC Client here</h2>
