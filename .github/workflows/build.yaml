@@ -4,6 +4,10 @@ on:
   push:
     tags:
     - '**'
+
+env:
+  LEARNERS_VERSION: ${{ github.ref_name }}
+
 jobs:
   lint:
     name: lint & check formatting
