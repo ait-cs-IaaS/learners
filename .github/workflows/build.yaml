@@ -58,7 +58,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v3
         with:
-          context: web
+          file: Containerfile
           push: true
           tags: |
             ghcr.io/${{ env.GHCR_OWNER }}/learners:latest
