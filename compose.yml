@@ -10,11 +10,10 @@ services:
     volumes:
       - type: bind
         source: ./rendered_hugo_content/exercises
-        target: /opt/learners/webroot/static/exercises
+        target: /opt/learners/webroot/exercises
       - type: bind
         source: ./rendered_hugo_content/documentation
-        target: /opt/learners/webroot/static/documentation
-      - ./learners_data:/opt/learners/data
-
-volumes:
-  learners_data:
+        target: /opt/learners/webroot/documentation
+      - type: bind
+        source: ./learners_data
+        target: /opt/learners/data

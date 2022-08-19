@@ -9,11 +9,11 @@ database:
   db_uri: "sqlite:////opt/learners/data/learners_tracker.db"
 
 documentation:
-  directory: "/opt/learners/webroot/static/documentation"
+  directory: "/opt/learners/webroot/documentation"
   endpoint: "/documentation"
 
 exercises:
-  directory: "/opt/learners/webroot/static/exercises"
+  directory: "/opt/learners/webroot/exercises"
   endpoint: "/exercises"
 
 callback:

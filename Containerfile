@@ -16,7 +16,10 @@ RUN mkdir -p webroot/uploads webroot/exercises webroot/documentation data &&\
 
 ENV LEARNERS_CONFIG=/opt/learners/data/learners_config.yml
 
-VOLUME ["/opt/learners/data/"]
+VOLUME ["/opt/learners/webroot/exercises",\
+        "/opt/learners/webroot/documentation",\
+        "/opt/learners/data/"\
+       ]
 
 EXPOSE ${LEARNERS_PORT:-8080}
 
