@@ -4,7 +4,7 @@ RUN useradd --create-home --home-dir /opt/learners learners
 USER learners
 
 ENV PATH=${PATH}:/opt/learners/.local/bin
-ENV LEARNERS_VERSION=${LEARNERS_VERSION:-0.5.0}
+ENV LEARNERS_VERSION=${LEARNERS_VERSION:-0.5.1}
 
 RUN python -m pip install --upgrade pip wheel &&\
     pip install https://github.com/ait-cs-IaaS/learners/releases/download/${LEARNERS_VERSION}/Learners-${LEARNERS_VERSION}.tar.gz
