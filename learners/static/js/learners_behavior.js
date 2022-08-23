@@ -153,6 +153,7 @@ function toggleContent(href = null) {
         ? `#${href.split("#")[1]}`
         : $(location).attr("hash") || "#docs";
 
+    // toggle menu active
     let baseurl = $(location).attr("pathname");
     $("nav a").removeClass("active");
     $(`nav a[href="${baseurl}${anker}"]`).addClass("active");

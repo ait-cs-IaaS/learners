@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  learners:
+    image: ghcr.io/ait-cs-iaas/learners
+    ports:
+      - "${LEARNERS_PORT:-8080}:8080"
+    environment:
+      - REMOVE_DB=${REMOVE_DB}
+    volumes:
+      - type: bind
+        source: ./rendered_hugo_content/exercises
+        target: /opt/learners/webroot/exercises
+      - type: bind
+        source: ./rendered_hugo_content/documentation
+        target: /opt/learners/webroot/documentation
+      - type: bind
+        source: ./learners_data
+        target: /opt/learners/data

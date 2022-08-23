@@ -6,6 +6,8 @@ develop_config.yml
 learners/static/gen
 learners/static/documentation
 learners/static/exercises
+learners_data/*.db
+rendered_hugo_content/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
