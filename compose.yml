@@ -17,3 +17,7 @@ services:
       - type: bind
         source: ./learners_data
         target: /opt/learners/data
+
+      - ./learners_data/theme_iaea.scss:/opt/learners/.local/lib/python3.10/site-packages/learners/static/css/theme_iaea.scss
+      - ./learners_data/logo.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/partials/logo.html
+      - ./learners_data/login.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/login.html
