@@ -1,25 +1,11 @@
-# learners:
-  # theme: "dark"
+learners:
+  theme: "dark"
 
 jwt:
   jwt_secret_key: "53CR3T"
-  jwt_for_vnc_access: False
 
 database:
   db_uri: "sqlite:///learners_tracker.db"
-
-# mail:
-#   server: ""
-#   port: 587
-#   username: ""
-#   password: ""
-#   tls: True
-#   ssl: False
-
-
-venjix:
-  auth_secret: "53CR3T"
-  url: "http://localhost:5001"
 
 documentation:
   directory: "static/documentation"
@@ -30,39 +16,63 @@ exercises:
   endpoint: "/exercises"
 
 presentation:
-  url: "http://localhost:6088/vnc.html"
+  url: "https://localhost:8443/anothertest"
 
 callback:
   endpoint: "http://localhost:5000/callback"
 
-novnc:
-  server: "http://localhost:5002"
-
-screenSharing: True
-
 users:
   test:
     password: test
-    is_presenter: True
-    vnc_clients:
-      soc_client:
-        target: placeholder_1
-        tooltip: "SOC client"
-        username: csirt1
-        password: placeholder
-      pps_client:
-        target: placeholder_3
-        tooltip: "PPS client"
-        username: csirt3
-        password: placeholder
-  ben:
-    password: ben
-    vnc_clients:
-      soc_client:
-        target: placeholder_2
-        tooltip: "SOC client"
-        username: csirt2
-        password: placeholder
+  user1:
+    password: user1
+  user2:
+    password: user2
   admin:
     is_admin: True
     password: admin
+
+# mail:
+#   server: ""
+#   port: 587
+#   username: ""
+#   password: ""
+#   tls: True
+#   ssl: False
+
+# venjix:
+#   auth_secret: "53CR3T"
+#   url: "http://localhost:5001"
+
+
+# novnc:
+#   server: "http://localhost:5002"
+
+# screenSharing: True
+
+# users:
+#   test:
+#     password: test
+#     # is_presenter: True
+#     vnc_clients:
+#       soc_client:
+#         target: placeholder_1
+#         tooltip: "SOC client"
+#         username: csirt1
+#         password: placeholder
+#       pps_client:
+#         target: placeholder_3
+#         tooltip: "PPS client"
+#         username: csirt3
+#         password: placeholder
+#   ben:
+#     password: ben
+#     vnc_clients:
+#       soc_client:
+#         target: placeholder_2
+#         tooltip: "SOC client"
+#         username: csirt2
+#         password: placeholder
+#   admin:
+#     is_admin: True
+#     password: admin
