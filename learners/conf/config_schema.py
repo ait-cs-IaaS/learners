@@ -76,10 +76,10 @@ config_schema = Map(
                 }
             ),
         ),
-        "venjix": Map(
+        Optional("venjix", default={"auth_secret": "", "url": ""}): Map(
             {
-                "auth_secret": Str(),
-                "url": Str(),
+                Optional("auth_secret", default=""): Str(),
+                Optional("url", default=""): Str(),
             }
         ),
         Optional("documentation", default={"directory": "static/documentation", "endpoint": "/documentation"}): Map(
@@ -105,9 +105,9 @@ config_schema = Map(
                 Optional("endpoint", default="/callback"): Str(),
             }
         ),
-        "novnc": Map(
+        Optional("novnc", default={"server": ""}): Map(
             {
-                "server": Str(),
+                Optional("server", default=""): Str(),
             }
         ),
         Optional("screenSharing", default=False): Bool(),
