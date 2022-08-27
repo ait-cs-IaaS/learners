@@ -22,7 +22,7 @@
           <a href="/admin" class="nav-link py-3 active" data-bs-toggle="tooltip" data-bs-placement="right"
             data-bs-original-title="Results">
             <svg class="bi" width="24" height="24" role="img">
-              <use xlink:href="#doc"></use>
+              <use xlink:href="#icon_doc"></use>
             </svg>
           </a>
         </li>
@@ -41,7 +41,7 @@
           <a href="/access#docs" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
             data-bs-original-title="Documentation">
             <svg class="bi" width="24" height="24" role="img">
-              <use xlink:href="#doc"></use>
+              <use xlink:href="#icon_doc"></use>
             </svg>
           </a>
         </li>
@@ -95,13 +95,24 @@
         {% endfor %}
       {% endif %}
 
+      {% for site in staticsites %}
+      <li class="nav-item">
+        <a href="/access#{{ site.id }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+          data-bs-original-title="{{ site.title }}">
+          <svg class="bi" width="24" height="24" role="img">
+            <use xlink:href="#{{ site.icon }}"></use>
+          </svg>
+        </a>
+      </li>
+      {% endfor %}
+
       {% if authenticated is sameas true and not admin %}
         {% if mitre_url %}
           <li class="nav-item">
             <a href="{{ mitre_url }}" target="_blank" class="nav-link py-3 external-link" data-bs-toggle="tooltip"
               data-bs-placement="right" data-bs-original-title="MITRE ATT&CK®">
               <svg class="bi" width="22" height="22" role="img">
-                <use xlink:href="#mitre"></use>
+                <use xlink:href="#icon_mitre"></use>
               </svg>
             </a>
           </li>
@@ -111,7 +122,7 @@
             <a href="{{ drawio_url }}" target="_blank" class="nav-link py-3 external-link" data-bs-toggle="tooltip"
               data-bs-placement="right" data-bs-original-title="Draw.io">
               <svg class="bi" width="28" height="28" role="img">
-                <use xlink:href="#drawio"></use>
+                <use xlink:href="#icon_drawio"></use>
               </svg>
             </a>
           </li>
@@ -140,4 +151,5 @@
       </span>
     </div>
   {% endif %}
+
 </div>

@@ -10,26 +10,12 @@ CyberRange
 <iframe id="docs" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
   frameborder="0"></iframe>
 
-{% if url_presentation %}
-<script src='{{ url_presentation }}/external_api.js'></script>
-<script>
-  const domain = "{{ url_presentation }}"
-  const options = {
-      roomName: 'JitsiMeetAPIExample',
-      parentNode: document.querySelector('#presentation')
-  };
+{% for site in staticsites %}
+  <iframe id="{{ site.id }}" class="content-container pager" frameborder="0" noresize="noresize" src="{{ site.url }}"
+  frameborder="0"></iframe>
+{% endfor %}
 
-  api = new JitsiMeetExternalAPI(domain, options)
-</script>
-<iframe
-  id="presentation"
-  class="content-container pager"
-  frameborder="0"
-  noresize="noresize"
-  src="{{ url_presentation }}"
-  frameborder="0"
-></iframe>
-{% endif %}
+
 
 {% if vnc_clients %}
 <div id="client-resume" class="hideContent content-container pager">
@@ -57,4 +43,5 @@ CyberRange
     <div></div>
   </div>
 </div>
+
 {% endblock %}
