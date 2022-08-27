@@ -11,22 +11,9 @@ cfg = None
 
 
 class Configuration:
-
-    """
-    Holds global configuration
-
-    This class is used to access application-wide predefined parameters and variables created at
-    runtime. The attributes are initialized via the config YAML file (default: 'learners_config.yml'
-    of current directory, but can be set via the environmant variable 'LEARNERS_CONFIG'). These must
-    correspond to the schema in 'config_schema.py'.
-    """
-
     def __init__(self):
-        """
-        Returns the value of the environmant variable 'LEARNERS_CONFIG' if it's not None, else the
-        current working directory is concatenated with 'learners_config.yml'
-        """
-        config_file = os.getenv("LEARNERS_CONFIG") or os.path.join(os.getcwd(), "learners_config.yml")
+
+        config_file = os.getenv("LEARNERS_CONFIG") or os.path.join(os.getcwd(), "config.yml")
 
         learners_config = {}
 
@@ -87,19 +74,30 @@ class Configuration:
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
 
-        self.documentation = {
-            "directory": learners_config.get("documentation").get("directory"),
-            "endpoint": learners_config.get("documentation").get("endpoint"),
-        }
-
         if learners_config.get("presentation") is not None:
             self.presentation = {"url": learners_config.get("presentation").get("url")}
         else:
             self.presentation = {"url": None}
 
+        self.statics = {
+            "directory": learners_config.get("statics").get("directory"),
+            "subfolders": learners_config.get("statics").get("subfolders"),
+        }
+
+        self.staticsites = learners_config.get("staticsites")
+
+        self.documentation = {
+            "directory": learners_config.get("documentation").get("directory"),
+            "endpoint": learners_config.get("documentation").get("endpoint"),
+            "serve_mode": learners_config.get("documentation").get("serve_mode"),
+            "shared_statics": learners_config.get("documentation").get("shared_statics"),
+        }
+
         self.exercises = {
             "directory": learners_config.get("exercises").get("directory"),
             "endpoint": learners_config.get("exercises").get("endpoint"),
+            "serve_mode": learners_config.get("exercises").get("serve_mode"),
+            "shared_statics": learners_config.get("exercises").get("shared_statics"),
         }
 
         self.venjix = {
@@ -118,6 +116,7 @@ class Configuration:
             "user_id": None,
             "branding": bool(self.theme != "dark" and self.theme != "light"),
             "theme": self.theme,
+            "staticsites": self.staticsites,
             "mitre_url": None,
             "drawio_url": None,
             "vnc_clients": None,

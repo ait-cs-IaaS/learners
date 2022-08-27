@@ -59,6 +59,7 @@ config_schema = Map(
                     Optional("is_admin", default=False): Bool(),
                     Optional("is_presenter", default=False): Bool(),
                     "password": Str(),
+                    Optional("role", default="participant"): Str(),
                     Optional("mitre_url", default=""): Str(),
                     Optional("drawio_url", default=""): Str(),
                     Optional("vnc_clients"): MapPattern(
@@ -82,16 +83,37 @@ config_schema = Map(
                 Optional("url", default=""): Str(),
             }
         ),
-        Optional("documentation", default={"directory": "static/documentation", "endpoint": "/documentation"}): Map(
+        Optional("statics", default={"directory": "static"}): Map(
             {
-                Optional("directory", default="static/documentation"): Str(),
-                Optional("endpoint", default="/documentation"): Str(),
+                Optional("directory", default="static"): Str(),
+                Optional("subfolders", default=["css", "fonts", "images", "files", "js", "js-libs", "webfonts"]): Seq(Str()),
             }
         ),
-        Optional("exercises", default={"directory": "static/exercises", "endpoint": "/exercises"}): Map(
+        Optional("staticsites"): EmptyList()
+        | Seq(
+            Map(
+                {
+                    Optional("url", default=""): Str(),
+                    Optional("id", default=""): Str(),
+                    Optional("title", default=""): Str(),
+                    Optional("icon", default="web"): Str(),
+                }
+            )
+        ),
+        Optional("documentation", default={"directory": "documentation", "endpoint": "/documentation"}): Map(
             {
-                Optional("directory", default="static/exercises"): Str(),
+                Optional("directory", default="documentation"): Str(),
+                Optional("endpoint", default="/documentation"): Str(),
+                Optional("serve_mode", default="user"): Str(),
+                Optional("shared_statics", default=False): Bool(),
+            }
+        ),
+        Optional("exercises", default={"directory": "exercises", "endpoint": "/exercises"}): Map(
+            {
+                Optional("directory", default="exercises"): Str(),
                 Optional("endpoint", default="/exercises"): Str(),
+                Optional("serve_mode", default="user"): Str(),
+                Optional("shared_statics", default=False): Bool(),
             }
         ),
         Optional("presentation", drop_if_none=True): EmptyDict()
