@@ -1,7 +1,7 @@
 *.retry
 .idea/
 .envrc
-learners/learners_tracker.db
+learners/data.db
 develop_config.yml
 learners/static/gen
 learners/static/documentation
