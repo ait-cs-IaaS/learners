@@ -55,7 +55,7 @@ def main(argv):
 
             # render hugo content
             command = "hugo"
-            baseUrl = f"-b /{contentType}"
+            baseUrl = f"-b /statics/{contentType}"
             publishDir = f"-d {outputDir}/{contentType}/{user}"
             contentDir = f"-c {contentBaseDir}/content/{contentType}"
             if contentType == "documentation":
