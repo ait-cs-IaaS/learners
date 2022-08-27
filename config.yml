@@ -1,0 +1,96 @@
+# learners:
+  # theme: "dark"
+
+jwt:
+  jwt_secret_key: "53CR3T"
+  jwt_for_vnc_access: False
+
+database:
+  db_uri: "sqlite:///data.db"
+
+# mail:
+#   server: ""
+#   port: 587
+#   username: ""
+#   password: ""
+#   tls: True
+#   ssl: False
+
+
+# venjix:
+#   auth_secret: "53CR3T"
+#   url: "http://localhost:5001"
+
+statics:
+  directory: "static"
+  # subfolders: ["css","fonts","images","files","js","js-libs","webfonts"]
+
+documentation:
+  directory: "documentation"
+  endpoint: "/statics/documentation"
+  serve_mode: "role"
+  shared_statics: True
+
+exercises:
+  directory: "exercises"
+  endpoint: "/statics/exercises"
+  serve_mode: "role"
+  shared_statics: True
+
+staticsites:
+  - url: "/statics/staticsite"
+    id: "mitre"
+    title: "test site"
+    icon: "icon_mitre"
+  - url: "/statics/staticsite"
+    id: "drawio"
+    title: "draw io site"
+    icon: "icon_drawio"
+  - url: "/statics/staticsite"
+    id: "testsite"
+    title: "std site"
+    icon: "icon_doc"
+
+
+presentation:
+  url: "http://localhost:6088/vnc.html"
+
+callback:
+  endpoint: "http://localhost:5000/callback"
+
+novnc:
+  server: "http://localhost:5002"
+
+screenSharing: True
+
+users:
+  test:
+    password: test
+    is_presenter: True
+    role: instructor
+    vnc_clients:
+      soc_client:
+        target: placeholder_1
+        tooltip: "SOC client"
+        username: csirt1
+        password: placeholder
+      pps_client:
+        target: placeholder_3
+        tooltip: "PPS client"
+        username: csirt3
+        password: placeholder
+  ben:
+    password: ben
+    vnc_clients:
+      soc_client:
+        target: placeholder_2
+        tooltip: "SOC client"
+        username: csirt2
+        password: placeholder
+  admin:
+    is_admin: True
+    password: admin
+  instructor:
+    password: 67KJkjn$%as
+  participant:
+    password: base
