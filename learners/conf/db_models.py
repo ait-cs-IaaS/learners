@@ -6,6 +6,7 @@ from sqlalchemy import func
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), unique=True, nullable=False)
+    role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     executions = db.relationship("Execution", backref="user", lazy=True)
 
 

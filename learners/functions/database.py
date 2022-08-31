@@ -15,8 +15,8 @@ from flask import escape
 
 
 def insert_initial_users(*args, **kwargs):
-    for user, _ in cfg.users.items():
-        db.session.add(User(name=user))
+    for user, userDetails in cfg.users.items():
+        db.session.add(User(name=user, role=userDetails.get("role")))
     try:
         db.session.commit()
     except Exception:
