@@ -27,13 +27,13 @@ statics:
 
 documentation:
   directory: "documentation"
-  endpoint: "/statics/documentation"
+  endpoint: "/statics/hugo"
   serve_mode: "role"
   shared_statics: True
 
 exercises:
   directory: "exercises"
-  endpoint: "/statics/exercises"
+  endpoint: "/statics/hugo"
   serve_mode: "role"
   shared_statics: True
 
