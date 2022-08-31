@@ -3,7 +3,6 @@
   <a href="/login" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
   data-bs-placement="right" data-bs-original-title="{{ 'Logout' if authenticated else 'Login' }}">
 
-
     {% if branding %}
       <svg class="bi nav-logo">
         <use xlink:href="#{{ theme }}"></use>
@@ -15,131 +14,84 @@
     {% endif %}
   </a>
 
-  <nav class="mb-auto">
-    {% if admin and authenticated is sameas true %}
+  {% if admin and authenticated is sameas true %}
+
+    <nav class="mb-auto">
       <ul class="nav flex-column text-center">
-        <li class="nav-item">
-          <a href="/admin" class="nav-link py-3 active" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="Results">
-            <svg class="bi" width="24" height="24" role="img">
-              <use xlink:href="#icon_doc"></use>
-            </svg>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/comments" class="nav-link py-3 active" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="Comments">
-            <svg class="bi" width="24" height="24" role="img">
-              <use xlink:href="#chat"></use>
-            </svg>
-          </a>
-        </li>
+
+        {% with href="/admin", tooltip="Results", icon="icon_doc" %}
+        {% include "partials/tab.html" %}
+        {% endwith %}
+
+        {% with href="/comments", tooltip="Comments", icon="chat" %}
+          {% include "partials/tab.html" %}
+        {% endwith %}
+
       </ul>
-    {% elif authenticated is sameas true %}
+    </nav>
+
+  {% elif authenticated is sameas true %}
+
+    <nav class="mb-auto">
       <ul class="nav flex-column text-center">
-        <li class="nav-item">
-          <a href="/access#docs" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="Documentation">
-            <svg class="bi" width="24" height="24" role="img">
-              <use xlink:href="#icon_doc"></use>
-            </svg>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/access#exercises" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="Run Exercises">
-            <svg class="bi" width="22" height="22" role="img">
-              <use xlink:href="#play"></use>
-            </svg>
-          </a>
-        </li>
-      {% endif %}
 
-      {% if screenSharing is sameas true and authenticated is sameas true %}
-        <li class="nav-item">
-          <a href="/access#screensharing" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="view presentation">
-            <svg class="bi" width="22" height="22" role="img">
-              <use xlink:href="#slides"></use>
-            </svg>
-          </a>
-        </li>
-      {% endif %}
+        {% if url_documentation %}
+          {% with href="/access#docs", tooltip="Documentation", icon="icon_doc" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
+        {% endif %}
 
-      {% if url_presentation and authenticated is sameas true %}
-        <li class="nav-item">
-          <a href="/access#presentation" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="view presentation">
-            <svg class="bi" width="22" height="22" role="img">
-              <use xlink:href="#slides"></use>
-            </svg>
-          </a>
-        </li>
-      {% endif %}
+        {% if url_exercises %}
+          {% with href="/access#exercises", tooltip="Exercises", icon="play" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
+        {% endif %}
 
-      {% if vnc_clients and authenticated is sameas true %}
-        {% for vnc_client, client_info in vnc_clients.items() %}
-          <li class="nav-item">
-            <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-              data-bs-original-title="{{ client_info.tooltip }}">
-              <svg class="bi" width="22" height="22" role="img">
-                <use xlink:href="#vnc"></use>
-              </svg>
-              {% if vnc_clients | length > 1 %}
-                <div class="client_index">
-                  <span>{{ loop.index }}</span>
-                </div>
-              {% endif %}
-            </a>
-          </li>
+        {% if url_presentations %}
+          {% with href="/access#presentations", tooltip="Presentations", icon="slides" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
+        {% endif %}
+
+        {% for site in staticsites %}
+          {% with href="/access#"+site.id, tooltip=site.title, icon=site.icon %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
         {% endfor %}
-      {% endif %}
 
-      {% for site in staticsites %}
-      <li class="nav-item">
-        <a href="/access#{{ site.id }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-          data-bs-original-title="{{ site.title }}">
-          <svg class="bi" width="24" height="24" role="img">
-            <use xlink:href="#{{ site.icon }}"></use>
-          </svg>
-        </a>
-      </li>
-      {% endfor %}
-
-      {% if authenticated is sameas true and not admin %}
-        {% if mitre_url %}
-          <li class="nav-item">
-            <a href="{{ mitre_url }}" target="_blank" class="nav-link py-3 external-link" data-bs-toggle="tooltip"
-              data-bs-placement="right" data-bs-original-title="MITRE ATT&CK®">
-              <svg class="bi" width="22" height="22" role="img">
-                <use xlink:href="#icon_mitre"></use>
-              </svg>
-            </a>
-          </li>
+        {% if vnc_clients %}
+          {% for vnc_client, client_info in vnc_clients.items() %}
+            <li class="nav-item">
+              <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+                data-bs-original-title="{{ client_info.tooltip }}">
+                <svg class="bi" width="22" height="22" role="img">
+                  <use xlink:href="#vnc"></use>
+                </svg>
+                {% if vnc_clients | length > 1 %}
+                  <div class="client_index">
+                    <span>{{ loop.index }}</span>
+                  </div>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
         {% endif %}
-        {% if drawio_url %}
-          <li class="nav-item">
-            <a href="{{ drawio_url }}" target="_blank" class="nav-link py-3 external-link" data-bs-toggle="tooltip"
-              data-bs-placement="right" data-bs-original-title="Draw.io">
-              <svg class="bi" width="28" height="28" role="img">
-                <use xlink:href="#icon_drawio"></use>
-              </svg>
-            </a>
-          </li>
-        {% endif %}
-      {% endif %}
 
-    </ul>
-  </nav>
+      </ul>
+    </nav>
+  {% endif %}
 
-  <div class="nav-item">
-    <a id="menu-newtab" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
-      data-bs-original-title="Open current view in new tab">
-      <svg class="bi" width="24" height="24" role="img">
-        <use xlink:href="#newtab"></use>
-      </svg>
-    </a>
-  </div>
+
+  {% if authenticated is sameas true %}
+    <div class="nav-item">
+      <a id="menu-newtab" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+        data-bs-original-title="Open current view in new tab">
+        <svg class="bi" width="24" height="24" role="img">
+          <use xlink:href="#newtab"></use>
+        </svg>
+      </a>
+    </div>
+  {% endif %}
 
   {% if chat %}
     <div class="nav-item">
