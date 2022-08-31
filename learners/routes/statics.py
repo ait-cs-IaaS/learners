@@ -1,4 +1,3 @@
-from multiprocessing import shared_memory
 from flask import Blueprint, abort, send_from_directory, make_response, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners.conf.config import cfg
@@ -46,17 +45,14 @@ def serve_statics(path=""):
 
         if serve_mode == "user":
             full_path = f"{path_base}/{user_id}/{path}"
-            print("1: ", full_path)
 
         elif serve_mode == "role":
             user_role = cfg.users.get(user_id).get("role")
             full_path = f"{path_base}/{user_role}/{path}"
-            print("2: ", full_path)
 
         else:
             # Fallback to default
             full_path = f"{path_base}/{path}"
-            print("3: ", full_path)
 
         try:
             return send_from_directory(static_root, full_path)
