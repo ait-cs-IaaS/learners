@@ -11,6 +11,11 @@ def access():
 
     user_id = get_jwt_identity()
 
+    user_role = cfg.users.get(user_id).get("role")
+    cfg.template["url_documentation"] = f"/statics/hugo/{user_role}/{cfg.language}/documentation"
+    cfg.template["url_exercises"] = f"/statics/hugo/{user_role}/{cfg.language}/exercises"
+    cfg.template["url_presentations"] = f"/statics/hugo/{user_role}/{cfg.language}/presentations"
+
     cfg.template["presenter"] = cfg.users.get(user_id).get("is_presenter")
     cfg.template["mitre_url"] = cfg.users.get(user_id).get("mitre_url")
     cfg.template["drawio_url"] = cfg.users.get(user_id).get("drawio_url")
