@@ -84,18 +84,16 @@ class Configuration:
             "subfolders": learners_config.get("statics").get("subfolders"),
         }
 
-        self.staticsites = learners_config.get("staticsites")
+        self.staticsites = learners_config.get("staticsites") or []
 
         self.documentation = {
             "directory": learners_config.get("documentation").get("directory"),
-            "endpoint": learners_config.get("documentation").get("endpoint"),
             "serve_mode": learners_config.get("documentation").get("serve_mode"),
             "shared_statics": learners_config.get("documentation").get("shared_statics"),
         }
 
         self.exercises = {
             "directory": learners_config.get("exercises").get("directory"),
-            "endpoint": learners_config.get("exercises").get("endpoint"),
             "serve_mode": learners_config.get("exercises").get("serve_mode"),
             "shared_statics": learners_config.get("exercises").get("shared_statics"),
         }
@@ -120,9 +118,9 @@ class Configuration:
             "mitre_url": None,
             "drawio_url": None,
             "vnc_clients": None,
-            "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
-            "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
-            "url_presentation": self.presentation.get("url"),
+            # "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
+            # "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
+            # "url_presentation": self.presentation.get("url"),
             "screenSharing": learners_config.get("screenSharing"),
             "login_headline": learners_config.get("learners").get("login_headline"),
             "login_headline_highlight": learners_config.get("learners").get("login_headline_highlight"),
