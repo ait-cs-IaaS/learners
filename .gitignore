@@ -4,6 +4,7 @@
 learners/data.db
 develop_config.yml
 learners/static/gen
+learners/static/hugo
 learners/static/documentation
 learners/static/exercises
 learners_data/*.db
