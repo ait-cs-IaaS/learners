@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
+
 from learners.conf.config import cfg
 
 interface_api = Blueprint("interface_api", __name__)
@@ -10,15 +11,15 @@ interface_api = Blueprint("interface_api", __name__)
 def access():
 
     user_id = get_jwt_identity()
+    discriminator = get_jwt().get("role") if cfg.serve_mode == "role" else user_id
 
-    user_role = cfg.users.get(user_id).get("role")
-    cfg.template["url_documentation"] = f"/statics/hugo/{user_role}/{cfg.language}/documentation"
-    cfg.template["url_exercises"] = f"/statics/hugo/{user_role}/{cfg.language}/exercises"
-    cfg.template["url_presentations"] = f"/statics/hugo/{user_role}/{cfg.language}/presentations"
-
-    cfg.template["presenter"] = cfg.users.get(user_id).get("is_presenter")
-    cfg.template["mitre_url"] = cfg.users.get(user_id).get("mitre_url")
-    cfg.template["drawio_url"] = cfg.users.get(user_id).get("drawio_url")
+    cfg.template["url_documentation"] = (
+        f"statics/hugo/{discriminator}/{cfg.language_code}/documentation/" if (cfg.serve_documentation) else ""
+    )
+    cfg.template["url_exercises"] = f"statics/hugo/{discriminator}/{cfg.language_code}/exercises/" if (cfg.serve_exercises) else ""
+    cfg.template["url_presentations"] = (
+        f"statics/hugo/{discriminator}/{cfg.language_code}/presentations/" if (cfg.serve_presentations) else ""
+    )
 
     if vnc_clients := cfg.users.get(user_id).get("vnc_clients"):
         cfg.template["vnc_clients"] = vnc_clients
