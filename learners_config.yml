@@ -29,7 +29,7 @@ users:
   user2:
     password: user2
   admin:
-    is_admin: True
+    admin: True
     password: admin
 
 # mail:
@@ -74,5 +74,5 @@ users:
 #         username: csirt2
 #         password: placeholder
 #   admin:
-#     is_admin: True
+#     admin: True
 #     password: admin

@@ -39,5 +39,5 @@ users:
   user3:
     password: user3
   admin:
-    is_admin: True
+    admin: True
     password: admin
