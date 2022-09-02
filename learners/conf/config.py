@@ -31,72 +31,17 @@ class Configuration:
             logger.exception(enverr)
             raise
 
-        # Set learners configuration
-        self.theme = learners_config.get("learners").get("theme")
-        self.language = learners_config.get("learners").get("language")
-
         # Set jwt related configuration
-        self.jwt_secret_key = learners_config.get("jwt", {}).get("jwt_secret_key", "53CR3T")
+        self.jwt_secret_key = learners_config.get("jwt").get("jwt_secret_key")
         self.jwt_access_token_expires = timedelta(minutes=learners_config.get("jwt").get("jwt_access_token_duration"))
         self.jwt_for_vnc_access = learners_config.get("jwt").get("jwt_for_vnc_access")
 
         # Set database configuration
         self.db_uri = learners_config.get("database").get("db_uri")
 
-        # Set mail configuration
-        if learners_config.get("mail") is not None:
-            self.mail = True
-            self.mail_server = learners_config.get("mail").get("server")
-            self.mail_port = learners_config.get("mail").get("port")
-            self.mail_username = learners_config.get("mail").get("username")
-            self.mail_password = learners_config.get("mail").get("password")
-            self.mail_tls = learners_config.get("mail").get("tls")
-            self.mail_ssl = learners_config.get("mail").get("ssl")
-            self.mail_sender = learners_config.get("mail").get("sender_name")
-            self.mail_recipients = learners_config.get("mail").get("recipients")
-        elif os.getenv("MAIL"):
-            self.mail = True
-            self.mail_server = os.getenv("MAIL_SERVER") or ""
-            self.mail_port = os.getenv("MAIL_PORT") or 587
-            self.mail_username = os.getenv("MAIL_USERNAME") or ""
-            self.mail_password = os.getenv("MAIL_PASSWORD") or ""
-            self.mail_tls = os.getenv("MAIL_TLS") or True
-            self.mail_ssl = os.getenv("MAIL_SSL") or False
-            self.mail_sender = os.getenv("MAIL_SENDER_NAME") or self.mail_username
-            self.mail_recipients = os.getenv("MAIL_RECIPIENTS") or []
-        else:
-            self.mail = False
-
-        self.novnc = {"server": learners_config.get("novnc").get("server")}
-
-        self.users = learners_config.get("users")
-        self.users = json.loads(json.dumps(self.users).replace("default", self.novnc.get("server")))
-
-        self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
-
-        if learners_config.get("presentation") is not None:
-            self.presentation = {"url": learners_config.get("presentation").get("url")}
-        else:
-            self.presentation = {"url": None}
-
-        self.statics = {
-            "directory": learners_config.get("statics").get("directory"),
-            "subfolders": learners_config.get("statics").get("subfolders"),
-        }
-
-        self.staticsites = learners_config.get("staticsites") or []
-
-        self.documentation = {
-            "directory": learners_config.get("documentation").get("directory"),
-            "serve_mode": learners_config.get("documentation").get("serve_mode"),
-            "shared_statics": learners_config.get("documentation").get("shared_statics"),
-        }
-
-        self.exercises = {
-            "directory": learners_config.get("exercises").get("directory"),
-            "serve_mode": learners_config.get("exercises").get("serve_mode"),
-            "shared_statics": learners_config.get("exercises").get("shared_statics"),
-        }
+        novnc = {"server": learners_config.get("novnc").get("server")}
+        users = learners_config.get("users")
+        self.users = json.loads(json.dumps(users).replace("DEFAULT-VNC-SERVER", novnc.get("server")))
 
         self.venjix = {
             "auth_secret": learners_config.get("venjix").get("auth_secret"),
@@ -107,37 +52,38 @@ class Configuration:
             },
         }
 
-        self.template = {
-            "chat": False,
-            "admin": False,
-            "presenter": False,
-            "user_id": None,
-            "branding": bool(self.theme != "dark" and self.theme != "light"),
-            "theme": self.theme,
-            "staticsites": self.staticsites,
-            "mitre_url": None,
-            "drawio_url": None,
-            "vnc_clients": None,
-            # "url_documentation": f"{self.documentation.get('endpoint')}/{self.language}/index.html",
-            # "url_exercises": f"{self.exercises.get('endpoint')}/{self.language}/index.html",
-            # "url_presentation": self.presentation.get("url"),
-            "screenSharing": learners_config.get("screenSharing"),
-            "login_headline": learners_config.get("learners").get("login_headline"),
-            "login_headline_highlight": learners_config.get("learners").get("login_headline_highlight"),
-            "welcome_text": learners_config.get("learners").get("welcome_text"),
-            "login_text": learners_config.get("learners").get("login_text"),
-        }
+        self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
 
-        self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
+        # Set learners configuration
+        self.theme = learners_config.get("learners").get("theme")
+        self.language_code = learners_config.get("learners").get("language_code")
+
+        # Set static content
+        self.static_base_url = learners_config.get("statics").get("directory")
+        self.serve_mode = learners_config.get("statics").get("serve_mode")
+
+        self.serve_documentation = learners_config.get("serve_documentation")
+        self.serve_presentations = learners_config.get("serve_presentations")
+        self.serve_exercises = learners_config.get("serve_exercises")
+        self.exercise_json = learners_config.get("exercise_json")
+
+        # Define additional static sites
+        staticsites = learners_config.get("staticsites") or []
+
+        # Set Upload settings
         self.upload_folder = learners_config.get("learners").get("upload_folder")
+        self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
+
+        # Create template config for rendering
+        self.template = {
+            "theme": self.theme,
+            "branding": bool(self.theme != "dark" and self.theme != "light"),
+            "chat": False,
+            "staticsites": staticsites,
+        }
 
 
 def build_config(app):
-    """
-    Set global configuration
-
-    This function instantiates a global configuration class that can be imported from other files.
-    """
 
     global cfg
     cfg = Configuration()
@@ -146,11 +92,6 @@ def build_config(app):
 
 
 def config_app(app):
-    """
-    Set app.config
-
-    This function sets the required app.configs (SQLALCHEMY, JWT, CORS) and enables the use of SCSS.
-    """
 
     Environment(app).register(get_bundle(cfg.theme))
 
@@ -161,11 +102,3 @@ def config_app(app):
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
     app.config["JWT_ACCESS_COOKIE_NAME"] = "access_token_cookie"
-
-    if cfg.mail:
-        app.config["MAIL_SERVER"] = cfg.mail_server
-        app.config["MAIL_PORT"] = cfg.mail_port
-        app.config["MAIL_USERNAME"] = cfg.mail_username
-        app.config["MAIL_PASSWORD"] = cfg.mail_password
-        app.config["MAIL_USE_TLS"] = cfg.mail_tls
-        app.config["MAIL_USE_SSL"] = cfg.mail_ssl
