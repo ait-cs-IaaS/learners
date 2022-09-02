@@ -3,6 +3,8 @@ import os
 import pathlib
 import time
 from datetime import datetime
+from learners import logger
+from flask import url_for
 
 from bs4 import BeautifulSoup
 from learners.conf.config import cfg
@@ -19,30 +21,18 @@ def utc_to_local(utc_datetime: str, date: bool = True) -> str:
 def extract_exercises() -> list:
     exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all", "parent": None}]
 
-    if cfg.exercises.get("directory").startswith("/"):
-        root_directory = f"{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
-    else:
-        root_directory = f"./learners/{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
+    try:
+        with open(f"{cfg.exercise_json}", "r") as input_file:
+            exercise_data = json.load(input_file)
 
-    for path, subdirs, files in os.walk(root_directory):
-        for file in files:
-            if file.endswith(".html"):
-                f = open(pathlib.PurePath(path, file), "r")
-                parsed_html = BeautifulSoup(f.read(), features="html.parser")
-                exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
-                for exerciseInfo in exerciseInfos:
-                    exerciseDict = json.loads(exerciseInfo.get("value"))
+            for exercise in exercise_data:
+                for _, exerciseDict in exercise.items():
                     exercises.append(exerciseDict)
 
-    for exercise in exercises:
-        exerciseWeight = int(exercise["exerciseWeight"])
-        parentWeight = int(exercise["parentWeight"])
-        exercise["exerciseWeight"] = exerciseWeight * 10 if (parentWeight == 0) else parentWeight * 10 + exerciseWeight
-        exercise["name"] = exercise["id"]
-        if exercise["parent"] == "Exercises":
-            exercise["parent"] = None
+    except EnvironmentError as enverr:
+        logger.exception(enverr)
+        raise
 
-    exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
     return exercises
 
 
