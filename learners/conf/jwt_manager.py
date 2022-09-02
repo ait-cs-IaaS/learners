@@ -64,7 +64,7 @@ def admin_required():
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
 
-            if get_jwt().get("is_admin"):
+            if get_jwt().get("admin"):
                 cfg.template["admin"] = True
                 cfg.template["authenticated"] = True
                 return fn(*args, **kwargs)
