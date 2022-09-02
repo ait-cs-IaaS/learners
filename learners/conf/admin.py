@@ -28,7 +28,7 @@ def admin_area():
     user_filter.extend({"id": user.id, "username": user.name} for user in users)
 
     exercises_filter = [{"id": "all", "name": "all"}]
-    exercises_filter.extend({"id": exercise.name, "name": exercise.title} for exercise in exercises)
+    exercises_filter.extend({"id": exercise.exercise_name, "name": exercise.page_title} for exercise in exercises)
 
     results_table = construct_results_table(exercises, users)
     return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
