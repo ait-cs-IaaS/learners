@@ -15,32 +15,48 @@ from flask import escape
 
 
 def insert_initial_users(*args, **kwargs):
-    for user, userDetails in cfg.users.items():
-        db.session.add(User(name=user, role=userDetails.get("role")))
-    try:
-        db.session.commit()
-    except Exception:
-        logger.debug("User data already initialized. Delete table to reinitialize.")
+    for user_name, userDetails in cfg.users.items():
+        user = {"name": user_name, "role": userDetails.get("role")}
+        db_create_or_update(User, "name", user)
 
 
 def insert_exercises(*args, **kwargs):
     exercises = extract_exercises()
     for exercise in exercises[1:]:
-        db.session.add(
-            Exercise(
-                type=exercise["type"],
-                name=exercise["id"],
-                title=exercise["title"],
-                page_title=exercise["pageTitle"],
-                parent=exercise["parent"],
-                weight=exercise["exerciseWeight"],
-            )
-        )
+        db_create_or_update(Exercise, "global_exercise_id", exercise)
+
+
+def db_create_or_update(db_model, filter_key, passed_element):
+    # check if element already exists
+    try:
+        session = db.session.query(db_model)
+        kwargs = {filter_key: passed_element[filter_key]}
+        session = session.filter_by(**kwargs)
+        current_db_entry = session.first()
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+    if current_db_entry:
+        # Update existing
+        for key in passed_element:
+            if getattr(current_db_entry, key) != passed_element[key]:
+                setattr(current_db_entry, key, passed_element[key])
+                db.session.flush()
+                print(f"Updated: {key}")
+                logger.info(f"Updated: {key}")
+    else:
+        # Create new
+        new_element = db_model()
+        for key in passed_element:
+            setattr(new_element, key, passed_element[key])
+        db.session.add(new_element)
     try:
         db.session.commit()
-
-    except Exception:
-        logger.debug("Exercises already initialized. Delete table to reinitialize.")
+    except Exception as e:
+        logger.exception(e)
+        return False
+    return True
 
 
 def db_update_execution(
@@ -123,20 +139,24 @@ def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
         return None, None
 
 
-def get_exercise_by_name(name: str) -> dict:
-    return generic_getter(Exercise, name=name)
+def get_exercise_by_name(exercise_name: str) -> dict:
+    return generic_getter(Exercise, "exercise_name", exercise_name)
+
+
+def get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
+    return generic_getter(Exercise, "global_exercise_id", global_exercise_id)
 
 
 def get_exercise_by_id(id: int) -> dict:
-    return generic_getter(Exercise, id=id)
+    return generic_getter(Exercise, "id", id)
 
 
 def get_user_by_name(name: str) -> dict:
-    return generic_getter(User, name=name)
+    return generic_getter(User, "name", name)
 
 
 def get_user_by_id(id: int) -> dict:
-    return generic_getter(User, id=id)
+    return generic_getter(User, "id", id)
 
 
 def get_all_users() -> list:
@@ -169,14 +189,14 @@ def get_exercises_by_group(parent: str) -> list:
         return None
 
 
-def generic_getter(db_model, id: int = None, name: str = None, all: bool = False) -> dict:
+def generic_getter(db_model, filter_key: str = None, filter_value: str = None, all: bool = False) -> dict:
     try:
         session = db.session.query(db_model)
-        if id:
-            session = session.filter_by(id=id)
-        if name:
-            session = session.filter_by(name=name)
-        return session.all() if all else session.first()
+        if not all:
+            kwargs = {filter_key: filter_value}
+            session = session.filter_by(**kwargs)
+            return session.first()
+        return session.all()
     except Exception as e:
         logger.exception(e)
         return None
