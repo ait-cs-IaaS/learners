@@ -43,12 +43,16 @@ class Attachment(db.Model):
 
 class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(120), nullable=False)
-    name = db.Column(db.String(120), unique=True, nullable=False)
-    title = db.Column(db.String(120), nullable=True)
-    page_title = db.Column(db.String(120), nullable=True)
-    parent = db.Column(db.String(120), nullable=True)
-    weight = db.Column(db.String(120), nullable=False)
+    global_exercise_id = db.Column(db.String(120), nullable=False)
+    local_exercise_id = db.Column(db.Integer, nullable=False)
+    exercise_type = db.Column(db.String(120), nullable=False)
+    exercise_name = db.Column(db.String(120), nullable=False)
+    page_title = db.Column(db.String(120), nullable=False)
+    parent_page_title = db.Column(db.String(120), nullable=False)
+    root_weight = db.Column(db.Integer, nullable=False)
+    parent_weight = db.Column(db.Integer, nullable=False)
+    child_weight = db.Column(db.Integer, nullable=False)
+    order_weight = db.Column(db.Integer, nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
     comments = db.relationship("Comment", backref="exercise", lazy=True)
 
