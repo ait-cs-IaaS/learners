@@ -88,12 +88,14 @@ def get_execution_state():
 
     username = get_jwt_identity()
     user = get_user_by_name(username)
-    parent_names = get_exercise_groups()
 
+    parent_names = get_exercise_groups()
+    print(parent_names)
     results = {}
 
     for parent_name in parent_names:
         subexercises = get_exercises_by_group(parent_name)
+        print(subexercises)
 
         for subexercise in subexercises:
             parent = parent_name or subexercise.page_title
@@ -102,6 +104,8 @@ def get_execution_state():
             done = int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
             exerciseobj = {"title": subexercise.page_title, "total": 1, "done": done}
             results[parent] = append_or_update_subexercise(results[parent], exerciseobj)
+
+    print("################## RESULTS: ", results)
 
     return jsonify(success_list=results)
 

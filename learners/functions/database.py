@@ -75,12 +75,13 @@ def db_update_execution(
 
 def db_create_execution(type: str, data: dict, username: str, execution_uuid: str) -> bool:
 
-    name = data.get("name")
+    global_exercise_id = data.get("name")
+    print("###################### NAME:", global_exercise_id)
     script = data.get("script")
     form_data = json.dumps(data.get("form"), indent=4, sort_keys=False)
 
     try:
-        exercise_id = Exercise.query.filter_by(name=name).first().id
+        exercise_id = Exercise.query.filter_by(global_exercise_id=global_exercise_id).first().id
         user_id = User.query.filter_by(name=username).first().id
 
         execution = Execution(
@@ -173,16 +174,16 @@ def get_all_comments() -> list:
 
 def get_exercise_groups() -> list:
     try:
-        session = db.session.query(Exercise.parent).group_by(Exercise.parent).all()
+        session = db.session.query(Exercise.parent_page_title).group_by(Exercise.parent_page_title).all()
         return [groupname for groupname, in session]
     except Exception as e:
         logger.exception(e)
         return None
 
 
-def get_exercises_by_group(parent: str) -> list:
+def get_exercises_by_group(parent_page_title: str) -> list:
     try:
-        session = db.session.query(Exercise).filter_by(parent=parent)
+        session = db.session.query(Exercise).filter_by(parent_page_title=parent_page_title)
         return session.all()
     except Exception as e:
         logger.exception(e)
