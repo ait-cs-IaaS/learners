@@ -9,7 +9,7 @@ def main():
     if os.getenv("REMOVE_DB"):
         logger.warn(" ******** REMOVE_DB is set. Deleting DB file ******** ")
         try:
-            os.remove(os.path.join(os.getcwd(), "learners", "learners_tracker.db"))
+            os.remove(os.path.join(os.getcwd(), "learners", "data.db"))
         except:
             pass
     app = Flask(__name__)
