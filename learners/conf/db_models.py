@@ -12,14 +12,14 @@ class User(db.Model):
 
 class Execution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(120), nullable=False)
+    exercise_type = db.Column(db.String(120), nullable=False)
     script = db.Column(db.String(120), nullable=True)
     execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
     response_timestamp = db.Column(db.DateTime, nullable=True)
     response_content = db.Column(db.Text, nullable=True)
     form_data = db.Column(db.String(), nullable=True)
     msg = db.Column(db.String(240), nullable=True)
-    uuid = db.Column(db.String(120), unique=True, nullable=True)
+    execution_uuid = db.Column(db.String(120), unique=True, nullable=True)
     completed = db.Column(db.Integer, nullable=False, default=0)
     partial = db.Column(db.Integer, nullable=False, default=0)
     connection_failed = db.Column(db.Integer, nullable=False, default=0)
