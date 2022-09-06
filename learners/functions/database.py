@@ -26,7 +26,7 @@ def insert_exercises(*args, **kwargs):
         db_create_or_update(Exercise, "global_exercise_id", exercise)
 
 
-def db_create_or_update(db_model, filter_key, passed_element):
+def db_create_or_update(db_model, filter_key: str = None, passed_element: dict = None) -> bool:
     # check if element already exists
     try:
         session = db.session.query(db_model)
@@ -63,7 +63,7 @@ def db_update_execution(
     execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None, partial=None
 ) -> None:
     try:
-        execution = Execution.query.filter_by(uuid=execution_uuid).first()
+        execution = Execution.query.filter_by(execution_uuid=execution_uuid).first()
         for key, value in list(locals().items())[:-1]:
             if value:
                 setattr(execution, key, value)
@@ -73,10 +73,9 @@ def db_update_execution(
         logger.exception(e)
 
 
-def db_create_execution(type: str, data: dict, username: str, execution_uuid: str) -> bool:
+def db_create_execution(exercise_type: str, data: dict, username: str, execution_uuid: str) -> bool:
 
     global_exercise_id = data.get("name")
-    print("###################### NAME:", global_exercise_id)
     script = data.get("script")
     form_data = json.dumps(data.get("form"), indent=4, sort_keys=False)
 
@@ -85,15 +84,15 @@ def db_create_execution(type: str, data: dict, username: str, execution_uuid: st
         user_id = User.query.filter_by(name=username).first().id
 
         execution = Execution(
-            type=type,
+            exercise_type=exercise_type,
             script=script,
             form_data=form_data,
-            uuid=execution_uuid,
+            execution_uuid=execution_uuid,
             user_id=user_id,
             exercise_id=exercise_id,
         )
 
-        if type == "form":
+        if exercise_type == "form":
             execution.completed = True
             execution.response_timestamp = datetime.now(timezone.utc)
 

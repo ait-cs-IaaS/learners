@@ -10,6 +10,7 @@ from learners.functions.database import (
     db_create_file,
     get_completed_state,
     get_current_executions,
+    get_exercise_by_global_exercise_id,
     get_exercise_by_name,
     get_exercise_groups,
     get_exercises_by_group,
@@ -26,9 +27,9 @@ from learners.conf.config import cfg
 execution_api = Blueprint("execution_api", __name__)
 
 
-@execution_api.route("/execution/<type>", methods=["POST"])
+@execution_api.route("/execution/<exercise_type>", methods=["POST"])
 @jwt_required(locations="headers")
-def run_execution(type):
+def run_execution(exercise_type):
 
     username = get_jwt_identity()
     execution_uuid = f"{str(username)}_{uuid.uuid4().int & (1 << 64) - 1}"
@@ -37,22 +38,19 @@ def run_execution(type):
 
     data = request.get_json()
 
-    if db_create_execution(type, data, username, execution_uuid):
-        if type == "script":
+    if db_create_execution(exercise_type, data, username, execution_uuid):
+        if exercise_type == "script":
             response["connected"], response["executed"] = call_venjix(username, data["script"], execution_uuid)
-        if type == "form":
+        if exercise_type == "form":
             response["connected"] = True
             response["executed"] = True
-
-            if data.get("mail"):
-                send_form_via_mail(username, data)
 
     return jsonify(response)
 
 
-@execution_api.route("/execution/<exercise_name>", methods=["GET"])
+@execution_api.route("/execution/<global_exercise_id>", methods=["GET"])
 @jwt_required()
-def get_execution(exercise_name):
+def get_execution(global_exercise_id):
 
     response = {
         "completed": False,
@@ -66,7 +64,7 @@ def get_execution(exercise_name):
     username = get_jwt_identity()
 
     user_id = get_user_by_name(username).id
-    exercise = get_exercise_by_name(exercise_name)
+    exercise = get_exercise_by_global_exercise_id(global_exercise_id)
 
     if not user_id or not exercise:
         return jsonify(response)
@@ -74,7 +72,7 @@ def get_execution(exercise_name):
     last_execution, executions = get_current_executions(user_id, exercise.id)
 
     if last_execution:
-        if exercise.type == "script" and not last_execution.response_timestamp:
+        if exercise.exercise_type == "script" and not last_execution.response_timestamp:
             last_execution = wait_for_response(last_execution.uuid)
 
         response = update_execution_response(response, last_execution, executions)
@@ -90,12 +88,10 @@ def get_execution_state():
     user = get_user_by_name(username)
 
     parent_names = get_exercise_groups()
-    print(parent_names)
     results = {}
 
     for parent_name in parent_names:
         subexercises = get_exercises_by_group(parent_name)
-        print(subexercises)
 
         for subexercise in subexercises:
             parent = parent_name or subexercise.page_title
@@ -104,8 +100,6 @@ def get_execution_state():
             done = int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
             exerciseobj = {"title": subexercise.page_title, "total": 1, "done": done}
             results[parent] = append_or_update_subexercise(results[parent], exerciseobj)
-
-    print("################## RESULTS: ", results)
 
     return jsonify(success_list=results)
 
