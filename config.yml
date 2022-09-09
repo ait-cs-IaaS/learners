@@ -16,6 +16,8 @@ statics:
   directory: "static"
   serve_mode: "role"
 
+# exercise_json: "/tmp/config.json"
+
 serve_documentation: True
 serve_exercises: True
 serve_presentations: True
