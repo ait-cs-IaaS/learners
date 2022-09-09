@@ -16,7 +16,7 @@ def serve_statics(path=""):
     static_root = cfg.static_base_url  # Directory holding the static sites
 
     # Add "index.html" to path if empty or ends with "/"
-    if (not path) or (not "." in path):
+    if not path or "." not in path:
         path = f"{path}index.html" if path.endswith("/") else f"{path}/index.html"
 
     try:

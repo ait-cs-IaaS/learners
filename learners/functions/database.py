@@ -20,8 +20,8 @@ def insert_initial_users(*args, **kwargs):
         db_create_or_update(User, "name", user)
 
 
-def insert_exercises(*args, **kwargs):
-    exercises = extract_exercises()
+def insert_exercises(app, *args, **kwargs):
+    exercises = extract_exercises(app)
     for exercise in exercises[1:]:
         db_create_or_update(Exercise, "global_exercise_id", exercise)
 
@@ -43,7 +43,6 @@ def db_create_or_update(db_model, filter_key: str = None, passed_element: dict =
             if getattr(current_db_entry, key) != passed_element[key]:
                 setattr(current_db_entry, key, passed_element[key])
                 db.session.flush()
-                print(f"Updated: {key}")
                 logger.info(f"Updated: {key}")
     else:
         # Create new

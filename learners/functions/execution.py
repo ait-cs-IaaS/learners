@@ -10,7 +10,6 @@ from learners.conf.db_models import Execution, Exercise
 from learners.database import db
 from learners.functions.database import db_update_execution
 from learners.functions.helpers import extract_history
-from learners.mail_manager import mail
 
 
 def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, bool]:
@@ -41,42 +40,6 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
 
     db_update_execution(execution_uuid, connection_failed=connection_failed, msg=msg)
     return not connection_failed, executed
-
-
-def send_form_via_mail(username: str, data) -> bool:
-
-    try:
-        exercise_name = Exercise.query.filter_by(name=data.get("name")).first().name
-    except Exception as e:
-        logger.exception(e)
-        return False
-
-    subject = f"Form Submission: {username} - {exercise_name}"
-
-    mailbody = (
-        "<h1>Results</h1> <h2>Information:</h2>"
-        + f"<strong>User:</strong> {username}</br>"
-        + f"<strong>Form:</strong> {exercise_name}</br>"
-        + "<h2>Data:</h2>"
-    )
-
-    data = ""
-    for (key, value) in json.dumps(data.get("form"), indent=4, sort_keys=False).items():
-        value = value or "<i>-- emtpy --</i>"
-        data += f"<strong>{key}</strong>: {value}</br>"
-
-    mailbody += f"<p>{data}</p></br>"
-
-    try:
-        msg = Message(subject, sender=("Venjix", cfg.mail_sender), recipients=cfg.mail_recipients)
-        msg.html = mailbody
-
-        mail.send(msg)
-        return True
-
-    except Exception as e:
-        logger.exception(e)
-        return False
 
 
 def wait_for_response(execution_uuid: str) -> dict:
