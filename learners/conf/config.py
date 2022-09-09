@@ -4,7 +4,7 @@ import os
 from datetime import timedelta
 
 from flask_assets import Environment
-from learners import logger
+from learners.logger import logger
 from learners.assets import get_bundle
 from strictyaml import YAMLError, load
 
@@ -66,7 +66,7 @@ def build_config(app):
     config_app(app)
 
     if os.getenv("REMOVE_DB"):
-        logger.warn(" ****** REMOVE_DB is set. Deleting DB file ****** ")
+        logger.warning(" ****** REMOVE_DB is set. Deleting DB file ****** ")
         with contextlib.suppress(Exception):
             os.remove(os.path.join(os.getcwd(), "learners", cfg.db_uri))
 

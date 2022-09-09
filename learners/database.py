@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from learners import logger
+from learners.logger import logger
 
 
 db = SQLAlchemy()

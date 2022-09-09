@@ -3,7 +3,7 @@ from functools import wraps
 from flask import render_template
 from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
 
-from learners import logger
+from learners.logger import logger
 from learners.conf.config import cfg
 from learners.conf.db_models import TokenBlocklist
 from learners.database import db

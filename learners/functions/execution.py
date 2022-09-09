@@ -4,7 +4,7 @@ from typing import Tuple
 
 import requests
 from flask_mail import Message
-from learners import logger
+from learners.logger import logger
 from learners.conf.config import cfg
 from learners.conf.db_models import Execution, Exercise
 from learners.database import db

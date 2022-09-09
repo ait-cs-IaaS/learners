@@ -2,7 +2,7 @@ import json
 import os
 import time
 from datetime import datetime
-from learners import logger
+from learners.logger import logger
 from flask import url_for
 
 from learners.conf.config import cfg

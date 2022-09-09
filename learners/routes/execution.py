@@ -4,7 +4,7 @@ import uuid
 
 from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from learners import logger
+from learners.logger import logger
 from learners.functions.database import (
     db_create_execution,
     db_create_file,

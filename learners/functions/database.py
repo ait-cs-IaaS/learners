@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from sqlite3 import IntegrityError
 from typing import Tuple
 
-from learners import logger
+from learners.logger import logger
 from learners.conf.config import cfg
 from learners.conf.db_models import Attachment, Execution, Exercise, User, Comment
 from learners.database import db
