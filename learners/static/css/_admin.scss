@@ -304,3 +304,85 @@ $admin-text-color: $light-2 !default;
     box-shadow: inset 0px 0px 0px 30px $red-light;
   }
 }
+
+.results-container {
+
+  .section {
+    margin: 2rem 0;
+    position: relative;
+    border-radius: 4px;
+    background: #f6f6f6;
+    color: $dark-2;
+    padding: 20px 30px;
+    display: block;
+    border-radius: 4px;
+  }
+
+  hr {
+    color: black;
+  }
+
+  & h1, h2, h3, h4, h5 {
+    font-weight: 700;
+    color: $primary;
+    line-height: 1.2 !important;
+    max-width: 100%;
+  }
+
+  & h1 {
+    font-size: 1.6em !important;
+  }
+
+  & h2 {
+    font-size: 1.4em !important;
+  }
+
+  & h3 {
+    font-size: 1.2em !important;
+    color: $dark-2;
+  }
+
+  & h4 {
+    font-size: 1.0em !important;
+    font-weight: 400;
+  }
+
+  & h5 {
+    font-size: 1.0em !important;
+    font-weight: 400;
+  }
+
+  ul {
+    padding-left: 0;
+  }
+
+  li {
+    margin-left: 1.2rem;
+    padding-left: 0.5rem;
+  }
+
+  .percentage {
+    float: right;
+  }
+
+  a {
+    font-size: 1.0em !important;
+    transition: background-color 300ms ease-in-out;
+    display: block;
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    color: $dark-2;
+
+    & h4 {
+      padding: 0;
+      margin: 0;
+    }
+
+    &:hover {
+      background-color: #ececec;
+      border: 1px solid $dark-1;
+      margin: -1px;
+    }
+  }
+
+}

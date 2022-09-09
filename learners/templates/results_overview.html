@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+    {% for section, pages in exercises.items() %}
+
+      <div class="section">
+      <h2>{{ section | safe }}</h2>
+
+      {% for page, page_exercises in pages.items() %}
+        <hr>
+        <h3>{{ page | safe }}</h3>
+
+        <ul>
+          {% for exercise in page_exercises %}
+          <a href="/result/{{ exercise.global_exercise_id }}">
+            <li>
+              <h4>
+                {{ exercise.exercise_name | safe }}
+                <span class="percentage">
+                  {{ '%0.2f' % exercise.completion_percentage | float }} %</span>
+              </h4>
+            </li>
+          </a>
+          {% endfor %}
+        </ul>
+
+        {% endfor %}
+
+      </div>
+
+      {% endfor %}
+
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

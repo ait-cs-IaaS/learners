@@ -251,3 +251,29 @@ def get_filename_from_hash(filename_hash):
     except Exception as e:
         logger.exception(e)
         return None
+
+def get_all_exercises_sorted() -> list:
+    try:
+        sorted_exercises = db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
+        return sorted_exercises
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+def get_completion_percentage(exercise_id):
+
+    users = get_all_users()
+
+    try:
+        executions = (
+            db.session.query(User)
+            .join(Execution)
+            .filter_by(exercise_id=exercise_id)
+            .with_entities(Execution.completed)
+            .all()
+        )
+        return (len(executions) / len(users) * 100)
+
+    except Exception as e:
+        logger.exception(e)
+        return 0

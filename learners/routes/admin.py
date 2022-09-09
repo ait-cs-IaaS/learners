@@ -1,18 +1,23 @@
 import json
 
 from flask import Blueprint, jsonify, render_template
+from collections import defaultdict
 from learners.conf.config import cfg
 from learners.functions.database import (
     get_all_exercises,
+    get_all_exercises_sorted,
     get_all_users,
     get_executions_by_user_exercise,
     get_exercise_by_name,
     get_user_by_id,
+    get_completion_percentage
 )
-from learners.functions.helpers import extract_history, replace_attachhment_with_url
+from learners.functions.helpers import extract_history, replace_attachhment_with_url, build_urls
 from learners.functions.results import construct_results_table
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from learners.jwt_manager import admin_required
 from learners.logger import logger
+from learners.conf.config import cfg
 
 admin_api = Blueprint("admin_api", __name__)
 
@@ -32,6 +37,29 @@ def admin_area():
 
     results_table = construct_results_table(exercises, users)
     return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
+
+
+@admin_api.route("/result/all", methods=["GET"])
+@admin_required()
+def get_exercise_results():
+
+    grouped_exercises = {}
+    sorted_exercises = get_all_exercises_sorted()
+
+    for exercise in sorted_exercises:
+        setattr(exercise, "completion_percentage", get_completion_percentage(exercise.id))
+        if not grouped_exercises.get(exercise.parent_page_title):
+            grouped_exercises[exercise.parent_page_title] = {exercise.page_title: [exercise]}
+        else:
+            if not grouped_exercises[exercise.parent_page_title].get(exercise.page_title):
+                grouped_exercises[exercise.parent_page_title][exercise.page_title] = [exercise]
+            else:
+                grouped_exercises[exercise.parent_page_title][exercise.page_title].append(exercise)
+
+    cfg.template = build_urls(config = cfg, role = get_jwt().get("role"), user_id = get_jwt_identity())
+
+    return render_template("results_overview.html", exercises=grouped_exercises, **cfg.template)
+
 
 
 @admin_api.route("/result/<user_id>/<exercise_name>", methods=["GET"])

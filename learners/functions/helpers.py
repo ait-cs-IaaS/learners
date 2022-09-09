@@ -108,3 +108,16 @@ def replace_attachhment_with_url(formData):
                 continue
 
     return formData
+
+
+def build_urls(config, role, user_id = None):
+    discriminator = role if config.serve_mode == "role" else user_id
+
+    config.template["url_documentation"] = (
+        f"statics/hugo/{discriminator}/{config.language_code}/documentation/" if (config.serve_documentation) else ""
+    )
+    config.template["url_exercises"] = f"statics/hugo/{discriminator}/{config.language_code}/exercises/" if (config.serve_exercises) else ""
+    config.template["url_presentations"] = (
+        f"statics/hugo/{discriminator}/{config.language_code}/presentations/" if (config.serve_presentations) else ""
+    )
+    return config.template

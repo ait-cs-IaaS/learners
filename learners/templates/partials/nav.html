@@ -14,26 +14,20 @@
     {% endif %}
   </a>
 
-  {% if admin and authenticated is sameas true %}
+  {% if authenticated is sameas true %}
 
     <nav class="mb-auto">
       <ul class="nav flex-column text-center">
 
-        {% with href="/admin", tooltip="Results", icon="icon_doc" %}
-        {% include "partials/tab.html" %}
-        {% endwith %}
+        {% if admin %}
+          {% with href="/result/all", tooltip="Results", icon="icon_doc" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
 
-        {% with href="/comments", tooltip="Comments", icon="chat" %}
-          {% include "partials/tab.html" %}
-        {% endwith %}
-
-      </ul>
-    </nav>
-
-  {% elif authenticated is sameas true %}
-
-    <nav class="mb-auto">
-      <ul class="nav flex-column text-center">
+          {% with href="/comments", tooltip="Comments", icon="chat" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
+        {% endif %}
 
         {% if url_documentation %}
           {% with href="/access#docs", tooltip="Documentation", icon="icon_doc" %}
