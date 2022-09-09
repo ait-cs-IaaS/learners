@@ -16,7 +16,7 @@ from learners.functions.database import (
     get_exercises_by_group,
     get_user_by_name,
 )
-from learners.functions.execution import call_venjix, send_form_via_mail, update_execution_response, wait_for_response
+from learners.functions.execution import call_venjix, update_execution_response, wait_for_response
 from learners.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise
 
 
