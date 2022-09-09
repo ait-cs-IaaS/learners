@@ -1,11 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
-"""
-Set up the database
+from learners import logger
 
-Learners keeps track of the training/exercise progress of the participants, for this
-a locale database is created, which is initialized with the following function.
-"""
 
 db = SQLAlchemy()
 
@@ -20,4 +16,10 @@ def build_db(app):
     db.create_all()
 
     insert_initial_users()
-    insert_exercises()
+    insert_exercises(app)
+
+    try:
+        loaded_exercises = db.session.query(Exercise).all()
+        logger.info(f"\n\tCurrently, {len(loaded_exercises)} Exercises has been loaded.\n")
+    except Exception as e:
+        logger.exception(e)

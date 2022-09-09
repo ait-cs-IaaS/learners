@@ -1,12 +1,10 @@
 import json
 import os
-import pathlib
 import time
 from datetime import datetime
 from learners import logger
 from flask import url_for
 
-from bs4 import BeautifulSoup
 from learners.conf.config import cfg
 
 
@@ -18,20 +16,41 @@ def utc_to_local(utc_datetime: str, date: bool = True) -> str:
     return (utc_datetime + offset).strftime("%m/%d/%Y, %H:%M:%S") if date else (utc_datetime + offset).strftime("%H:%M:%S")
 
 
-def extract_exercises() -> list:
+def extract_exercises(app) -> list:
     exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all", "parent": None}]
 
+    if (cfg.exercise_json).startswith("/"):
+        exercise_json = cfg.exercise_json
+    else:
+        exercise_json = os.path.join(app.root_path, cfg.exercise_json)
+
     try:
-        with open(f"{cfg.exercise_json}", "r") as input_file:
+        with open(exercise_json, "r") as input_file:
             exercise_data = json.load(input_file)
 
             for exercise in exercise_data:
-                for _, exerciseDict in exercise.items():
-                    exercises.append(exerciseDict)
+                exercises.extend(exerciseDict for _, exerciseDict in exercise.items())
 
-    except EnvironmentError as enverr:
-        logger.exception(enverr)
-        raise
+    except Exception:
+        err = f"\n\tERROR: Could not read exercise in file: {cfg.exercise_json}.\n"
+        err += """
+        Make sure, the file exists and contains the exercise information in the following JSON format:
+        [{
+            "c9e632fe3aaac273a0eac6f8963b7b41": {
+            "child_weight": 4,
+            "exercise_name": "sample exercise",
+            "exercise_type": "form",
+            "global_exercise_id": "c9e632fe3aaac273a0eac6f8963b7b41",
+            "local_exercise_id": 1,
+            "order_weight": 7141,
+            "page_title": "title of page containing the exercise",
+            "parent_page_title": "chapter title",
+            "parent_weight": 1,
+            "root_weight": 7
+            }
+        }]
+        """
+        logger.warning(err)
 
     return exercises
 
