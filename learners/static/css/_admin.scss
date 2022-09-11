@@ -322,6 +322,11 @@ $admin-text-color: $light-2 !default;
     color: black;
   }
 
+  p {
+    max-width: 100% !important;
+    color: $dark-2;
+  }
+
   & h1, h2, h3, h4, h5 {
     font-weight: 700;
     color: $primary;
@@ -365,6 +370,12 @@ $admin-text-color: $light-2 !default;
     float: right;
   }
 
+  h2 .percentage {
+    font-weight: 400;
+    color: $dark-2;
+    font-size: 1rem;
+  }
+
   a {
     font-size: 1.0em !important;
     transition: background-color 300ms ease-in-out;
@@ -385,4 +396,32 @@ $admin-text-color: $light-2 !default;
     }
   }
 
+}
+
+#admin_area table.single-result-table {
+  border-collapse: collapse;
+  width: 100%;
+
+  & td:nth-child(1) {
+    width: 80px !important;
+  }
+
+  & td:nth-child(2) {
+    // width: 100px !important;
+    width: auto !important;
+  }
+
+  & tr > td:last-of-type, tr > th:last-of-type {
+    text-align: right;
+  }
+
+  & tr td.completed-col, tr th.completed-col {
+    width: 30px;
+  }
+
+}
+
+.inline-indicator {
+  display: inline-block;
+  width: 20px;
 }

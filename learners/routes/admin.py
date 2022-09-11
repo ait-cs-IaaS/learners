@@ -10,7 +10,9 @@ from learners.functions.database import (
     get_executions_by_user_exercise,
     get_exercise_by_name,
     get_user_by_id,
-    get_completion_percentage
+    get_completion_percentage,
+    get_exercise_by_global_exercise_id,
+    get_results_of_single_exercise,
 )
 from learners.functions.helpers import extract_history, replace_attachhment_with_url, build_urls
 from learners.functions.results import construct_results_table
@@ -41,7 +43,7 @@ def admin_area():
 
 @admin_api.route("/result/all", methods=["GET"])
 @admin_required()
-def get_exercise_results():
+def get_all_results():
 
     grouped_exercises = {}
     sorted_exercises = get_all_exercises_sorted()
@@ -56,17 +58,36 @@ def get_exercise_results():
             else:
                 grouped_exercises[exercise.parent_page_title][exercise.page_title].append(exercise)
 
-    cfg.template = build_urls(config = cfg, role = get_jwt().get("role"), user_id = get_jwt_identity())
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
 
     return render_template("results_overview.html", exercises=grouped_exercises, **cfg.template)
 
 
-
-@admin_api.route("/result/<user_id>/<exercise_name>", methods=["GET"])
+@admin_api.route("/result/<global_exercise_id>", methods=["GET"])
 @admin_required()
-def get_exercise_result(user_id, exercise_name):
+def get_single_result(global_exercise_id):
 
-    exercise = get_exercise_by_name(exercise_name)
+    exercise = get_exercise_by_global_exercise_id(global_exercise_id)
+    setattr(exercise, "completion_percentage", get_completion_percentage(exercise.id))
+    print(exercise)
+
+    results = get_results_of_single_exercise(global_exercise_id)
+    print(results)
+
+    for result in results:
+        print(result.name)
+        print(result.execution_timestamp)
+        print(result.completed)
+
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
+    return render_template("results_single.html", exercise=exercise, results=results, **cfg.template)
+
+
+@admin_api.route("/result/<user_id>/<global_exercise_id>", methods=["GET"])
+@admin_required()
+def get_exercise_result(user_id, global_exercise_id):
+
+    exercise = get_exercise_by_global_exercise_id(global_exercise_id)
     user = get_user_by_id(user_id)
     executions = get_executions_by_user_exercise(user_id, exercise.id)
 
@@ -79,10 +100,10 @@ def get_exercise_result(user_id, exercise_name):
         "connection": any(not execution.connection_failed for execution in executions) if last_execution else False,
     }
 
-    if exercise.type == "form":
+    if exercise.exercise_type == "form":
         data["form"] = json.loads(last_execution.form_data) if last_execution else None
         data["form"] = replace_attachhment_with_url(data["form"])
 
     data["history"] = extract_history(executions) if executions else None
 
-    return render_template("result_details.html", user=user.name, exercise=exercise.title, data=data, **cfg.template)
+    return render_template("results_execution_details.html", user=user.name, exercise=exercise.exercise_name, data=data, **cfg.template)

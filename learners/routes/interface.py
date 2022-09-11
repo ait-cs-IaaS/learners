@@ -13,7 +13,7 @@ def access():
 
     user_id = get_jwt_identity()
 
-    cfg.template = build_urls(config = cfg, role = get_jwt().get("role"), user_id = user_id)
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=user_id)
 
     if vnc_clients := cfg.users.get(user_id).get("vnc_clients"):
         cfg.template["vnc_clients"] = vnc_clients

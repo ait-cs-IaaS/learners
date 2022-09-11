@@ -110,7 +110,7 @@ def replace_attachhment_with_url(formData):
     return formData
 
 
-def build_urls(config, role, user_id = None):
+def build_urls(config, role, user_id=None):
     discriminator = role if config.serve_mode == "role" else user_id
 
     config.template["url_documentation"] = (

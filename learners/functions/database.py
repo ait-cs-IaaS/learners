@@ -11,7 +11,7 @@ from learners.database import db
 from learners.functions.helpers import extract_exercises
 from sqlalchemy import event, nullsfirst
 
-from flask import escape
+from flask import escape, jsonify
 
 
 def insert_initial_users(*args, **kwargs):
@@ -252,6 +252,7 @@ def get_filename_from_hash(filename_hash):
         logger.exception(e)
         return None
 
+
 def get_all_exercises_sorted() -> list:
     try:
         sorted_exercises = db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
@@ -260,19 +261,42 @@ def get_all_exercises_sorted() -> list:
         logger.exception(e)
         return None
 
+
 def get_completion_percentage(exercise_id):
 
     users = get_all_users()
 
     try:
         executions = (
-            db.session.query(User)
-            .join(Execution)
+            db.session.query(Execution)
             .filter_by(exercise_id=exercise_id)
-            .with_entities(Execution.completed)
+            .join(User)
+            .group_by(User.id)
+            .with_entities(db.func.max(Execution.completed))
             .all()
         )
-        return (len(executions) / len(users) * 100)
+        return len(executions) / len(users) * 100
+
+    except Exception as e:
+        logger.exception(e)
+        return 0
+
+
+def get_results_of_single_exercise(global_exercise_id):
+    try:
+        executions = (
+            db.session.query(Execution)
+            .join(Exercise)
+            .filter_by(global_exercise_id=global_exercise_id)
+            .join(User)
+            .order_by(Execution.completed.desc(), Execution.execution_timestamp.desc())
+            .group_by(User.id)
+            .with_entities(
+                User.name, Execution.id, Execution.user_id, Execution.execution_timestamp, Execution.completed, Exercise.global_exercise_id
+            )
+            .all()
+        )
+        return executions
 
     except Exception as e:
         logger.exception(e)

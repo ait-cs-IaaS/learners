@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+      <div class="section">
+      <h2>
+        {{ exercise | safe }}
+      </h2>
+      <span class="mb-4">
+        User: <strong>{{ user }}</strong> <br>
+      </span>
+
+      {% if data %}
+
+      completed:
+      {% if data.completed == 1 %}
+        <div class="stat_indicator success inline-indicator">
+          <svg class="bi stat_icon" width="24" height="24" role="img">
+            <use xlink:href="#success"></use>
+          </svg>
+        </div>
+
+      {% elif data.completed == -1 %}
+      <b class="no_value inline-indicator">-</b>
+      {% else %}
+
+      <div class="stat_indicator failed inline-indicator">
+        <svg class="bi stat_icon" width="24" height="24" role="img">
+          <use xlink:href="#fail"></use>
+        </svg>
+      </div>
+      {% endif %} <br>
+
+      <hr>
+
+      <h3>Submission</h3>
+
+      {% for form_title, form_data in data.form.items() %}
+      <h4>{{ form_title }}</h4>
+        {% for label, value in form_data.items() %}
+          <label class="wide">{{ label }}:</label> <br>
+          {{ value }}
+        {% endfor %}
+      {% endfor %}
+
+
+      {{ data }}
+
+
+      <ul>
+        </li>
+        <li><label>
+            <h5>Details</h5>
+          </label>
+
+          <ul>
+            {% for key, value in data.items() %}
+            <li>
+              <label class="{% if key | length > 30 %}long{% endif %}">
+                {% if value is mapping %}
+                <h5>{{ key }}</h5>
+                {% else %}
+                {{ key | replace("_", " ") }}:
+                {% endif %}
+              </label>
+              {% if value is mapping %}
+              <ul>
+                {% for subkey, subvalue in value.items() recursive %}
+                <li class="mapping"> <label class="{% if subkey | length > 30 %}long{% endif %}">
+                    {% if key == "history" and subkey | int %}
+                    <b>Submission {{ subkey }}</b>
+                    {% else %}
+                    {{ subkey | replace("_", " ") }}:
+                    {% endif %}
+                  </label>
+                  {% if subvalue is mapping %}
+                  <ul>
+                    {{- loop(subvalue.items()) }}
+                  </ul>
+                  {% else %}
+                  <span class="detail {% if subvalue == True %}true{% elif subvalue == False %}false{% endif %}">
+                    {% if subvalue != "" and (subvalue | string).startswith('http')  %}
+                    <a href="{{subvalue}}" target="_blank">{{subvalue | truncate(150, True, ' ...') }}</a>
+                    {% elif subvalue != "" and (subvalue | string).startswith('/upload/')  %}
+                    <a href="{{subvalue}}" target="_blank">download attachment</a>
+                    {% elif subvalue != "" %}
+                    {{subvalue}}
+                    {% else %}
+                    <i>empty</i>
+                    {% endif %}
+                  </span>
+                  {% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <span class="detail {% if value == True %}true{% elif value == False %}false{% endif %}">
+                {{ value }}
+              </span>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <span class="detail">
+            <i>no data</i>
+          </span>
+          {% endif %}
+
+        </li>
+      </ul>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}
