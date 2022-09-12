@@ -38,6 +38,8 @@ def admin_area():
     exercises_filter.extend({"id": exercise.exercise_name, "name": exercise.page_title} for exercise in exercises)
 
     results_table = construct_results_table(exercises, users)
+
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
 
 
@@ -57,8 +59,8 @@ def get_all_results():
 
         else:
             grouped_exercises[exercise.parent_page_title][exercise.page_title] = [exercise]
-    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
 
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("results_overview.html", exercises=grouped_exercises, **cfg.template)
 
 
