@@ -35,6 +35,11 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# DOCKER
+docker/learners/__data/data.db
+docker/learners/__templates/*
+docker/learners/__webroot/*
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
