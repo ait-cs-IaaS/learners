@@ -47,8 +47,8 @@ CyberRange
           <h4 class="results-form-title">{{ fieldset_title | safe  }}</h4>
 
             {% for label, value in form_data.items() %}
-              <span class="results-form-label">{{ label | safe  }}:</span>
-              <span class="results-form-answer">{{ value | safe  }}</span>
+              <span class="results-form-label">{{ label | safe  | replace("_", " ") }}</span>
+              <span class="results-form-answer">{{ value }}</span>
             {% endfor %}
         </li>
         {% endfor %}
