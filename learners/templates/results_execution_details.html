@@ -13,7 +13,7 @@ CyberRange
         {{ exercise | safe }}
       </h2>
       <span class="mb-4">
-        User: <strong>{{ user }}</strong> <br>
+        User: <strong>{{ user | safe  }}</strong> <br>
       </span>
 
       {% if data %}
@@ -41,80 +41,50 @@ CyberRange
 
       <h3>Submission</h3>
 
-      {% for form_title, form_data in data.form.items() %}
-      <h4>{{ form_title }}</h4>
-        {% for label, value in form_data.items() %}
-          <label class="wide">{{ label }}:</label> <br>
-          {{ value }}
+      <ul>
+        {% for fieldset_title, form_data in data.form.items() %}
+        <li>
+          <h4 class="results-form-title">{{ fieldset_title | safe  }}</h4>
+
+            {% for label, value in form_data.items() %}
+              <span class="results-form-label">{{ label | safe  }}:</span>
+              <span class="results-form-answer">{{ value | safe  }}</span>
+            {% endfor %}
+        </li>
         {% endfor %}
-      {% endfor %}
+      </ul>
 
 
-      {{ data }}
+      <hr>
 
+      <h3>History</h3>
 
       <ul>
-        </li>
-        <li><label>
-            <h5>Details</h5>
-          </label>
+        {% for id, submission in data.history.items() %}
+        <li>
+          <span>Executed on: </span> <span> {{ submission.start_time }} </span><br>
+          <span>Completed: </span> <span> {% if submission.completed == 1 %}
+            <div class="stat_indicator success inline-indicator">
+              <svg class="bi stat_icon" width="24" height="24" role="img">
+                <use xlink:href="#success"></use>
+              </svg>
+            </div>
 
-          <ul>
-            {% for key, value in data.items() %}
-            <li>
-              <label class="{% if key | length > 30 %}long{% endif %}">
-                {% if value is mapping %}
-                <h5>{{ key }}</h5>
-                {% else %}
-                {{ key | replace("_", " ") }}:
-                {% endif %}
-              </label>
-              {% if value is mapping %}
-              <ul>
-                {% for subkey, subvalue in value.items() recursive %}
-                <li class="mapping"> <label class="{% if subkey | length > 30 %}long{% endif %}">
-                    {% if key == "history" and subkey | int %}
-                    <b>Submission {{ subkey }}</b>
-                    {% else %}
-                    {{ subkey | replace("_", " ") }}:
-                    {% endif %}
-                  </label>
-                  {% if subvalue is mapping %}
-                  <ul>
-                    {{- loop(subvalue.items()) }}
-                  </ul>
-                  {% else %}
-                  <span class="detail {% if subvalue == True %}true{% elif subvalue == False %}false{% endif %}">
-                    {% if subvalue != "" and (subvalue | string).startswith('http')  %}
-                    <a href="{{subvalue}}" target="_blank">{{subvalue | truncate(150, True, ' ...') }}</a>
-                    {% elif subvalue != "" and (subvalue | string).startswith('/upload/')  %}
-                    <a href="{{subvalue}}" target="_blank">download attachment</a>
-                    {% elif subvalue != "" %}
-                    {{subvalue}}
-                    {% else %}
-                    <i>empty</i>
-                    {% endif %}
-                  </span>
-                  {% endif %}
-                </li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              <span class="detail {% if value == True %}true{% elif value == False %}false{% endif %}">
-                {{ value }}
-              </span>
-              {% endif %}
-            </li>
-            {% endfor %}
-          </ul>
+          {% elif submission.completed == -1 %}
+          <b class="no_value inline-indicator">-</b>
           {% else %}
-          <span class="detail">
-            <i>no data</i>
-          </span>
-          {% endif %}
 
+          <div class="stat_indicator failed inline-indicator">
+            <svg class="bi stat_icon" width="24" height="24" role="img">
+              <use xlink:href="#fail"></use>
+            </svg>
+          </div>
+          {% endif %} </span>
         </li>
+        {% endfor %}
       </ul>
+
+      {% endif %}
 
     </div>
 

@@ -52,12 +52,11 @@ def get_all_results():
         setattr(exercise, "completion_percentage", get_completion_percentage(exercise.id))
         if not grouped_exercises.get(exercise.parent_page_title):
             grouped_exercises[exercise.parent_page_title] = {exercise.page_title: [exercise]}
-        else:
-            if not grouped_exercises[exercise.parent_page_title].get(exercise.page_title):
-                grouped_exercises[exercise.parent_page_title][exercise.page_title] = [exercise]
-            else:
-                grouped_exercises[exercise.parent_page_title][exercise.page_title].append(exercise)
+        elif grouped_exercises[exercise.parent_page_title].get(exercise.page_title):
+            grouped_exercises[exercise.parent_page_title][exercise.page_title].append(exercise)
 
+        else:
+            grouped_exercises[exercise.parent_page_title][exercise.page_title] = [exercise]
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
 
     return render_template("results_overview.html", exercises=grouped_exercises, **cfg.template)
@@ -69,15 +68,8 @@ def get_single_result(global_exercise_id):
 
     exercise = get_exercise_by_global_exercise_id(global_exercise_id)
     setattr(exercise, "completion_percentage", get_completion_percentage(exercise.id))
-    print(exercise)
 
     results = get_results_of_single_exercise(global_exercise_id)
-    print(results)
-
-    for result in results:
-        print(result.name)
-        print(result.execution_timestamp)
-        print(result.completed)
 
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("results_single.html", exercise=exercise, results=results, **cfg.template)
@@ -106,4 +98,5 @@ def get_exercise_result(user_id, global_exercise_id):
 
     data["history"] = extract_history(executions) if executions else None
 
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("results_execution_details.html", user=user.name, exercise=exercise.exercise_name, data=data, **cfg.template)

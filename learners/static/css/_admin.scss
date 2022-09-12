@@ -378,7 +378,9 @@ $admin-text-color: $light-2 !default;
 
   a {
     font-size: 1.0em !important;
-    transition: background-color 300ms ease-in-out;
+    border: 1px solid #f6f6f6;
+    transition: background-color 500ms ease-in-out;
+    transition: border 200ms ease-in-out;
     display: block;
     padding: 0.5rem 0.8rem;
     border-radius: 4px;
@@ -392,7 +394,6 @@ $admin-text-color: $light-2 !default;
     &:hover {
       background-color: #ececec;
       border: 1px solid $dark-1;
-      margin: -1px;
     }
   }
 
@@ -424,4 +425,30 @@ $admin-text-color: $light-2 !default;
 .inline-indicator {
   display: inline-block;
   width: 20px;
+}
+
+.results-form-title {
+  font-weight: 700 !important;
+  display: block;
+  width: 100%;
+  padding-bottom: 0px;
+}
+
+.results-form-label {
+  font-weight: 400;
+  display: block;
+  width: 100%;
+}
+
+.results-form-answer {
+  font-weight: 400;
+  display: block;
+  width: 100%;background-color: #efefef;
+  border-left: 4px solid #dbdbdb;
+  padding: 5px 10px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-bottom: 24px;
 }
