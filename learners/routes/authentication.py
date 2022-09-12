@@ -34,7 +34,7 @@ def login():
     user_role = cfg.users.get(username).get("role")
 
     access_token = create_access_token(identity=username, additional_claims={"admin": admin, "role": user_role})
-    response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))
+    response = make_response(redirect("/result/all", 302)) if admin else make_response(redirect("/access", 302))
     response.set_cookie("access_token_cookie", value=access_token, secure=True, httponly=False)
 
     return response
