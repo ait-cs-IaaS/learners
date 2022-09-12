@@ -149,14 +149,21 @@ function newTab() {
 function toggleContent(href = null) {
     // anker is either given in 'href' parameter or in the url address,
     // if not the fallback '#docs' is used
-    let anker = href
-        ? `#${href.split("#")[1]}`
-        : $(location).attr("hash") || "#docs";
+    let baseurl = $(location).attr("pathname");
+    let anker = ""
+    if (baseurl == "/access") {
+        anker = href
+            ? `#${href.split("#")[1]}`
+            : $(location).attr("hash") || "#docs";
+    }
 
     // toggle menu active
-    let baseurl = $(location).attr("pathname");
     $("nav a").removeClass("active");
-    $(`nav a[href="${baseurl}${anker}"]`).addClass("active");
+    if (anker) {
+        $(`nav a[href="${baseurl}${anker}"]`).addClass("active");
+    } else {
+        $(`nav a[href^="/${baseurl.split("/")[1]}"]`).addClass("active");
+    }
 
     // toggle content
     $(".pager").addClass("hideContent").removeClass("visibleContent");
