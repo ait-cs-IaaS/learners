@@ -8,7 +8,7 @@
 @import '_chat.scss';
 @import '_admin.scss';
 
-$branding_primary: #0072bc !default;
+$primary: #0072bc !default;
 $menu_inactive: #66aad7 !default;
 $menu_active: #ffffff !default;
 
@@ -23,7 +23,7 @@ $menu_active: #ffffff !default;
 }
 
 #navigation {
-    background-color: $branding_primary;
+    background-color: $primary;
 
     a.p-3 {
         padding: 1.2rem 0.4rem !important;
@@ -42,7 +42,7 @@ $menu_active: #ffffff !default;
           display: inline-block;
           line-height: 0px;
           border-radius: 50%;
-          outline: 2px solid $branding_primary;
+          outline: 2px solid $primary;
           background-color: $menu_inactive;
           height: 15px;
           width: 15px;
@@ -57,7 +57,7 @@ $menu_active: #ffffff !default;
           padding-top: 48%;
           padding-bottom: 50%;
           font-weight: 900;
-          color: $branding_primary;
+          color: $primary;
           font-size: 10px;
           transition: all 400ms;
         }
@@ -72,19 +72,19 @@ $menu_active: #ffffff !default;
         }
 
         &:hover {
-          background-color: $branding_primary;
+          background-color: $primary;
 
           .nav-link svg {
             fill: $menu_active;
           }
 
           .client_index {
-            color: $branding_primary;
+            color: $primary;
             background-color: $menu_active;
-            outline: 2px solid $branding_primary;
+            outline: 2px solid $primary;
 
             & span {
-              color: $branding_primary;
+              color: $primary;
             }
           }
         }
@@ -120,7 +120,7 @@ input:hover, select:hover, textarea:hover {
 }
 
 .heading_highlight {
-    color: $branding_primary;
+    color: $primary;
   }
 
 #branding-container {
