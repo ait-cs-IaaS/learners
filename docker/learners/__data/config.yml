@@ -1,5 +1,5 @@
 learners:
-  theme: "dark"
+  theme: "iaea"
 
 jwt:
   jwt_secret_key: "53CR3T"
