@@ -16,7 +16,8 @@ statics:
   directory: "static"
   serve_mode: "role"
 
-# exercise_json: "/tmp/config.json"
+# exercise_json: "/opt/learners/webroot/hugo/exercises.json"
+# questionaire_json: "/opt/learners/webroot/hugo/questionaires.json"
 
 serve_documentation: True
 serve_exercises: True
