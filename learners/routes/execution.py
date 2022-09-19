@@ -11,6 +11,7 @@ from learners.functions.database import (
     get_completed_state,
     get_current_executions,
     get_exercise_by_global_exercise_id,
+    db_create_questionaire_execution,
     get_exercise_by_name,
     get_exercise_groups,
     get_exercises_by_group,
@@ -150,3 +151,18 @@ def upload_file():
 @jwt_required()
 def download_file(name):
     return send_from_directory(cfg.upload_folder, name)
+
+
+@execution_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
+@jwt_required(locations="headers")
+def submit_questionaire(global_questionaire_id):
+
+    username = get_jwt_identity()
+    response = {"executed": False}
+
+    answers = request.get_json()
+
+    if db_create_questionaire_execution(global_questionaire_id, answers, username):
+        response["executed"] = True
+
+    return jsonify(response)
