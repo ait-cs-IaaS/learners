@@ -16,6 +16,10 @@ def main():
 
         init_jwt(app)
 
+        from flask_cors import CORS
+
+        CORS(app)
+
     import learners.routes as routes
 
     app.register_blueprint(routes.home_api)
