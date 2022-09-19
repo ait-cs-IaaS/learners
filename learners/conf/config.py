@@ -51,6 +51,8 @@ class Configuration:
         self.serve_presentations = learners_config.get("serve_presentations")
         self.serve_exercises = learners_config.get("serve_exercises")
         self.exercise_json = learners_config.get("exercise_json")
+        self.questionaire_json = learners_config.get("questionaire_json")
+        self.questionaires_questions_json = learners_config.get("questionaires_questions_json")
         self.staticsites = learners_config.get("staticsites") or []
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
