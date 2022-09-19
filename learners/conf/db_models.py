@@ -63,12 +63,11 @@ class Comment(db.Model):
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
-# ---> Exercise
 class Questionaire(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String(), nullable=False)
-    global_question_id = db.Column(db.String(120), nullable=False)
-    local_exercise_id = db.Column(db.Integer, nullable=False)
+    global_questionaire_id = db.Column(db.String(120), nullable=False)
+    local_questionaire_id = db.Column(db.Integer, nullable=False)
+    questionaire_name = db.Column(db.String(120), nullable=False)
     page_title = db.Column(db.String(120), nullable=False)
     parent_page_title = db.Column(db.String(120), nullable=False)
     root_weight = db.Column(db.Integer, nullable=False)
@@ -77,14 +76,22 @@ class Questionaire(db.Model):
     order_weight = db.Column(db.Integer, nullable=False)
 
 
-# ---> Questions ???
-# ---> Answers
-class QuestionaireAnswer(db.Model):
+class QuestionaireQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    a = db.Column(db.Integer(), default=0, nullable=False)
-    b = db.Column(db.Integer(), default=0, nullable=False)
-    c = db.Column(db.Integer(), default=0, nullable=False)
-    d = db.Column(db.Integer(), default=0, nullable=False)
-    e = db.Column(db.Integer(), default=0, nullable=False)
+    global_question_id = db.Column(db.String(120), nullable=False)
+    local_question_id = db.Column(db.Integer, nullable=False)
+    question = db.Column(db.String(), nullable=False)
+    options = db.Column(db.String(), nullable=False)
+    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), nullable=False)
+
+
+class QuestionaireAnswer(db.Model):
+    class Meta:
+        include_relationships = True
+        load_instance = True
+
+    id = db.Column(db.Integer, primary_key=True)
+    answer = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("Questionaire.id"), nullable=False)
+    global_question_id = db.Column(db.Integer, db.ForeignKey("questionaire_question.global_question_id"), nullable=False)
+    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), nullable=False)
