@@ -80,6 +80,8 @@ config_schema = Map(
         Optional("serve_documentation", default=True): Bool(),
         Optional("serve_presentations", default=False): Bool(),
         Optional("serve_exercises", default=True): Bool(),
-        Optional("exercise_json", default="static/hugo/base/en/index.json"): Str(),
+        Optional("exercise_json", default="static/hugo/exercises.json"): Str(),
+        Optional("questionaire_json", default="static/hugo/questionaires.json"): Str(),
+        Optional("questionaires_questions_json", default="static/hugo/questionaires_questions.json"): Str(),
     }
 )
