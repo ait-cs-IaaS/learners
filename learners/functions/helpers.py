@@ -16,43 +16,24 @@ def utc_to_local(utc_datetime: str, date: bool = True) -> str:
     return (utc_datetime + offset).strftime("%m/%d/%Y, %H:%M:%S") if date else (utc_datetime + offset).strftime("%H:%M:%S")
 
 
-def extract_exercises(app) -> list:
-    exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all", "parent": None}]
+def extract_json_content(app, json_file_path, info="") -> list:
+    gen_list = []
 
-    if (cfg.exercise_json).startswith("/"):
-        exercise_json = cfg.exercise_json
+    if (json_file_path).startswith("/"):
+        json_file = json_file_path
     else:
-        exercise_json = os.path.join(app.root_path, cfg.exercise_json)
+        json_file = os.path.join(app.root_path, json_file_path)
 
     try:
-        with open(exercise_json, "r") as input_file:
-            exercise_data = json.load(input_file)
-
-            for exercise in exercise_data:
-                exercises.extend(exerciseDict for _, exerciseDict in exercise.items())
+        with open(json_file, "r") as input_file:
+            json_data = json.load(input_file)
+            gen_list.extend(element for _, element in json_data.items())
 
     except Exception:
-        err = f"\n\tERROR: Could not read exercise in file: {cfg.exercise_json}.\n"
-        err += """
-        Make sure, the file exists and contains the exercise information in the following JSON format:
-        [{
-            "c9e632fe3aaac273a0eac6f8963b7b41": {
-            "child_weight": 4,
-            "exercise_name": "sample exercise",
-            "exercise_type": "form",
-            "global_exercise_id": "c9e632fe3aaac273a0eac6f8963b7b41",
-            "local_exercise_id": 1,
-            "order_weight": 7141,
-            "page_title": "title of page containing the exercise",
-            "parent_page_title": "chapter title",
-            "parent_weight": 1,
-            "root_weight": 7
-            }
-        }]
-        """
+        err = f"\n\tERROR: Could not read JSON file: {json_file}.\n{info}"
         logger.warning(err)
 
-    return exercises
+    return gen_list
 
 
 def extract_history(executions):

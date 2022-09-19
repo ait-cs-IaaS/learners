@@ -4,12 +4,13 @@ from datetime import datetime, timezone
 from sqlite3 import IntegrityError
 from typing import Tuple
 
-from learners.logger import logger
+from learners.logger import logger, EXERCISE_INFO
 from learners.conf.config import cfg
-from learners.conf.db_models import Attachment, Execution, Exercise, User, Comment
+from learners.conf.db_models import Attachment, Execution, Exercise, User, Comment, Questionaire, QuestionaireQuestion, QuestionaireAnswer
 from learners.database import db
-from learners.functions.helpers import extract_exercises
+from learners.functions.helpers import extract_json_content
 from sqlalchemy import event, nullsfirst
+from sqlalchemy.orm import joinedload
 
 from flask import escape, jsonify
 
@@ -21,17 +22,28 @@ def insert_initial_users(*args, **kwargs):
 
 
 def insert_exercises(app, *args, **kwargs):
-    exercises = extract_exercises(app)
-    for exercise in exercises[1:]:
+    exercises = extract_json_content(app, cfg.exercise_json, EXERCISE_INFO)
+    for exercise in exercises:
         db_create_or_update(Exercise, "global_exercise_id", exercise)
 
 
-def db_create_or_update(db_model, filter_key: str = None, passed_element: dict = None) -> bool:
+def insert_questionaires(app, *args, **kwargs):
+    questionaires = extract_json_content(app, cfg.questionaire_json)
+    for questionaire in questionaires:
+        db_create_or_update(Questionaire, "global_questionaire_id", questionaire)
+
+    questions = extract_json_content(app, cfg.questionaires_questions_json)
+    for question in questions:
+        db_create_or_update(QuestionaireQuestion, "global_question_id", question)
+
+
+def db_create_or_update(db_model, filter_keys: str = None, passed_element: dict = None) -> bool:
     # check if element already exists
     try:
         session = db.session.query(db_model)
-        kwargs = {filter_key: passed_element[filter_key]}
-        session = session.filter_by(**kwargs)
+        for filter_key in filter_keys.split("+"):
+            kwargs = {filter_key.strip(): passed_element[filter_key.strip()]}
+            session = session.filter_by(**kwargs)
         current_db_entry = session.first()
     except Exception as e:
         logger.exception(e)
@@ -97,6 +109,25 @@ def db_create_execution(exercise_type: str, data: dict, username: str, execution
 
         db.session.add(execution)
         db.session.commit()
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+def db_create_questionaire_execution(global_questionaire_id: str, answers: dict, username: str) -> bool:
+
+    try:
+        user_id = get_user_by_name(username).id
+        for global_question_id, answer in answers.items():
+            new_answer = {
+                "user_id": user_id,
+                "answer": answer,
+                "global_question_id": global_question_id,
+                "global_questionaire_id": global_questionaire_id,
+            }
+            db_create_or_update(QuestionaireAnswer, "user_id + global_question_id", new_answer)
         return True
 
     except Exception as e:
@@ -246,8 +277,7 @@ def db_create_file(filename: str, username: str) -> str:
 
 def get_filename_from_hash(filename_hash):
     try:
-        session = db.session.query(Attachment).filter_by(filename_hash=filename_hash).first()
-        return session.filename
+        return db.session.query(Attachment).filter_by(filename_hash=filename_hash).first()
     except Exception as e:
         logger.exception(e)
         return None
@@ -255,8 +285,7 @@ def get_filename_from_hash(filename_hash):
 
 def get_all_exercises_sorted() -> list:
     try:
-        sorted_exercises = db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
-        return sorted_exercises
+        return db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
     except Exception as e:
         logger.exception(e)
         return None
@@ -284,7 +313,7 @@ def get_completion_percentage(exercise_id):
 
 def get_results_of_single_exercise(global_exercise_id):
     try:
-        executions = (
+        return (
             db.session.query(Execution)
             .join(Exercise)
             .filter_by(global_exercise_id=global_exercise_id)
@@ -296,7 +325,6 @@ def get_results_of_single_exercise(global_exercise_id):
             )
             .all()
         )
-        return executions
 
     except Exception as e:
         logger.exception(e)
