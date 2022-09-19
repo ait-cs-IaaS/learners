@@ -27,13 +27,6 @@ class Execution(db.Model):
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.String(), nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
-
-
 class Attachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(120), nullable=False)
@@ -61,3 +54,37 @@ class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    comment = db.Column(db.String(), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+
+
+# ---> Exercise
+class Questionaire(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.String(), nullable=False)
+    global_question_id = db.Column(db.String(120), nullable=False)
+    local_exercise_id = db.Column(db.Integer, nullable=False)
+    page_title = db.Column(db.String(120), nullable=False)
+    parent_page_title = db.Column(db.String(120), nullable=False)
+    root_weight = db.Column(db.Integer, nullable=False)
+    parent_weight = db.Column(db.Integer, nullable=False)
+    child_weight = db.Column(db.Integer, nullable=False)
+    order_weight = db.Column(db.Integer, nullable=False)
+
+
+# ---> Questions ???
+# ---> Answers
+class QuestionaireAnswer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    a = db.Column(db.Integer(), default=0, nullable=False)
+    b = db.Column(db.Integer(), default=0, nullable=False)
+    c = db.Column(db.Integer(), default=0, nullable=False)
+    d = db.Column(db.Integer(), default=0, nullable=False)
+    e = db.Column(db.Integer(), default=0, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey("Questionaire.id"), nullable=False)
