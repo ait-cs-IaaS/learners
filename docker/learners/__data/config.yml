@@ -18,6 +18,7 @@ statics:
 
 exercise_json: "/opt/learners/webroot/hugo/exercises.json"
 questionaire_json: "/opt/learners/webroot/hugo/questionaires.json"
+questionaires_questions_json: "/opt/learners/webroot/hugo/questionaires_questions.json"
 
 serve_documentation: True
 serve_exercises: True
