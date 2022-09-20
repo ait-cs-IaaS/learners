@@ -48,25 +48,10 @@ users:
   test:
     password: test
     role: instructor
-    vnc_clients:
-      soc_client:
-        target: placeholder_1
-        tooltip: "SOC client"
-        username: csirt1
-        password: placeholder
-      pps_client:
-        target: placeholder_3
-        tooltip: "PPS client"
-        username: csirt3
-        password: placeholder
-  ben:
-    password: ben
-    vnc_clients:
-      soc_client:
-        target: placeholder_2
-        tooltip: "SOC client"
-        username: csirt2
-        password: placeholder
+  user1:
+    password: user1
+  user2:
+    password: user2
   admin:
     password: admin
     admin: True
