@@ -2,6 +2,7 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from sqlite3 import IntegrityError
+import string
 from typing import Tuple
 
 from learners.logger import logger, EXERCISE_INFO
@@ -177,6 +178,23 @@ def get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
     return generic_getter(Exercise, "global_exercise_id", global_exercise_id)
 
 
+def get_questionaire_by_global_questionaire_id(global_questionaire_id: str) -> dict:
+    return generic_getter(Questionaire, "global_questionaire_id", global_questionaire_id)
+
+
+def get_all_questionaires_questions(global_questionaire_id: str) -> dict:
+    try:
+        return (
+            db.session.query(QuestionaireQuestion)
+            .filter_by(global_questionaire_id=global_questionaire_id)
+            .order_by(QuestionaireQuestion.local_question_id.asc())
+            .all()
+        )
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
 def get_exercise_by_id(id: int) -> dict:
     return generic_getter(Exercise, "id", id)
 
@@ -291,6 +309,14 @@ def get_all_exercises_sorted() -> list:
         return None
 
 
+def get_all_questionaires_sorted() -> list:
+    try:
+        return db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
 def get_completion_percentage(exercise_id):
 
     users = get_all_users()
@@ -305,6 +331,21 @@ def get_completion_percentage(exercise_id):
             .all()
         )
         return len(executions) / len(users) * 100
+
+    except Exception as e:
+        logger.exception(e)
+        return 0
+
+
+def get_questionaire_completion_percentage(global_questionaire_id):
+
+    users = get_all_users()
+
+    try:
+        answers = (
+            db.session.query(QuestionaireAnswer).filter_by(global_questionaire_id=global_questionaire_id).join(User).group_by(User.id).all()
+        )
+        return len(answers) / len(users) * 100
 
     except Exception as e:
         logger.exception(e)
@@ -329,3 +370,23 @@ def get_results_of_single_exercise(global_exercise_id):
     except Exception as e:
         logger.exception(e)
         return 0
+
+
+def get_question_counts(global_question_id):
+    try:
+        options = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first().options
+        labels = [option.strip() for option in (options).split(";")]
+        counts = []
+
+        for label in labels:
+            counts.append(
+                db.session.query(QuestionaireAnswer).filter_by(answer=label).filter_by(global_question_id=global_question_id).count()
+            )
+
+        prepended_labels = [f"{alpha}. {label}" for (label, alpha) in zip(labels, list(string.ascii_uppercase))]
+
+        return prepended_labels, counts
+
+    except Exception as e:
+        logger.exception(e)
+        return [""], [0]
