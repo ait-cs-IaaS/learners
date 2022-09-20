@@ -121,7 +121,7 @@ def db_create_questionaire_execution(global_questionaire_id: str, answers: dict,
 
     try:
         user = get_user_by_name(username)
-        if not user.role is "participant":
+        if user.role != "participant":
             return False
 
         for global_question_id, answer in answers.items():
