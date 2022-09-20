@@ -6,13 +6,17 @@ from learners.conf.config import cfg
 from learners.functions.database import (
     get_all_exercises,
     get_all_exercises_sorted,
+    get_all_questionaires_sorted,
     get_all_users,
     get_executions_by_user_exercise,
-    get_exercise_by_name,
     get_user_by_id,
     get_completion_percentage,
+    get_questionaire_completion_percentage,
     get_exercise_by_global_exercise_id,
     get_results_of_single_exercise,
+    get_questionaire_by_global_questionaire_id,
+    get_all_questionaires_questions,
+    get_question_counts,
 )
 from learners.functions.helpers import extract_history, replace_attachhment_with_url, build_urls
 from learners.functions.results import construct_results_table
@@ -102,3 +106,40 @@ def get_exercise_result(user_id, global_exercise_id):
 
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("results_execution_details.html", user=user.name, exercise=exercise.exercise_name, data=data, **cfg.template)
+
+
+@admin_api.route("/questionaire/all", methods=["GET"])
+@admin_required()
+def get_all_questionaires():
+
+    grouped_questionaires = {}
+    sorted_questionaires = get_all_questionaires_sorted()
+
+    for questionaire in sorted_questionaires:
+        setattr(questionaire, "completion_percentage", get_questionaire_completion_percentage(questionaire.global_questionaire_id))
+
+        if not grouped_questionaires.get(questionaire.parent_page_title):
+            grouped_questionaires[questionaire.parent_page_title] = [questionaire]
+        else:
+            grouped_questionaires[questionaire.parent_page_title].append(questionaire)
+
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
+    return render_template("questionaires_overview.html", questionaires=grouped_questionaires, **cfg.template)
+
+
+@admin_api.route("/questionaire/<global_questionaire_id>", methods=["GET"])
+@admin_required()
+def get_single_questionaire(global_questionaire_id):
+
+    # questionaire = get_exercise_by_global_exercise_id(global_questionaire_id)
+    questionaire = get_questionaire_by_global_questionaire_id(global_questionaire_id)
+    setattr(questionaire, "completion_percentage", get_questionaire_completion_percentage(questionaire.global_questionaire_id))
+    questions = get_all_questionaires_questions(global_questionaire_id)
+
+    for question in questions:
+        labels, counts = get_question_counts(question.global_question_id)
+        setattr(question, "labels", labels)
+        setattr(question, "counts", counts)
+
+    cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
+    return render_template("questionaires_single.html", questionaire=questionaire, questions=questions, **cfg.template)
