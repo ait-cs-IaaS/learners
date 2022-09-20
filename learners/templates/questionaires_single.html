@@ -18,8 +18,6 @@ CyberRange
         {{ '%0.2f' % questionaire.completion_percentage | float }} %
       </span>
 
-      <hr>
-
       {% set backgroundColors = [
         '#f45c2c',
         '#ecca72',
@@ -30,6 +28,7 @@ CyberRange
       ] %}
 
       {% for question in questions %}
+        <hr>
           <h3>
             {{ question.question }}
           </h3>

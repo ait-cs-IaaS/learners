@@ -24,11 +24,11 @@
             {% include "partials/tab.html" %}
           {% endwith %}
 
-          {% with href="/questionaire/all", tooltip="Questionaire", icon="icon_doc" %}
+          {% with href="/questionaire/all", tooltip="Questionaire", icon="icon_charts" %}
             {% include "partials/tab.html" %}
           {% endwith %}
 
-          {% with href="/comments", tooltip="Comments", icon="chat" %}
+          {% with href="/comments", tooltip="Comments", icon="icon_chat" %}
             {% include "partials/tab.html" %}
           {% endwith %}
         {% endif %}
@@ -40,13 +40,13 @@
         {% endif %}
 
         {% if url_exercises %}
-          {% with href="/access#exercises", tooltip="Exercises", icon="play" %}
+          {% with href="/access#exercises", tooltip="Exercises", icon="icon_play" %}
             {% include "partials/tab.html" %}
           {% endwith %}
         {% endif %}
 
         {% if url_presentations %}
-          {% with href="/access#presentations", tooltip="Presentations", icon="slides" %}
+          {% with href="/access#presentations", tooltip="Presentations", icon="icon_slides" %}
             {% include "partials/tab.html" %}
           {% endwith %}
         {% endif %}
@@ -63,7 +63,7 @@
               <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
                 data-bs-original-title="{{ client_info.tooltip }}">
                 <svg class="bi" width="22" height="22" role="img">
-                  <use xlink:href="#vnc"></use>
+                  <use xlink:href="#icon_vnc"></use>
                 </svg>
                 {% if vnc_clients | length > 1 %}
                   <div class="client_index">
@@ -85,7 +85,7 @@
       <a id="menu-newtab" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
         data-bs-original-title="Open current view in new tab">
         <svg class="bi" width="24" height="24" role="img">
-          <use xlink:href="#newtab"></use>
+          <use xlink:href="#icon_newtab"></use>
         </svg>
       </a>
     </div>
@@ -96,7 +96,7 @@
       <span href="#" id="menu-chat" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
         data-bs-original-title="Support Chat">
         <svg class="bi" width="21" height="21" role="img">
-          <use xlink:href="#chat"></use>
+          <use xlink:href="#icon_chat"></use>
         </svg>
       </span>
     </div>
