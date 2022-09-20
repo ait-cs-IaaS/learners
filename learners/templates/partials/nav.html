@@ -24,6 +24,10 @@
             {% include "partials/tab.html" %}
           {% endwith %}
 
+          {% with href="/questionaire/all", tooltip="Questionaire", icon="icon_doc" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
+
           {% with href="/comments", tooltip="Comments", icon="chat" %}
             {% include "partials/tab.html" %}
           {% endwith %}
