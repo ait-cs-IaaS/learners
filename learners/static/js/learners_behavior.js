@@ -1,6 +1,17 @@
 var noVNC_clients = {};
 
 $(function () {
+    $.each($(".graphs"), function () {
+        console.log($(this)[0])
+        let g = $(this)[0]
+        let labels = $(g).attr("labels").split("; ")
+        let counts = $(g).attr("counts").split("; ")
+        let backgroundColors = $(g).attr("backgroundColors").split("; ")
+        console.log(labels)
+        console.log(counts)
+        buildChart(g.getContext('2d'), labels, counts, backgroundColors);
+    });
+
     $.each($(".novnc_client"), function () {
         key = $(this).attr("id");
         value = $(this).attr("src");
@@ -224,4 +235,40 @@ function reinitFrame(id, resumePage) {
     iframe.attr("src", noVNC_clients[id]);
     iframe.addClass("visibleContent").removeClass("hideContent");
     resumePage.remove();
+}
+
+
+function buildChart(ctx, labels, counts, backgroundColors) {
+    console.log(ctx)
+    console.log("labels: ", labels)
+    console.log("counts: ", counts)
+    console.log("backgroundColors: ", backgroundColors)
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            data: counts,
+            backgroundColor: backgroundColors,
+            borderWidth: 0
+        }]
+    };
+
+    console.log(data)
+
+    const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 30
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 }

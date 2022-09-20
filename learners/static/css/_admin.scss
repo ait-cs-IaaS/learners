@@ -454,3 +454,28 @@ $admin-text-color: $light-2 !default;
   border-top-right-radius: 4px;
   margin-bottom: 24px;
 }
+
+.chart-wrapper {
+  height: 40vw;
+  min-height: 200px;
+  max-height: 400px;
+  width: 100%;
+  margin-bottom: 10vh;
+}
+
+ul.legend {
+  list-style: none;
+}
+
+ul.legend li {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.legend-color {
+  display: inline-block;
+  height: 20px;
+  width: 20px;
+  margin-bottom: -3px;
+  margin-right: 10px;
+}
