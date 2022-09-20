@@ -69,8 +69,13 @@ def build_config(app):
 
     if os.getenv("REMOVE_DB"):
         logger.warning(" ****** REMOVE_DB is set. Deleting DB file ****** ")
+
+        db_path = (cfg.db_uri).split("sqlite:///")[1]
+        if not (db_path).startswith("/"):
+            db_path = os.path.join(app.root_path, db_path)
+
         with contextlib.suppress(Exception):
-            os.remove(os.path.join(os.getcwd(), "learners", cfg.db_uri))
+            os.remove(db_path)
 
 
 def config_app(app):
