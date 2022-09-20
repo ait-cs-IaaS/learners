@@ -158,11 +158,16 @@ def download_file(name):
 def submit_questionaire(global_questionaire_id):
 
     username = get_jwt_identity()
-    response = {"executed": False}
+    response = {"executed": True, "completed": False}
 
     answers = request.get_json()
 
     if db_create_questionaire_execution(global_questionaire_id, answers, username):
-        response["executed"] = True
+        response["completed"] = True
+    else:
+        if get_user_by_name(username).role is "participant":
+            response["msg"] = "Database error"
+        else:
+            response["msg"] = "User not permitted"
 
     return jsonify(response)

@@ -120,10 +120,13 @@ def db_create_execution(exercise_type: str, data: dict, username: str, execution
 def db_create_questionaire_execution(global_questionaire_id: str, answers: dict, username: str) -> bool:
 
     try:
-        user_id = get_user_by_name(username).id
+        user = get_user_by_name(username)
+        if not user.role is "participant":
+            return False
+
         for global_question_id, answer in answers.items():
             new_answer = {
-                "user_id": user_id,
+                "user_id": user.id,
                 "answer": answer,
                 "global_question_id": global_question_id,
                 "global_questionaire_id": global_questionaire_id,
@@ -208,7 +211,7 @@ def get_user_by_id(id: int) -> dict:
 
 
 def get_all_users() -> list:
-    return generic_getter(User, all=True)
+    return generic_getter(User, "role", "participant", all=True)
 
 
 def get_all_exercises() -> list:
@@ -240,11 +243,10 @@ def get_exercises_by_group(parent_page_title: str) -> list:
 def generic_getter(db_model, filter_key: str = None, filter_value: str = None, all: bool = False) -> dict:
     try:
         session = db.session.query(db_model)
-        if not all:
+        if filter_key and filter_value:
             kwargs = {filter_key: filter_value}
             session = session.filter_by(**kwargs)
-            return session.first()
-        return session.all()
+        return session.first() if not all else session.all()
     except Exception as e:
         logger.exception(e)
         return None
