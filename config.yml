@@ -18,6 +18,7 @@ statics:
 
 exercise_json: "static/hugo/exercises.json"
 questionaire_json: "static/hugo/questionaires.json"
+questionaires_questions_json: "static/hugo/questionaires_questions.json"
 
 serve_documentation: True
 serve_exercises: True
@@ -47,25 +48,25 @@ users:
   test:
     password: test
     role: instructor
-    vnc_clients:
-      soc_client:
-        target: placeholder_1
-        tooltip: "SOC client"
-        username: csirt1
-        password: placeholder
-      pps_client:
-        target: placeholder_3
-        tooltip: "PPS client"
-        username: csirt3
-        password: placeholder
+    # vnc_clients:
+    #   soc_client:
+    #     target: placeholder_1
+    #     tooltip: "SOC client"
+    #     username: csirt1
+    #     password: placeholder
+    #   pps_client:
+    #     target: placeholder_3
+    #     tooltip: "PPS client"
+    #     username: csirt3
+    #     password: placeholder
   ben:
     password: ben
-    vnc_clients:
-      soc_client:
-        target: placeholder_2
-        tooltip: "SOC client"
-        username: csirt2
-        password: placeholder
+    # vnc_clients:
+    #   soc_client:
+    #     target: placeholder_2
+    #     tooltip: "SOC client"
+    #     username: csirt2
+    #     password: placeholder
   admin:
     password: admin
     admin: True
