@@ -17,11 +17,9 @@ services:
 #   image: ghcr.io/ait-cs-iaas/learners
     build:
       context: ./learners
-      dockerfile: ./Dockerfile
+      dockerfile: ../Containerfile
       args:
-        LEARNERS_VERSION: ${LEARNERS_VERSION:-0.5.2}
         LEARNERS_BRANCH: ${LEARNERS_BRANCH:-master}
-        LEARNERS_CONFIG: ${LEARNERS_CONFIG:-/opt/learners/data/config.yml}
     container_name: learners
     restart: always
     ports:
@@ -30,12 +28,12 @@ services:
     #   - REMOVE_DB=${REMOVE_DB:-False}
     volumes:
       - type: bind
-        source: ./learners/__webroot
+        source: ./learners/webroot
         target: /opt/learners/webroot
       - type: bind
-        source: ./learners/__data
+        source: ./learners/data
         target: /opt/learners/data
 
-      - ./learners/__templates/theme_iaea.scss:/opt/learners/.local/lib/python3.10/site-packages/learners/static/css/theme_iaea.scss
-      - ./learners/__templates/logo.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/partials/logo.html
-      - ./learners/__templates/login.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/login.html
+      - ./learners/templates/theme_iaea.scss:/opt/learners/.local/lib/python3.10/site-packages/learners/static/css/theme_iaea.scss
+      - ./learners/templates/logo.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/partials/logo.html
+      - ./learners/templates/login.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/login.html

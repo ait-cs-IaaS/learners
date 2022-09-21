@@ -15,15 +15,14 @@ RUN [ -z $LEARNERS_BRANCH ] &&\
 
 WORKDIR /opt/learners/
 
-RUN mkdir -p webroot/uploads webroot/exercises webroot/documentation data &&\
-    ln -s /opt/learners/.local/lib/python3.10/site-packages/learners/static webroot/static
+RUN mkdir -p webroot/uploads data &&\
+    ln -s /opt/learners/.local/lib/python3.10/site-packages/learners/templates webroot/templates
 
-ENV LEARNERS_CONFIG=/opt/learners/data/learners_config.yml
+ENV LEARNERS_CONFIG=/opt/learners/data/config.yml
 
-VOLUME ["/opt/learners/webroot/exercises",\
-        "/opt/learners/webroot/documentation",\
-        "/opt/learners/data/"\
-       ]
+VOLUME ["/opt/learners/webroot",\
+        "/opt/learners/data/",\
+        "/opt/learners/templates"]
 
 EXPOSE ${LEARNERS_PORT:-8080}
 
