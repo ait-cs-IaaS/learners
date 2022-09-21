@@ -14,12 +14,13 @@ services:
       - 8080:8080
     # environment:
     #   - REMOVE_DB=${REMOVE_DB:-False}
-    volumes:
-      - type: bind
-        source: ./learners/webroot
-        target: /opt/learners/webroot
-      - type: bind
-        source: ./learners/data
-        target: /opt/learners/data
-      #- ./learners/templates/logo.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/partials/logo.html
-      #- ./learners/templates/login.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/login.html
+    # volumes:
+    #   - type: bind
+    #     source: ./learners/webroot
+    #     target: /opt/learners/webroot
+    #   - type: bind
+    #     source: ./learners/data
+    #     target: /opt/learners/data
+    #   - ./learners/templates/theme_iaea.scss:/opt/learners/.local/lib/python3.10/site-packages/learners/static/css/theme_iaea.scss
+    #   - ./learners/templates/logo.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/partials/logo.html
+    #   - ./learners/templates/login.html:/opt/learners/.local/lib/python3.10/site-packages/learners/templates/login.html
