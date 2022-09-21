@@ -60,7 +60,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.String(), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+    global_exercise_id = db.Column(db.String(), db.ForeignKey("exercise.global_exercise_id"), nullable=False)
 
 
 class Questionaire(db.Model):

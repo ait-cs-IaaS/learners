@@ -141,16 +141,11 @@ def db_create_questionaire_execution(global_questionaire_id: str, answers: dict,
 
 def db_create_comment(data: dict, username: str) -> bool:
 
-    exercise_name = data.get("exercise_name")
-
     try:
-        exercise_id = Exercise.query.filter_by(name=exercise_name).first().id
-        user_id = User.query.filter_by(name=username).first().id
-
         comment = Comment(
             comment=escape(data.get("comment")),
-            user_id=user_id,
-            exercise_id=exercise_id,
+            user_id=User.query.filter_by(name=username).first().id,
+            global_exercise_id=data.get("global_exercise_id"),
         )
 
         db.session.add(comment)
@@ -246,7 +241,7 @@ def generic_getter(db_model, filter_key: str = None, filter_value: str = None, a
         if filter_key and filter_value:
             kwargs = {filter_key: filter_value}
             session = session.filter_by(**kwargs)
-        return session.first() if not all else session.all()
+        return session.all() if all else session.first()
     except Exception as e:
         logger.exception(e)
         return None
