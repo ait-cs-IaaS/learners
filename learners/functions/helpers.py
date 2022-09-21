@@ -1,10 +1,10 @@
 import json
 import os
-import pathlib
 import time
 from datetime import datetime
+from learners.logger import logger
+from flask import url_for
 
-from bs4 import BeautifulSoup
 from learners.conf.config import cfg
 
 
@@ -16,34 +16,24 @@ def utc_to_local(utc_datetime: str, date: bool = True) -> str:
     return (utc_datetime + offset).strftime("%m/%d/%Y, %H:%M:%S") if date else (utc_datetime + offset).strftime("%H:%M:%S")
 
 
-def extract_exercises() -> list:
-    exercises = [{"id": "all", "type": "all", "exerciseWeight": 0, "parentWeight": "0", "name": "all", "parent": None}]
+def extract_json_content(app, json_file_path, info="") -> list:
+    gen_list = []
 
-    if cfg.exercises.get("directory").startswith("/"):
-        root_directory = f"{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
+    if (json_file_path).startswith("/"):
+        json_file = json_file_path
     else:
-        root_directory = f"./learners/{cfg.exercises.get('directory')}/{list(cfg.users.keys())[0]}/en/"
+        json_file = os.path.join(app.root_path, json_file_path)
 
-    for path, subdirs, files in os.walk(root_directory):
-        for file in files:
-            if file.endswith(".html"):
-                f = open(pathlib.PurePath(path, file), "r")
-                parsed_html = BeautifulSoup(f.read(), features="html.parser")
-                exerciseInfos = parsed_html.body.find_all("input", attrs={"class": "exercise-info"})
-                for exerciseInfo in exerciseInfos:
-                    exerciseDict = json.loads(exerciseInfo.get("value"))
-                    exercises.append(exerciseDict)
+    try:
+        with open(json_file, "r") as input_file:
+            json_data = json.load(input_file)
+            gen_list.extend(element for _, element in json_data.items())
 
-    for exercise in exercises:
-        exerciseWeight = int(exercise["exerciseWeight"])
-        parentWeight = int(exercise["parentWeight"])
-        exercise["exerciseWeight"] = exerciseWeight * 10 if (parentWeight == 0) else parentWeight * 10 + exerciseWeight
-        exercise["name"] = exercise["id"]
-        if exercise["parent"] == "Exercises":
-            exercise["parent"] = None
+    except Exception:
+        err = f"\n\tERROR: Could not read JSON file: {json_file}.\n{info}"
+        logger.warning(err)
 
-    exercises = sorted(exercises, key=lambda d: d["exerciseWeight"])
-    return exercises
+    return gen_list
 
 
 def extract_history(executions):
@@ -99,3 +89,16 @@ def replace_attachhment_with_url(formData):
                 continue
 
     return formData
+
+
+def build_urls(config, role, user_id=None):
+    discriminator = role if config.serve_mode == "role" else user_id
+
+    config.template["url_documentation"] = (
+        f"statics/hugo/{discriminator}/{config.language_code}/documentation/" if (config.serve_documentation) else ""
+    )
+    config.template["url_exercises"] = f"statics/hugo/{discriminator}/{config.language_code}/exercises/" if (config.serve_exercises) else ""
+    config.template["url_presentations"] = (
+        f"statics/hugo/{discriminator}/{config.language_code}/presentations/" if (config.serve_presentations) else ""
+    )
+    return config.template

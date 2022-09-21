@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+    {% for section, section_questionaires in questionaires.items() %}
+
+      <div class="section">
+      <h2>{{ section | safe }}</h2>
+      <hr>
+
+      <ul>
+        {% for questionaire in section_questionaires %}
+          <a href="/questionaire/{{ questionaire.global_questionaire_id }}">
+            <li>
+              <h4>
+                {{ questionaire.questionaire_name | safe }}
+                <span class="percentage">
+                  {{ '%0.2f' % questionaire.completion_percentage | float }} %</span>
+              </h4>
+            </li>
+          </a>
+        {% endfor %}
+      </ul>
+
+      </div>
+
+      {% endfor %}
+
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

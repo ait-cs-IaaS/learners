@@ -28,12 +28,13 @@ def login():
         error_msg = "Invalid username or password"
         return render_template("login.html", **cfg.template, error=error_msg)
 
-    admin = cfg.users.get(username).get("is_admin")
+    admin = cfg.users.get(username).get("admin")
     cfg.template["admin"] = admin
     cfg.template["authenticated"] = True
+    user_role = cfg.users.get(username).get("role")
 
-    access_token = create_access_token(identity=username, additional_claims={"is_admin": admin})
-    response = make_response(redirect("/admin", 302)) if admin else make_response(redirect("/access", 302))
+    access_token = create_access_token(identity=username, additional_claims={"admin": admin, "role": user_role})
+    response = make_response(redirect("/result/all", 302)) if admin else make_response(redirect("/access", 302))
     response.set_cookie("access_token_cookie", value=access_token, secure=True, httponly=False)
 
     return response

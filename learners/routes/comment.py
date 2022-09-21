@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners.functions.database import (
     db_create_comment,
     get_all_comments,
-    get_exercise_by_id,
+    get_exercise_by_global_exercise_id,
     get_user_by_id,
 )
 
@@ -35,7 +35,7 @@ def comments_overview():
     comments_dict = {}
 
     for comment in all_comments:
-        exercise_name = get_exercise_by_id(comment.exercise_id).title
+        exercise_name = get_exercise_by_global_exercise_id(comment.global_exercise_id).exercise_name
         comment_dict = {"user": get_user_by_id(comment.user_id).name, "comment": comment.comment}
         if not comments_dict.get(exercise_name):
             comments_dict[exercise_name] = []

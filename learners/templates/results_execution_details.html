@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+      <div class="section">
+      <h2>
+        {{ exercise | safe }}
+      </h2>
+      <span class="mb-4">
+        User: <strong>{{ user | safe  }}</strong> <br>
+      </span>
+
+      {% if data %}
+
+      completed:
+      {% if data.completed == 1 %}
+        <div class="stat_indicator success inline-indicator">
+          <svg class="bi stat_icon" width="24" height="24" role="img">
+            <use xlink:href="#success"></use>
+          </svg>
+        </div>
+
+      {% elif data.completed == -1 %}
+      <b class="no_value inline-indicator">-</b>
+      {% else %}
+
+      <div class="stat_indicator failed inline-indicator">
+        <svg class="bi stat_icon" width="24" height="24" role="img">
+          <use xlink:href="#fail"></use>
+        </svg>
+      </div>
+      {% endif %} <br>
+
+      <hr>
+
+      <h3>Submission</h3>
+
+      <ul>
+        {% for fieldset_title, form_data in data.form.items() %}
+        <li>
+          <h4 class="results-form-title">{{ fieldset_title | safe  }}</h4>
+
+            {% for label, value in form_data.items() %}
+              <span class="results-form-label">{{ label | safe  | replace("_", " ") }}</span>
+              <span class="results-form-answer">{{ value }}</span>
+            {% endfor %}
+        </li>
+        {% endfor %}
+      </ul>
+
+
+      <hr>
+
+      <h3>History</h3>
+
+      <ul>
+        {% for id, submission in data.history.items() %}
+        <li>
+          <span>Executed on: </span> <span> {{ submission.start_time }} </span><br>
+          <span>Completed: </span> <span> {% if submission.completed == 1 %}
+            <div class="stat_indicator success inline-indicator">
+              <svg class="bi stat_icon" width="24" height="24" role="img">
+                <use xlink:href="#success"></use>
+              </svg>
+            </div>
+
+          {% elif submission.completed == -1 %}
+          <b class="no_value inline-indicator">-</b>
+          {% else %}
+
+          <div class="stat_indicator failed inline-indicator">
+            <svg class="bi stat_icon" width="24" height="24" role="img">
+              <use xlink:href="#fail"></use>
+            </svg>
+          </div>
+          {% endif %} </span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

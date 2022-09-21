@@ -1,6 +1,14 @@
 var noVNC_clients = {};
 
 $(function () {
+    $.each($(".graphs"), function () {
+        let g = $(this)[0]
+        let labels = $(g).attr("labels").split("; ")
+        let counts = $(g).attr("counts").split("; ")
+        let backgroundColors = $(g).attr("backgroundColors").split("; ")
+        buildChart(g.getContext('2d'), labels, counts, backgroundColors);
+    });
+
     $.each($(".novnc_client"), function () {
         key = $(this).attr("id");
         value = $(this).attr("src");
@@ -149,14 +157,21 @@ function newTab() {
 function toggleContent(href = null) {
     // anker is either given in 'href' parameter or in the url address,
     // if not the fallback '#docs' is used
-    let anker = href
-        ? `#${href.split("#")[1]}`
-        : $(location).attr("hash") || "#docs";
+    let baseurl = $(location).attr("pathname");
+    let anker = ""
+    if (baseurl == "/access") {
+        anker = href
+            ? `#${href.split("#")[1]}`
+            : $(location).attr("hash") || "#docs";
+    }
 
     // toggle menu active
-    let baseurl = $(location).attr("pathname");
     $("nav a").removeClass("active");
-    $(`nav a[href="${baseurl}${anker}"]`).addClass("active");
+    if (anker) {
+        $(`nav a[href="${baseurl}${anker}"]`).addClass("active");
+    } else {
+        $(`nav a[href^="/${baseurl.split("/")[1]}"]`).addClass("active");
+    }
 
     // toggle content
     $(".pager").addClass("hideContent").removeClass("visibleContent");
@@ -217,4 +232,34 @@ function reinitFrame(id, resumePage) {
     iframe.attr("src", noVNC_clients[id]);
     iframe.addClass("visibleContent").removeClass("hideContent");
     resumePage.remove();
+}
+
+
+function buildChart(ctx, labels, counts, backgroundColors) {
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            data: counts,
+            backgroundColor: backgroundColors,
+            borderWidth: 0
+        }]
+    };
+
+    const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 30
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
 }

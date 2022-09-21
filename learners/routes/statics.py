@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, send_from_directory
+from flask import Blueprint, abort, send_from_directory, make_response, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from learners.conf.config import cfg
 from learners.logger import logger
@@ -6,50 +6,21 @@ from learners.logger import logger
 statics_api = Blueprint("statics_api", __name__)
 
 
-@statics_api.route("/documentation/", methods=["GET"])
-@statics_api.route("/documentation", methods=["GET"])
+@statics_api.route("/statics", methods=["GET"])
+@statics_api.route("/statics/", methods=["GET"])
+@statics_api.route("/statics/<path:path>", methods=["GET"])
 @jwt_required()
-def serve_documentation_index():
+def serve_statics(path=""):
+
+    # Load static defaults
+    static_root = cfg.static_base_url  # Directory holding the static sites
+
+    # Add "index.html" to path if empty or ends with "/"
+    if not path or "." not in path:
+        path = f"{path}index.html" if path.endswith("/") else f"{path}/index.html"
+
     try:
-        path = f"{cfg.documentation.get('directory')}/{get_jwt_identity()}/"
-        return send_from_directory(path, "index.html")
+        return send_from_directory(static_root, path)
     except Exception as e:
-        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
-        abort(e)
-
-
-@statics_api.route("/documentation/<path:path>", methods=["GET"])
-@jwt_required()
-def serve_documentation(path):
-    try:
-        path = f"{path}index.html" if path.endswith("/") else path
-        full_path = f"{get_jwt_identity()}/{path}"
-        return send_from_directory(cfg.documentation.get("directory"), full_path)
-    except Exception as e:
-        logger.exception(f"Loading documentation from {cfg.documentation.get('directory')} failed")
-        abort(e)
-
-
-@statics_api.route("/exercises/", methods=["GET"])
-@statics_api.route("/exercises", methods=["GET"])
-@jwt_required()
-def serve_exercises_index():
-    try:
-        path = f"{cfg.exercises.get('directory')}/{get_jwt_identity()}/"
-        return send_from_directory(path, "index.html")
-    except Exception as e:
-        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
-        abort(e.code)
-
-
-@statics_api.route("/exercises/<path:path>", methods=["GET"])
-@jwt_required()
-def serve_exercises(path):
-    full_path = f"{path}index.html" if path.endswith("/") else path
-    try:
-        path = f"{path}index.html" if path.endswith("/") else path
-        full_path = f"{get_jwt_identity()}/{path}"
-        return send_from_directory(cfg.exercises.get("directory"), full_path)
-    except Exception as e:
-        logger.exception(f"Loading exercises from {cfg.exercises.get('directory')} failed")
-        abort(e.code)
+        logger.exception(f"ERROR: Loading file failed: {path}")
+        return make_response(jsonify(error="file not found"), 404)

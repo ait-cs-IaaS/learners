@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+      <div class="section">
+        <h5 class="mt-4">Questionaire</h5>
+        <h2>
+        {{ questionaire.questionaire_name | safe }}
+      </h2>
+      <span class="mb-4">
+        Completed:
+        {{ '%0.2f' % questionaire.completion_percentage | float }} %
+      </span>
+
+      {% set backgroundColors = [
+        '#f45c2c',
+        '#ecca72',
+        '#048181',
+        '#5a9c7d',
+        '#9fbed2',
+        '#366854'
+      ] %}
+
+      {% for question in questions %}
+        <hr>
+          <h3>
+            {{ question.question }}
+          </h3>
+
+          <ul class="legend">
+            {% for label in question.labels %}
+            <li>
+              <span class="legend-color" style="background-color: {{ backgroundColors[loop.index0] }}"></span>
+              {{ label }}
+              ({{ question.counts[loop.index0] }})
+            </li>
+            {% endfor %}
+            <li><em>Total votes: {{ question.counts | sum() }}</li></em>
+          </ul>
+
+
+        <div class="chart-wrapper">
+          <canvas
+            class="graphs"
+            id="{{ question.global_question_id }}"
+            labels="{{ question.labels | join('; ') }}"
+            counts="{{ question.counts | join('; ') }}"
+            backgroundColors="{{ backgroundColors | join('; ') }}"
+            >
+          </canvas>
+        </div>
+      {% endfor %}
+
+      </div>
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

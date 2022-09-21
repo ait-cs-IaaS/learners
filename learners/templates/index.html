@@ -10,63 +10,16 @@ CyberRange
 <iframe id="docs" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
   frameborder="0"></iframe>
 
-{% if screenSharing is sameas true %}
-<div id="screensharing" class="content-container pager">
-  <div id="sharingActionContainer">
-    <div id="controls">
-      {% if presenter %}
-        <button class="btn gray-btn" id="btnStartScreenSharing">
-          <svg class="bi btn-icon" width="22" height="22" role="img">
-            <use xlink:href="#slides"></use>
-          </svg>
-          share screen
-        </button>
-        <button class="btn red-btn" id="btnStopScreenSharing" style="display: none">
-          <svg class="bi btn-icon" width="22" height="22" role="img">
-            <use xlink:href="#error"></use>
-          </svg>
-          stop sharing
-        </button>
-      {% else %}
-        <button class="btn gray-btn" id="btnWatch">
-          <svg class="bi btn-icon" width="22" height="22" role="img">
-            <use xlink:href="#play"></use>
-          </svg>
-          watch
-        </button>
-      {% endif %}
-    </div>
-  </div>
+<iframe id="presentations" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_presentations }}"
+  frameborder="0"></iframe>
 
-  <div id="videoContainer">
-    <video autoplay></video>
-  </div>
+{% for site in staticsites %}
+  <iframe id="{{ site.id }}" class="content-container pager" frameborder="0" noresize="noresize" src="{{ site.url }}"
+  frameborder="0"></iframe>
+{% endfor %}
 
-  <div id="statusDiv" class="notification-box success" style="display: none">
-    <span>
-      <svg class="bi" width="18" height="18" role="img">
-        <use xlink:href="#ok"></use>
-      </svg>
-      <strong>Success:</strong> active screen sharing
-    </span>
-  </div>
 
-  <script src="{{url_for('static', filename='webrtc.js')}}"></script>
-</div>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-{% endif %}
-
-{% if url_presentation %}
-<iframe
-  id="presentation"
-  class="content-container pager"
-  frameborder="0"
-  noresize="noresize"
-  src="{{ url_presentation }}"
-  frameborder="0"
-></iframe>
-{% endif %}
-
+{% if vnc_clients %}
 <div id="client-resume" class="hideContent content-container pager">
   <div class="center-content">
     <h2>Resume VNC Client here</h2>
@@ -78,7 +31,6 @@ CyberRange
   </div>
 </div>
 
-{% if vnc_clients %}
 {% for vnc_client, client_info in vnc_clients.items() %}
 <iframe id="{{ vnc_client }}" class="content-container pager novnc_client" frameborder="0" noresize="noresize"
   src="{{ client_info.url }}" name="{{ client_info.tooltip }}"></iframe>
@@ -93,4 +45,5 @@ CyberRange
     <div></div>
   </div>
 </div>
+
 {% endblock %}

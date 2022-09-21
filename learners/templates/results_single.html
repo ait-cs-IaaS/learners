@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content results-container">
+  <h1>Results</h1>
+
+      <div class="section">
+      <h2>
+        {{ exercise.exercise_name | safe }}
+      </h2>
+      <span class="mb-4">
+        Completed:
+        {{ '%0.2f' % exercise.completion_percentage | float }} %
+      </span>
+
+      <h3 class="mt-4">Executions</h3>
+
+      <table class="single-result-table">
+        <tr>
+          <th>User</th>
+          <th>Execution Time</th>
+          <th class="completed-col">Completed</th>
+        </tr>
+
+        {% for result in results %}
+          <tr onclick="window.location='/result/{{ result.user_id }}/{{ result.global_exercise_id }}';">
+            <td>
+              {{ result.name }}
+            </td>
+            <td>
+              {{ result.execution_timestamp }}
+            </td>
+            <td class="completed-col">
+              {% if result.completed == 1 %}
+
+                  <div class="stat_indicator success">
+                    <svg class="bi stat_icon" width="24" height="24" role="img">
+                      <use xlink:href="#success"></use>
+                    </svg>
+                  </div>
+
+                {% elif result.completed == -1 %}
+                <b class="no_value">-</b>
+                {% else %}
+
+                <div class="stat_indicator failed">
+                  <svg class="bi stat_icon" width="24" height="24" role="img">
+                    <use xlink:href="#fail"></use>
+                  </svg>
+                </div>
+                {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+
+      </table>
+
+      </div>
+  </div>
+</div>
+
+<div id="preloader" class="content-container pager">
+  <div class="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@ from functools import wraps
 from flask import render_template
 from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
 
-from learners import logger
+from learners.logger import logger
 from learners.conf.config import cfg
 from learners.conf.db_models import TokenBlocklist
 from learners.database import db
@@ -64,7 +64,7 @@ def admin_required():
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
 
-            if get_jwt().get("is_admin"):
+            if get_jwt().get("admin"):
                 cfg.template["admin"] = True
                 cfg.template["authenticated"] = True
                 return fn(*args, **kwargs)
