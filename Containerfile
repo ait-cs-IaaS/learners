@@ -4,7 +4,7 @@ RUN useradd --create-home --home-dir /opt/learners learners
 USER learners
 
 ENV PATH=${PATH}:/opt/learners/.local/bin
-ENV LEARNERS_VERSION=${LEARNERS_VERSION:-0.5.1}
+ENV LEARNERS_VERSION=${LEARNERS_VERSION:-0.6.0}
 ENV LEARNERS_BRANCH=${LEARNERS_BRANCH}
 
 RUN python -m pip install --upgrade pip wheel
