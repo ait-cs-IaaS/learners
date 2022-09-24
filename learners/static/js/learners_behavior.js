@@ -98,6 +98,7 @@ $(function () {
             $(`table tr`).filter(`:nth-child(${index})`).fadeIn("slow");
         }
     });
+
 });
 
 /**
@@ -262,4 +263,16 @@ function buildChart(ctx, labels, counts, backgroundColors) {
             }
         }
     });
+}
+
+function execSetDrawIO(url_encoded_data) {
+    let iframe = $("#drawio");
+    if (iframe) {
+        let original_src = iframe.attr("src")
+        iframe.attr("src", `${original_src}${url_encoded_data}`);
+        toggleContent("/access#drawio")
+    } else {
+        let newTab = window.open(`https://app.diagrams.net/${url_encoded_data}`, "_blank");
+        newTab.name = `drawio_tab`;
+    }
 }
