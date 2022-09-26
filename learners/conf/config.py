@@ -44,6 +44,7 @@ class Configuration:
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
         self.theme = learners_config.get("learners").get("theme")
+        self.landingpage = learners_config.get("learners").get("landingpage")
         self.language_code = learners_config.get("learners").get("language_code")
         self.static_base_url = learners_config.get("statics").get("directory")
         self.serve_mode = learners_config.get("statics").get("serve_mode")
@@ -57,7 +58,13 @@ class Configuration:
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
 
-        self.template = {"theme": self.theme, "branding": self.theme not in ["dark", "light"], "chat": False, "staticsites": self.staticsites}
+        self.template = {
+            "theme": self.theme,
+            "branding": self.theme not in ["dark", "light"],
+            "landingpage": self.landingpage,
+            "chat": False,
+            "staticsites": self.staticsites,
+        }
 
 
 def build_config(app):

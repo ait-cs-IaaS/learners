@@ -5,6 +5,7 @@ config_schema = Map(
         Optional("learners", default={"theme": "dark", "language_code": "en"},): Map(
             {
                 Optional("theme", default="dark"): Str(),
+                Optional("landingpage", default="documentation"): Str(),
                 Optional("language_code", default="en"): Str(),
                 Optional("upload_folder", default="/var/tmp/"): Str(),
                 Optional("upload_extensions", default=["txt", "pdf", "png", "jpg", "jpeg", "gif", "json", "svg"]): Seq(Str()),

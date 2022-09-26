@@ -166,13 +166,20 @@ function newTab() {
 
 function toggleContent(href = null) {
   // anker is either given in 'href' parameter or in the url address,
-  // if not the fallback '#docs' is used
+  // if not the fallback '#documentation' is used
   let baseurl = $(location).attr("pathname");
   let anker = "";
+
+  let landingpage = window.landingpage
+  if (window.landingpage == "novnc") {
+    // get first novnc container
+    landingpage = $(".novnc_client").first().attr("id")
+  }
+
   if (baseurl == "/access") {
     anker = href
       ? `#${href.split("#")[1]}`
-      : $(location).attr("hash") || "#docs";
+      : $(location).attr("hash") || `#${landingpage}`;
   }
 
   // toggle menu active
