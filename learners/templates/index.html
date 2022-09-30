@@ -7,7 +7,7 @@ CyberRange
 <iframe id="exercises" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_exercises }}"
   frameborder="0"></iframe>
 
-<iframe id="docs" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
+<iframe id="documentation" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
   frameborder="0"></iframe>
 
 <iframe id="presentations" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_presentations }}"
@@ -17,7 +17,6 @@ CyberRange
   <iframe id="{{ site.id }}" class="content-container pager" frameborder="0" noresize="noresize" src="{{ site.url }}"
   frameborder="0"></iframe>
 {% endfor %}
-
 
 {% if vnc_clients %}
 <div id="client-resume" class="hideContent content-container pager">
@@ -47,6 +46,7 @@ CyberRange
 </div>
 
 <script>
+  window.landingpage = "{{ landingpage }}"
   function setDrawIO(url_encoded_data) {
     execSetDrawIO(url_encoded_data)
   }

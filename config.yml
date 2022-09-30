@@ -1,5 +1,6 @@
 learners:
   theme: "dark"
+  landingpage: "novnc"
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -41,24 +42,24 @@ serve_presentations: True
 # callback:
 #   endpoint: "http://localhost:5000/callback"
 
-# novnc:
-#   server: "http://localhost:5002"
+novnc:
+  server: "http://localhost:8888"
 
 users:
   test:
     password: test
     role: instructor
-    # vnc_clients:
-    #   soc_client:
-    #     target: placeholder_1
-    #     tooltip: "SOC client"
-    #     username: csirt1
-    #     password: placeholder
-    #   pps_client:
-    #     target: placeholder_3
-    #     tooltip: "PPS client"
-    #     username: csirt3
-    #     password: placeholder
+    vnc_clients:
+      soc_client:
+        target: placeholder_1
+        tooltip: "SOC client"
+        username: csirt1
+        password: placeholder
+      pps_client:
+        target: placeholder_3
+        tooltip: "PPS client"
+        username: csirt3
+        password: placeholder
   ben:
     password: ben
     # vnc_clients:

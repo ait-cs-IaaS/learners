@@ -10,7 +10,7 @@ def home():
 
     try:
         verify_jwt_in_request()
-        return redirect("/admin") if get_jwt().get("admin") else redirect("/access")
+        return redirect("/result/all") if get_jwt().get("admin") else redirect("/access")
 
     except Exception:
         logger.info("No valid token present.")
