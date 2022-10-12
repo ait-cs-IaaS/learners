@@ -35,7 +35,7 @@ def comments_overview():
     comments_dict = {}
 
     for comment in all_comments:
-        exercise_name = get_exercise_by_global_exercise_id(comment.global_exercise_id).exercise_name
+        exercise_name = get_exercise_by_global_exercise_id(comment.global_exercise_id).page_title
         comment_dict = {"user": get_user_by_id(comment.user_id).name, "comment": comment.comment}
         if not comments_dict.get(exercise_name):
             comments_dict[exercise_name] = []
