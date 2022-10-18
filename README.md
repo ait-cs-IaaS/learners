@@ -12,7 +12,7 @@ python3 -m build
 
 ```bash
 #pip
-pip install https://github.com/ait-cs-IaaS/learners/releases/download/0.5.1/Learners-0.5.1.tar.gz
+pip install ait-learners
 
 #docker
 docker pull ghcr.io/ait-cs-iaas/learners
