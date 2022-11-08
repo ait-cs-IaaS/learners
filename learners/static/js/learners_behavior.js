@@ -171,6 +171,7 @@ function toggleContent(href = null) {
   let anker = "";
 
   let landingpage = window.landingpage
+  if (!window.landingpage) landingpage = "#documentation"
   if (window.landingpage == "novnc") {
     // get first novnc container
     landingpage = $(".novnc_client").first().attr("id")
