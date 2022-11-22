@@ -45,10 +45,10 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-      - name: Release to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      # - name: Release to PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
 
   build_container:
     name: build container
