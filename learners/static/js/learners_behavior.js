@@ -286,7 +286,7 @@ function execSetDrawIO(url_encoded_data) {
   let iframe = $("#drawio");
   if (iframe) {
     let original_src = iframe.attr("src");
-    let host = original_src.split("?title=")[0];
+    let host = original_src.split(/[?#]/)[0];
     iframe.attr("src", `${host}/${url_encoded_data}`);
     toggleContent("/access#drawio");
   } else {
