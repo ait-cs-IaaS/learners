@@ -378,7 +378,17 @@ $admin-text-color: $light-2 !default;
     font-size: 1rem;
   }
 
-  a {
+  a.result_hyperlink {
+    font-size: 1.0em !important;
+    text-decoration: underline;
+    color: #3987ae;
+
+    &:hover {
+      color: #2a6380;
+    }
+  }
+
+  a:not(.result_hyperlink) {
     font-size: 1.0em !important;
     border: 1px solid #f6f6f6;
     transition: background-color 500ms ease-in-out;

@@ -292,7 +292,7 @@ def db_create_file(filename: str, username: str) -> str:
 
 def get_filename_from_hash(filename_hash):
     try:
-        return db.session.query(Attachment).filter_by(filename_hash=filename_hash).first()
+        return db.session.query(Attachment).filter_by(filename_hash=filename_hash).first().filename
     except Exception as e:
         logger.exception(e)
         return None
