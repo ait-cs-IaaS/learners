@@ -32,7 +32,7 @@ admin_api = Blueprint("admin_api", __name__)
 @admin_required()
 def admin_area():
 
-    exercises = get_all_exercises()
+    exercises = get_all_exercises_sorted()
     users = get_all_users()
 
     user_filter = [{"id": 0, "username": "all"}]
@@ -44,7 +44,7 @@ def admin_area():
     results_table = construct_results_table(exercises, users)
 
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
-    return render_template("results.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
+    return render_template("results_table.html", exercises=exercises_filter, users=user_filter, table=results_table, **cfg.template)
 
 
 @admin_api.route("/result/all", methods=["GET"])
@@ -64,8 +64,10 @@ def get_all_results():
         else:
             grouped_exercises[exercise.parent_page_title][exercise.page_title] = [exercise]
 
+    results_table = construct_results_table(sorted_exercises, get_all_users())
+
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
-    return render_template("results_overview.html", exercises=grouped_exercises, **cfg.template)
+    return render_template("results_overview.html", exercises=grouped_exercises, results_table=results_table, **cfg.template)
 
 
 @admin_api.route("/result/<global_exercise_id>", methods=["GET"])

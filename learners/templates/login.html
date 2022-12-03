@@ -1,78 +1,76 @@
 {% extends "base.html" %}
-
+{% block theme %}
+{{ theme | default('dark') }}
+{% endblock %}
 {% block title %}
 CyberRange | Login
 {% endblock %}
-
 {% block content %}
+
 <div class="content-container">
-  <div class="notification-box {% if error %} error {% elif success_msg %} success {% endif %}">
-    <span>
+   <div
+      class="notification-box {% if error %} error {% elif success_msg %} success {% endif %}"
+   >
+      <span>
       {% if error %}
       <svg class="bi" width="18" height="18" role="img">
-        <use xlink:href="#error"></use>
+         <use xlink:href="#error"></use>
       </svg>
-      <strong>Error:</strong> {{ error }}
-      {% endif %}
-      {% if success_msg %}
+      <strong>Error:</strong> {{ error }} {% endif %} {% if success_msg %}
       <svg class="bi" width="18" height="18" role="img">
-        <use xlink:href="#ok"></use>
+         <use xlink:href="#ok"></use>
       </svg>
-      <strong>Success:</strong> {{ success_msg }}
-      {% endif %}
-    </span>
-  </div>
+      <strong>Success:</strong> {{ success_msg }} {% endif %}
+      </span>
+   </div>
 
-  <div class="center-content">
-    <h1>
-      {{ login_headline }}<br />
-      {% if login_headline_highlight %}
-      <span class="heading_highlight"> {{ login_headline_highlight }}</span>
-      {% endif %}
-    </h1>
+   <div class="center-content">
+      <h1>
+      Welcome to<br />
+      <span class="heading_highlight">Learners</span>
+      </h1>
 
-    {% if welcome_text %}
-    <p style="margin-top: 2.4em">
-      {{ welcome_text }}
-    </p>
-    {% endif %}
+      <hr>
 
-    {% if not success %}
-    <h4 style="margin-top: 2.4em">Login</h4>
+      <p style="margin-bottom: 2em">
+         This is the entry point to the virtual environment of the simulation.<br>
+         Please log in with your assigned credentials:<br>
+      </p>
 
-    {% if login_text %}
-    <p style="margin-bottom: 2em">
-      {{ login_text }}
-    </p>
-    {% endif %}
+      {% if not success %}
+      <h4 style="margin-top: 2.4em">Login</h4>
 
-    <form action="/login" method="post">
+      <form action="/login" method="post">
       <div class="input-row">
-        <input class="{% if error %}error{% endif %}" type="text" placeholder="Username" name="username"
-          value="{{request.form.username }}" />
+         <input
+            class="{% if error %}error{% endif %}"
+            type="text"
+            placeholder="Username"
+            name="username"
+            value="{{request.form.username }}"
+         />
       </div>
       <div class="mb-3 input-row">
-        <input class="{% if error %}error{% endif %}" type="password" placeholder="Password" name="password"
-          value="{{request.form.password }}" />
+         <input
+            class="{% if error %}error{% endif %}"
+            type="password"
+            placeholder="Password"
+            name="password"
+            value="{{request.form.password }}"
+         />
       </div>
       <div class="input-row">
-        <input class="btn green-btn" type="submit" value="Login" />
+         <input class="btn green-btn" type="submit" value="Login" />
       </div>
-    </form>
-    {% else %}
-    <form action="/logout" method="get">
+      </form>
+      {% else %}
+      <form action="/logout" method="get">
       <div class="input-row">
-        <input class="btn green-btn" type="submit" value="Logout" />
+         <input class="btn green-btn" type="submit" value="Logout" />
       </div>
-    </form>
-    {% endif %}
-
-
-    <svg class="bi developed-by" width="200" role="img">
-      <use xlink:href="#developed-by"></use>
-    </svg>
-
-  </div>
+      </form>
+      {% endif %}
+   </div>
 </div>
 
 {% endblock %}

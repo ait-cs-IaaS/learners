@@ -48,7 +48,7 @@ novnc:
 users:
   test:
     password: test
-    role: instructor
+    # role: instructor
     vnc_clients:
       soc_client:
         target: placeholder_1
@@ -71,3 +71,4 @@ users:
   admin:
     password: admin
     admin: True
+    role: instructor
