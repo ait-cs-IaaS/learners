@@ -107,7 +107,10 @@ $(function () {
     }
   });
 
-  disableBackButton();
+  if ($(location).attr("pathname").includes('access')) {
+    disableBackButton();
+  }
+
 });
 
 /**
