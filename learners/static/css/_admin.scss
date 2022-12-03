@@ -390,22 +390,22 @@ $admin-text-color: $light-2 !default;
 
   a:not(.result_hyperlink) {
     font-size: 1.0em !important;
-    border: 1px solid #f6f6f6;
-    transition: background-color 500ms ease-in-out;
-    transition: border 200ms ease-in-out;
     display: block;
     padding: 0.5rem 0.8rem;
-    border-radius: 4px;
-    color: $dark-2;
+    color: #3987ae;
+    text-decoration: underline;
 
     & h4 {
       padding: 0;
       margin: 0;
+      color: #3987ae !important;
     }
 
     &:hover {
-      background-color: #ececec;
-      border: 1px solid $dark-1;
+      color: #2a6380 !important;
+      & h4 {
+        color: #2a6380 !important;
+      }
     }
   }
 

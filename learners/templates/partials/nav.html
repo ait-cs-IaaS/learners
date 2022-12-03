@@ -3,15 +3,9 @@
   <a href="/login" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
   data-bs-placement="right" data-bs-original-title="{{ 'Logout' if authenticated else 'Login' }}">
 
-    {% if branding %}
-      <svg class="bi nav-logo">
-        <use xlink:href="#{{ theme }}"></use>
-      </svg>
-    {% else %}
-      <svg class="bi" width="28" height="28" style="margin-left: 2px">
-        <use style="fill: #d34a5d" xlink:href="#learners-icon"></use>
-      </svg>
-    {% endif %}
+    <svg class="bi nav-logo">
+      <use xlink:href="#{{ theme if branding else'ait' }}"></use>
+    </svg>
   </a>
 
   {% if authenticated is sameas true %}
@@ -20,7 +14,7 @@
       <ul class="nav flex-column text-center">
 
         {% if admin %}
-          {% with href="/result/all", tooltip="Results", icon="icon_doc" %}
+          {% with href="/result/all", tooltip="Results", icon="icon_results" %}
             {% include "partials/tab.html" %}
           {% endwith %}
 
