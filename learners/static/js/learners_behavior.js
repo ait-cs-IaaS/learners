@@ -74,9 +74,11 @@ $(function () {
   );
 
   $("table td").click(function () {
-    var link = $(this).find("input").val();
-    if (link) {
-      location.href = link;
+    if (!$(this).find(".no_value").length) {
+      let link = $(this).find("input").val();
+      if (link) {
+        location.href = link;
+      }
     }
   });
 
