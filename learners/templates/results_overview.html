@@ -10,50 +10,52 @@ CyberRange
 
     {% if results_table %}
     <h2>Overview</h2>
-    <table id="results_table">
-      <tr>
-        {% for column in results_table.columns %}
-          <th>
-            {{ column.col_name }}
-            <input type="hidden" value="{{ column.col_id }}">
-          </th>
-        {% endfor %}
-      </tr>
-
-      {% for entry in results_table.rows %}
+    <div class="table_wrapper">
+      <table id="results_table">
         <tr>
-          {% for key, value in entry.items() %}
-            {% if key != "user_id" %}
-              <td>
-                {% if key != "username"  %}
-                  {% if value == 1 %}
+          {% for column in results_table.columns %}
+            <th>
+              {{ column.col_name }}
+              <input type="hidden" value="{{ column.col_id }}">
+            </th>
+          {% endfor %}
+        </tr>
 
-                    <div class="stat_indicator success">
+        {% for entry in results_table.rows %}
+          <tr>
+            {% for key, value in entry.items() %}
+              {% if key != "user_id" %}
+                <td>
+                  {% if key != "username"  %}
+                    {% if value == 1 %}
+
+                      <div class="stat_indicator success">
+                        <svg class="bi stat_icon" width="24" height="24" role="img">
+                          <use xlink:href="#success"></use>
+                        </svg>
+                      </div>
+
+                    {% elif value == -1 %}
+                    <b class="no_value">-</b>
+                    {% else %}
+
+                    <div class="stat_indicator failed">
                       <svg class="bi stat_icon" width="24" height="24" role="img">
-                        <use xlink:href="#success"></use>
+                        <use xlink:href="#fail"></use>
                       </svg>
                     </div>
-
-                  {% elif value == -1 %}
-                  <b class="no_value">-</b>
+                    {% endif %}
+                  <input type="hidden" value='/result/{{ entry["user_id"] }}/{{ key }}'>
                   {% else %}
-
-                  <div class="stat_indicator failed">
-                    <svg class="bi stat_icon" width="24" height="24" role="img">
-                      <use xlink:href="#fail"></use>
-                    </svg>
-                  </div>
+                    {{ value }}
                   {% endif %}
-                <input type="hidden" value='/result/{{ entry["user_id"] }}/{{ key }}'>
-                {% else %}
-                  {{ value }}
-                {% endif %}
-              </td>
-            {% endif %}
+                </td>
+              {% endif %}
+              {% endfor %}
+            </tr>
             {% endfor %}
-          </tr>
-          {% endfor %}
-        </table>
+          </table>
+        </div>
         <hr style="margin: 70px 0px;">
       {% endif %}
 

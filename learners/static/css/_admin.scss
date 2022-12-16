@@ -1,6 +1,22 @@
 $admin-bg-color: $dark-1 !default;
 $admin-text-color: $light-2 !default;
 
+.table_wrapper {
+  width: 100%;
+  overflow-x: scroll;
+  margin-bottom: 10px;
+
+  & td, th {
+    border-bottom: dashed #888 1px;
+  }
+
+  & table td:first-child, table th:first-child {
+    left: 0;
+    position: sticky;
+    z-index: 9999;
+    background-color: #dadada;
+  }
+}
 
 #admin_area {
   background-color: #ffffff;
