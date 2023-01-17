@@ -10,12 +10,13 @@ def build_db(app):
     global db
 
     from learners.conf.db_models import Execution, Exercise, TokenBlocklist, User
-    from learners.functions.database import insert_exercises, insert_initial_users, insert_questionaires
+    from learners.functions.database import insert_exercises, insert_initial_users, insert_questionaires, insert_initial_usergroups
 
     db.init_app(app)
     db.create_all()
 
     insert_initial_users()
+    insert_initial_usergroups()
     insert_exercises(app)
     insert_questionaires(app)
 
