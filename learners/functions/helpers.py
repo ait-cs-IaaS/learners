@@ -102,3 +102,11 @@ def build_urls(config, role, user_id=None):
         f"statics/hugo/{discriminator}/{config.language_code}/presentations/" if (config.serve_presentations) else ""
     )
     return config.template
+
+
+def is_json(json_string):
+    try:
+        json.loads(json_string)
+        return True
+    except ValueError:
+        return False
