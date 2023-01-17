@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}
+CyberRange
+{% endblock %}
+{% block content %}
+
+<div id="admin_area" class="content-container">
+  <div class="content">
+  <h1>Notifications</h1>
+
+  <form id="notificationForm">
+    <label for="users">Users:</label>
+    <select class="users-selection" name="users" id="users" multiple="multiple">
+      <optgroup label="Users">
+        {% for user in userlist %}
+          <option value='{{ user["username"] }}'>{{ user['username'] }}</option>
+        {% endfor %}
+      </optgroup>
+      <optgroup class="group-select" label="Usergroups">
+        {% for usergroup_name, usergroup_user_ids in usergroups.items() %}
+          <option value='{"group" : "{{ usergroup_name }}" }'>{{ usergroup_name }}</option>
+        {% endfor %}
+      </optgroup>
+    </select>
+    <label for="msg">Message:</label>
+    <textarea type="text" id="msg" name="msg"></textarea>
+    <label for="position">Position:</label>
+    <select name="position" id="position">
+      <option value='all'>all</option>
+      <option value='clients'>clients</option>
+      <option value='documentation'>documentation</option>
+      <option value='exercises'>exercises</option>
+      <option value='presentations'>presentations</option>
+    </select>
+    <br><br>
+    <input type="submit" value="Submit" onclick="sendForm()">
+  </form>
+  </div>
+</div>
+
+{% endblock %}
