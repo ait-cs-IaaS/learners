@@ -28,6 +28,7 @@ config_schema = Map(
             Map(
                 {
                     "password": Str(),
+                    Optional("groups"): Seq(Str()),
                     Optional("admin", default=False): Bool(),
                     Optional("role", default="participant"): Str(),
                     Optional("vnc_clients"): MapPattern(
