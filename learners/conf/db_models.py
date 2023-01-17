@@ -8,6 +8,40 @@ class User(db.Model):
     name = db.Column(db.String(20), unique=True, nullable=False)
     role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     executions = db.relationship("Execution", backref="user", lazy=True)
+    notifications = db.relationship("NotificationAssociation", back_populates="user")
+    usergroups = db.relationship("UsergroupAssociation", back_populates="user")
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    msg = db.Column(db.String(240), nullable=True)
+    position = db.Column(db.String(120), nullable=True)
+    users = db.relationship("NotificationAssociation", back_populates="notification")
+
+
+class NotificationAssociation(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    sent = db.Column(db.Integer, nullable=False, default=0)
+    notification_id = db.Column(db.ForeignKey("notification.id"))
+    user_id = db.Column(db.ForeignKey("user.id"))
+    notification = db.relationship("Notification", back_populates="users")
+    user = db.relationship("User", back_populates="notifications")
+    constraint = db.UniqueConstraint("notification_id", "user_id")
+
+
+class Usergroup(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), unique=True, nullable=False)
+    users = db.relationship("UsergroupAssociation", back_populates="usergroup")
+
+
+class UsergroupAssociation(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usergroup_id = db.Column(db.ForeignKey("usergroup.id"))
+    user_id = db.Column(db.ForeignKey("user.id"))
+    usergroup = db.relationship("Usergroup", back_populates="users")
+    user = db.relationship("User", back_populates="usergroups")
+    constraint = db.UniqueConstraint("usergroup_id", "user_id")
 
 
 class Execution(db.Model):
@@ -50,12 +84,6 @@ class Exercise(db.Model):
     comments = db.relationship("Comment", backref="exercise", lazy=True)
 
 
-class TokenBlocklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
-
-
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comment = db.Column(db.String(), nullable=True)
@@ -95,3 +123,9 @@ class QuestionaireAnswer(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     global_question_id = db.Column(db.Integer, db.ForeignKey("questionaire_question.global_question_id"), nullable=False)
     global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), nullable=False)
+
+
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
