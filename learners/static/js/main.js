@@ -30,9 +30,6 @@ $(function () {
     newTab();
   });
 
-  // remove preloader
-  $("#preloader").addClass("hideContent");
-
   // initial marking of menu
   toggleContent();
 
@@ -109,9 +106,15 @@ $(function () {
     }
   });
 
-  if ($(location).attr("pathname").includes('access')) {
+  if ($(location).attr("pathname").includes("access")) {
     disableBackButton();
   }
+
+  $(".users-selection").select2({
+    tags: "true",
+    placeholder: "Select users",
+    allowClear: true,
+  });
 
 });
 
@@ -175,11 +178,11 @@ function toggleContent(href = null) {
   let baseurl = $(location).attr("pathname");
   let anker = "";
 
-  let landingpage = window.landingpage
-  if (!window.landingpage) landingpage = "#documentation"
+  let landingpage = window.landingpage;
+  if (!window.landingpage) landingpage = "#documentation";
   if (window.landingpage == "novnc") {
     // get first novnc container
-    landingpage = $(".novnc_client").first().attr("id")
+    landingpage = $(".novnc_client").first().attr("id");
   }
 
   if (baseurl == "/access") {
@@ -308,4 +311,74 @@ function disableBackButton() {
   window.onpopstate = function () {
     window.history.go(1);
   };
+}
+
+function sendForm() {
+  event.preventDefault();
+
+  sendAjax("POST", {
+    url: `/notification`,
+    data: getFormData("notificationForm"),
+  });
+}
+
+function getFormData(formId) {
+  let form_data = {};
+
+  $.each(
+    $(`#${formId}`)
+      .find("input, select, textarea")
+      .not("[type='submit']")
+      .not("[type='search']"),
+    function () {
+      let input_name = $(this).attr("name");
+      let input_value = $(this).val();
+      form_data[input_name] = input_value;
+    }
+  );
+
+  form_data = JSON.stringify(form_data);
+
+  return form_data;
+}
+
+function sendAjax(type, payload) {
+  let promise = new Promise((resolve, reject) => {
+    $.ajax({
+      type: type,
+      url: payload.url,
+      headers: Object.assign(
+        { "Content-type": "application/json" },
+        { Authorization: `Bearer ${getCookie("access_token_cookie")}` },
+        payload.additional_headers
+      ),
+      data: payload.data,
+
+      success: function (data) {
+        resolve(data);
+      },
+
+      error: function (jqXHR, textStatus, errorThrown) {
+        reject(jqXHR, textStatus, errorThrown);
+      },
+    });
+  });
+
+  return promise;
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
