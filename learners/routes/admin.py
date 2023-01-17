@@ -1,12 +1,13 @@
 import json
 
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 from collections import defaultdict
 from learners.conf.config import cfg
 from learners.functions.database import (
     get_all_exercises,
     get_all_exercises_sorted,
     get_all_questionaires_sorted,
+    get_all_usergroups,
     get_all_users,
     get_executions_by_user_exercise,
     get_user_by_id,
@@ -17,6 +18,7 @@ from learners.functions.database import (
     get_questionaire_by_global_questionaire_id,
     get_all_questionaires_questions,
     get_question_counts,
+    get_usergroup_by_name,
 )
 from learners.functions.helpers import extract_history, replace_attachhment_with_url, build_urls
 from learners.functions.results import construct_results_table
@@ -145,3 +147,18 @@ def get_single_questionaire(global_questionaire_id):
 
     cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
     return render_template("questionaires_single.html", questionaire=questionaire, questions=questions, **cfg.template)
+
+
+@admin_api.route("/admin/notifications", methods=["GET"])
+@admin_required()
+def admin_notifications():
+
+    db_userlist = get_all_users()
+    userlist = []
+
+    for user in db_userlist:
+        userlist.append({"user_id": user.id, "username": user.name})
+
+    usergroups = get_all_usergroups()
+
+    return render_template("admin_notification.html", userlist=userlist, usergroups=usergroups, **cfg.template)
