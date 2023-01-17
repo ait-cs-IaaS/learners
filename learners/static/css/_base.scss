@@ -174,10 +174,6 @@ h5 {
   }
 }
 
-#preloader {
-  transition: all 500ms;
-}
-
 .notification-box {
   position: absolute;
   width: 100%;
@@ -299,4 +295,99 @@ svg.developed-by {
   margin-bottom: auto;
   padding-top: 15px;
   padding-bottom: 15px;
+}
+
+
+#notification-container {
+  display: block;
+  position: absolute;
+  left: 100px;
+  bottom: 40px;
+  // border-radius: 4px;
+  // background-color: #0000001a;
+  color: #dedfe4;
+  padding: 0px;
+  margin: 0px;
+  z-index: 1000;
+  pointer-events: none;
+
+  & ul {
+    margin: 0;
+    padding: 0;
+
+    & li {
+      border-radius: 4px;
+      background-color: #000000c7;
+      color: #dedfe4;
+      padding: 40px 50px 10px 20px;
+      margin: 10px 0;
+      list-style: none;
+      max-width: 50vw;
+      min-width: 110px;
+      color: white !important;
+      position: relative;
+
+      & h1, h2, h3, h4, h5, p, span, ul, li, em, b, strong {
+        color: white !important;
+      }
+
+      & .closer, .next, .prev {
+        height: 30px;
+        width: 30px;
+        position: absolute;
+        top: 10px;
+        display: block;
+        pointer-events: all;
+        cursor: pointer;
+
+        & .bi {
+          margin: 4px;
+        }
+      }
+
+      & .closer {
+        right: 10px;
+      }
+      & .next {
+        right: 40px;
+      }
+      & .prev {
+        right: 70px;
+      }
+    }
+  }
+}
+
+.select2 {
+  &.select2-container {
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+
+  & .select2-selection {
+    display: flex !important;
+    flex-direction: column !important;
+    border: 2px solid #dedfe4 !important;
+    border-radius: 4px !important;
+    background-color: #f8f8f8 !important;
+  }
+
+  &.select2-container--default .select2-search--inline textarea.select2-search__field {
+    width: 100% !important;
+    height: 26px !important;
+    display: block;
+    min-height: 26px;
+    transition: all 400ms;
+    color: #191b23;
+    padding: 0px 15px;
+  }
+}
+
+#notificationForm {
+  & #msg {
+    width: 100% !important;
+    border: 2px solid #dedfe4 !important;
+    border-radius: 4px !important;
+    background-color: #f8f8f8 !important;
+  }
 }

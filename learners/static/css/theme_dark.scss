@@ -1,5 +1,5 @@
-$primary: #31b7bc !default;
-$menu_inactive: #e5f5f5 !default;
+$primary: #666666 !default;
+$menu_inactive: #dddddd !default;
 $menu_active: #ffffff !default;
 
 @import '_variables.scss';
@@ -22,7 +22,7 @@ $menu_active: #ffffff !default;
 
 #navigation {
     background-color: $primary;
-    background: linear-gradient(180deg, #31b7bc 0%, #3b6c8c 55%, #470f51 100%);
+    background-color: #666666;
 
     a.p-3 {
         padding: 1.2rem 0.4rem !important;
@@ -40,7 +40,7 @@ $menu_active: #ffffff !default;
         transition: all 400ms;
         text-align: center;
 
-        .client_index {
+        .tab_index {
           display: inline-block;
           line-height: 0px;
           border-radius: 50%;
@@ -54,7 +54,7 @@ $menu_active: #ffffff !default;
           transition: all 400ms;
         }
 
-        .client_index span {
+        .tab_index span {
           display: inline-block;
           padding-top: 48%;
           padding-bottom: 50%;
@@ -80,7 +80,7 @@ $menu_active: #ffffff !default;
             fill: $menu_active;
           }
 
-          .client_index {
+          .tab_index {
             color: $primary;
             background-color: $menu_active;
             outline: 2px solid $primary;

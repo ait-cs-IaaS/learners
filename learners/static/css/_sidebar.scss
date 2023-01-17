@@ -13,7 +13,7 @@
       fill: $light;
     }
 
-    .client_index {
+    .tab_index {
       background-color: $light;
     }
   }
@@ -29,7 +29,7 @@
   transition: all 400ms;
   text-align: center;
 
-  .client_index {
+  .tab_index {
     display: inline-block;
     line-height: 0px;
     border-radius: 50%;
@@ -43,7 +43,7 @@
     transition: all 400ms;
   }
 
-  .client_index span {
+  .tab_index span {
     display: inline-block;
     padding-top: 48%;
     padding-bottom: 50%;
@@ -69,7 +69,7 @@
       fill: $light;
     }
 
-    .client_index {
+    .tab_index {
       color: $mid-1;
       background-color: $light;
       outline: 2px solid $mid-1;
@@ -96,7 +96,7 @@
   }
 }
 
-#menu-newtab {
+#menu-newtab, #menu-notification {
   transition: all 100ms;
   cursor: pointer;
 }
