@@ -4,13 +4,13 @@ CyberRange
 {% endblock %}
 {% block content %}
 
-<iframe id="exercises" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_exercises }}"
+<iframe id="exercises" class="content-container pager exercises" frameborder="0" noresize="noresize" src="{{ url_exercises }}"
   frameborder="0"></iframe>
 
-<iframe id="documentation" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
+<iframe id="documentation" class="content-container pager documentation" frameborder="0" noresize="noresize" src="{{ url_documentation }}"
   frameborder="0"></iframe>
 
-<iframe id="presentations" class="content-container pager" frameborder="0" noresize="noresize" src="{{ url_presentations }}"
+<iframe id="presentations" class="content-container pager presentations" frameborder="0" noresize="noresize" src="{{ url_presentations }}"
   frameborder="0"></iframe>
 
 {% for site in staticsites %}
@@ -31,18 +31,14 @@ CyberRange
 </div>
 
 {% for vnc_client, client_info in vnc_clients.items() %}
-<iframe id="{{ vnc_client }}" class="content-container pager novnc_client" frameborder="0" noresize="noresize"
+<iframe id="{{ vnc_client }}" class="content-container pager novnc_client clients" frameborder="0" noresize="noresize"
   src="{{ client_info.url }}" name="{{ client_info.tooltip }}"></iframe>
 {% endfor %}
 {% endif %}
 
-<div id="preloader" class="content-container pager">
-  <div class="lds-ring">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
+<div id="notification-container">
+  <ul>
+  </ul>
 </div>
 
 <script>
