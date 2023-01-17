@@ -25,6 +25,10 @@
           {% with href="/comments", tooltip="Comments", icon="icon_chat" %}
             {% include "partials/tab.html" %}
           {% endwith %}
+
+          {% with href="/admin/notifications", tooltip="Notifications", icon="icon_notification_active" %}
+            {% include "partials/tab.html" %}
+          {% endwith %}
         {% endif %}
 
         {% if url_documentation %}
@@ -54,13 +58,13 @@
         {% if vnc_clients %}
           {% for vnc_client, client_info in vnc_clients.items() %}
             <li class="nav-item">
-              <a href="/access#{{ vnc_client }}" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+              <a href="/access#{{ vnc_client }}" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
                 data-bs-original-title="{{ client_info.tooltip }}">
                 <svg class="bi" width="22" height="22" role="img">
                   <use xlink:href="#icon_vnc"></use>
                 </svg>
                 {% if vnc_clients | length > 1 %}
-                  <div class="client_index">
+                  <div class="tab_index">
                     <span>{{ loop.index }}</span>
                   </div>
                 {% endif %}
@@ -76,7 +80,16 @@
 
   {% if authenticated is sameas true %}
     <div class="nav-item">
-      <a id="menu-newtab" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+      <a id="menu-notification" class="nav-link py-1 pb-2" data-bs-toggle="tooltip" data-bs-placement="right"
+        data-bs-original-title="Show/Hide notifications" state="active">
+        <svg class="bi" width="24" height="24" role="img"><use xlink:href="#icon_notification_active"></use></svg>
+        <div class="tab_index" style="display: hidden;">
+          <span></span>
+        </div>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a id="menu-newtab" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
         data-bs-original-title="Open current view in new tab">
         <svg class="bi" width="24" height="24" role="img">
           <use xlink:href="#icon_newtab"></use>
@@ -87,7 +100,7 @@
 
   {% if chat %}
     <div class="nav-item">
-      <span href="#" id="menu-chat" class="nav-link py-3" data-bs-toggle="tooltip" data-bs-placement="right"
+      <span href="#" id="menu-chat" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
         data-bs-original-title="Support Chat">
         <svg class="bi" width="21" height="21" role="img">
           <use xlink:href="#icon_chat"></use>
