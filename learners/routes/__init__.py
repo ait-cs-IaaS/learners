@@ -5,5 +5,5 @@ from learners.routes.execution import execution_api
 from learners.routes.comment import comment_api
 from learners.routes.home import home_api
 from learners.routes.interface import interface_api
-from learners.routes.live import live_api
+from learners.routes.notification import notification_api
 from learners.routes.statics import statics_api

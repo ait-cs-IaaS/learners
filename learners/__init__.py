@@ -25,7 +25,7 @@ def main():
     app.register_blueprint(routes.home_api)
     app.register_blueprint(routes.authentication_api)
     app.register_blueprint(routes.interface_api)
-    app.register_blueprint(routes.live_api)
+    app.register_blueprint(routes.notification_api)
     app.register_blueprint(routes.execution_api)
     app.register_blueprint(routes.comment_api)
     app.register_blueprint(routes.callback_api)

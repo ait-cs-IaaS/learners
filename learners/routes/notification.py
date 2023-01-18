@@ -18,10 +18,10 @@ from learners.conf.config import cfg
 from learners.jwt_manager import admin_required
 from learners.logger import logger
 
-live_api = Blueprint("live_api", __name__)
+notification_api = Blueprint("notification_api", __name__)
 
 
-@live_api.route("/notification/<mode>", methods=["GET"])
+@notification_api.route("/notification/<mode>", methods=["GET"])
 @jwt_required()
 def get_notification(mode):
 
@@ -41,7 +41,7 @@ def get_notification(mode):
     return jsonify(notifications=notifications, totalNotifications=totalNotifications)
 
 
-@live_api.route("/notification/prev/<current_notification_id>", methods=["GET"])
+@notification_api.route("/notification/prev/<current_notification_id>", methods=["GET"])
 @jwt_required()
 def get_prev_notification(current_notification_id):
 
@@ -52,7 +52,7 @@ def get_prev_notification(current_notification_id):
     return jsonify(notifications=notifications, totalNotifications=totalNotifications)
 
 
-@live_api.route("/notification/next/<current_notification_id>", methods=["GET"])
+@notification_api.route("/notification/next/<current_notification_id>", methods=["GET"])
 @jwt_required()
 def get_next_notification(current_notification_id):
 
@@ -63,7 +63,7 @@ def get_next_notification(current_notification_id):
     return jsonify(notifications=notifications, totalNotifications=totalNotifications)
 
 
-@live_api.route("/notification", methods=["POST"])
+@notification_api.route("/notification", methods=["POST"])
 @admin_required()
 def post_notification():
 
