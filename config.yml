@@ -1,6 +1,6 @@
 learners:
-  theme: "dark"
   landingpage: "novnc"
+  # theme: "dark"
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -43,23 +43,36 @@ serve_presentations: True
 #   endpoint: "http://localhost:5000/callback"
 
 novnc:
-  server: "http://localhost:8888"
+  server: "https://novnc.demo.cyberrange.rocks"
 
 users:
   test:
     password: test
     # role: instructor
+    groups:
+      - csirts
+      - test
     vnc_clients:
-      soc_client:
-        target: placeholder_1
-        tooltip: "SOC client"
+      engineer01:
+        password: mozart.rocks
+        target: dosivax_csirt_client_1
+        tooltip: Client1
         username: csirt1
-        password: placeholder
-      pps_client:
-        target: placeholder_3
-        tooltip: "PPS client"
-        username: csirt3
-        password: placeholder
+      csirt2:
+        password: mozart.rocks
+        target: dosivax_csirt_client_2
+        tooltip: Client2
+        username: csirt2
+#      soc_client:
+#        target: placeholder_1
+#        tooltip: "SOC client"
+#        username: csirt1
+#        password: placeholder
+#      pps_client:
+#        target: placeholder_3
+#        tooltip: "PPS client"
+#        username: csirt3
+#        password: placeholder
   ben:
     password: ben
     # vnc_clients:
@@ -72,3 +85,11 @@ users:
     password: admin
     admin: True
     role: instructor
+    groups:
+      - csirts
+
+init_notifications:
+  - title: Game Start
+    msg: <h1>Game Start</h1> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+  - title: "Hint #1"
+    msg: "<strong>Hint:</strong><br> Monitor you DMZ zone. Try using the following query: <br> <code>destination.address : 10.0.0.0/24</code>"
