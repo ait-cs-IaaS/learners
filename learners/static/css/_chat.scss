@@ -2,9 +2,9 @@
   z-index: 20;
   position: absolute;
   bottom: 0;
-  width: calc(30% - #{$nav-width});
+  width: calc(30% - #{var(--nav-width)});
   height: 80%;
-  margin-left: $nav-width;
+  margin-left: var(--nav-width);
   background-color: rgba(15, 16, 23, 0.85);
   overflow: auto;
   resize: both;

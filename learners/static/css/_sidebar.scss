@@ -1,97 +1,107 @@
 #navigation {
+  background: var(--sidebar-background-color);
   display: flex;
-  background-color: $dark-2;
-  color: $light;
-  width: $nav-width;
+  flex-direction: column;
+  width: var(--nav-width);
   height: 100%;
 
-  a.active {
-    background: none;
-    border-radius: 0;
+  .logo {
+    width: 100%;
+    display: flex;
+    margin: 20px auto;
+    justify-content: center;
 
-    svg {
-      fill: $light;
+    svg, img {
+      fill: white;
+      height: 42px;
+      width: 42px;
     }
-
-    .tab_index {
-      background-color: $light;
-    }
-  }
-}
-
-.bi {
-  vertical-align: -0.125em;
-  pointer-events: none;
-  fill: currentColor;
-}
-
-.nav-item {
-  transition: all 400ms;
-  text-align: center;
-
-  .tab_index {
-    display: inline-block;
-    line-height: 0px;
-    border-radius: 50%;
-    outline: 2px solid $dark-2;
-    background-color: $purple-light;
-    height: 15px;
-    width: 15px;
-    position: absolute;
-    margin-top: 12px;
-    margin-left: -8px;
-    transition: all 400ms;
   }
 
-  .tab_index span {
-    display: inline-block;
-    padding-top: 48%;
-    padding-bottom: 50%;
-    font-weight: 900;
-    color: $dark-2;
-    font-size: 10px;
-    transition: all 400ms;
-  }
+  nav {
 
-  .nav-link {
-    border-radius: 0;
-  }
+    ul {
+      list-style: none;
+      padding: 0;
 
-  .nav-link svg {
-    fill: $purple-light;
-    transition: all 400ms;
-  }
+      li {
+        height: 52px;
+        transition: all 250ms;
 
-  &:hover {
-    background-color: $mid-1;
+        a {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          width: 100%;
+          position: relative;
 
-    .nav-link svg {
-      fill: $light;
-    }
+          svg {
+            height: 24px;
+            width: 24px;
+            fill: var(--menu-inactive-color);
+            transition: all 250ms;
+          }
 
-    .tab_index {
-      color: $mid-1;
-      background-color: $light;
-      outline: 2px solid $mid-1;
+          .tab_index {
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            right: 10px;
+            border-radius: 50%;
+            height: 15px;
+            width: 15px;
+            margin-top: 12px;
+            margin-left: -8px;
+            outline: 2px solid var(--sidebar-background-color);
+            background-color: var(--menu-inactive-color);
+            transition: all 250ms;
 
-      & span {
-        color: $mid-1;
+            span {
+              display: inline-block;
+              font-weight: 900;
+              color: var(--sidebar-background-color);
+              font-size: 10px;
+              margin-top: 1px;
+              transition: all 250ms;
+            }
+          }
+
+        }
+
+        &:hover, a.active {
+          svg {
+            fill: var(--menu-active-color);
+          }
+          .tab_index {
+            background-color: var(--menu-active-color);
+          }
+        }
+
       }
     }
+
+    &.top-nav {
+      margin-bottom: auto;
+    }
+    &.bottom-nav ul {
+      margin-bottom: 0px;
+    }
   }
 }
+
 
 #menu-chat {
   transition: all 100ms;
   cursor: pointer;
 
   &.active {
-    background-color: $primary !important;
+    background-color: var(--primary-color) !important;
     background: none;
     border-radius: 0;
 
     svg {
-      fill: $light;
+      fill: var(--light-grey-color);
     }
   }
 }

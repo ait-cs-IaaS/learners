@@ -1,10 +1,10 @@
 from flask_assets import Bundle
 
 
-def get_bundle(theme):
+def get_bundle():
     return {
         "theme.css": Bundle(
-            "css/theme_{0}.scss".format(theme),
+            "css/theme.scss",
             filters="libsass",
             depends="**/*.scss",
             output="gen/theme.%(version)s.css",
