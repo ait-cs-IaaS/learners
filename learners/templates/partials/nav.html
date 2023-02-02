@@ -1,18 +1,19 @@
 
-<div id="navigation" class="d-flex flex-column flex-shrink-0">
-  <a href="/login" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip"
-  data-bs-placement="right" data-bs-original-title="{{ 'Logout' if authenticated else 'Login' }}">
+<div id="navigation">
+  <a href="/login" class="logo tooltip">
 
-    <svg class="bi nav-logo">
-      <use xlink:href="#{{ theme if branding else'ait' }}"></use>
-    </svg>
+    {% if logo %}
+      {{ logo | safe }}
+    {% else %}
+      <img src="{{ url_for('static', filename='img/ait-logo.svg') }}" alt="AIT" />
+    {% endif %}
+
+    <span class="tooltiptext">{{ 'Logout' if authenticated else 'Login' }}</span>
   </a>
 
   {% if authenticated is sameas true %}
-
-    <nav class="mb-auto">
-      <ul class="nav flex-column text-center">
-
+    <nav class="top-nav">
+      <ul>
         {% if admin %}
           {% with href="/result/all", tooltip="Results", icon="icon_results" %}
             {% include "partials/tab.html" %}
@@ -57,12 +58,10 @@
 
         {% if vnc_clients %}
           {% for vnc_client, client_info in vnc_clients.items() %}
-            <li class="nav-item">
-              <a href="/access#{{ vnc_client }}" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
-                data-bs-original-title="{{ client_info.tooltip }}">
-                <svg class="bi" width="22" height="22" role="img">
-                  <use xlink:href="#icon_vnc"></use>
-                </svg>
+            <li>
+              <a href="/access#{{ vnc_client }}" class="tooltip">
+                <svg><use xlink:href="#icon_vnc"></use></svg>
+                <span class="tooltiptext">{{ client_info.tooltip }}</span>
                 {% if vnc_clients | length > 1 %}
                   <div class="tab_index">
                     <span>{{ loop.index }}</span>
@@ -72,41 +71,39 @@
             </li>
           {% endfor %}
         {% endif %}
-
       </ul>
     </nav>
   {% endif %}
 
+  <nav class="bottom-nav">
+    <ul>
+      {% if authenticated is sameas true %}
+        <li>
+          <a id="menu-notification" class="tooltip" state="active">
+            <svg><use xlink:href="#icon_notification_active"></use></svg>
+            <span class="tooltiptext">Show/Hide notifications</span>
+            <div class="tab_index" style="display: hidden;">
+              <span></span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a id="menu-newtab" class="tooltip">
+            <svg><use xlink:href="#icon_newtab"></use></svg>
+            <span class="tooltiptext">Open current view in new tab</span>
+          </a>
+        </li>
+      {% endif %}
 
-  {% if authenticated is sameas true %}
-    <div class="nav-item">
-      <a id="menu-notification" class="nav-link py-1 pb-2" data-bs-toggle="tooltip" data-bs-placement="right"
-        data-bs-original-title="Show/Hide notifications" state="active">
-        <svg class="bi" width="24" height="24" role="img"><use xlink:href="#icon_notification_active"></use></svg>
-        <div class="tab_index" style="display: hidden;">
-          <span></span>
-        </div>
-      </a>
-    </div>
-    <div class="nav-item">
-      <a id="menu-newtab" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
-        data-bs-original-title="Open current view in new tab">
-        <svg class="bi" width="24" height="24" role="img">
-          <use xlink:href="#icon_newtab"></use>
-        </svg>
-      </a>
-    </div>
-  {% endif %}
-
-  {% if chat %}
-    <div class="nav-item">
-      <span href="#" id="menu-chat" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
-        data-bs-original-title="Support Chat">
-        <svg class="bi" width="21" height="21" role="img">
-          <use xlink:href="#icon_chat"></use>
-        </svg>
-      </span>
-    </div>
-  {% endif %}
+      {% if chat %}
+        <li>
+          <a href="#" id="menu-chat" class="tooltip">
+            <svg><use xlink:href="#icon_chat"></use></svg>
+            <span class="tooltiptext">Support Chat</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 
 </div>

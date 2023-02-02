@@ -1,8 +1,10 @@
-<li class="nav-item">
-  <a href="{{ href }}" class="nav-link py-2 pb-3" data-bs-toggle="tooltip" data-bs-placement="right"
-    data-bs-original-title="{{ tooltip }}">
-    <svg class="bi" width="24" height="24" role="img">
+<li class="tooltip">
+  <a href="{{ href }}">
+    <svg>
       <use xlink:href="#{{ icon }}"></use>
     </svg>
+    <span class="tooltiptext">
+      {{ tooltip }}
+    </span>
   </a>
 </li>
