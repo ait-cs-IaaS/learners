@@ -2,9 +2,34 @@ from strictyaml import Any, Bool, EmptyDict, EmptyList, EmptyNone, Int, Map, Map
 
 config_schema = Map(
     {
-        Optional("learners", default={"theme": "dark", "language_code": "en"},): Map(
+        Optional("learners"): EmptyDict()
+        | Map(
             {
-                Optional("theme", default="dark"): Str(),
+                Optional("theme"): EmptyDict()
+                | Map(
+                    {
+                        Optional("primary_color", default="#666666"): Str(),
+                        Optional("sidebar_background_color", default="#666666"): Str(),
+                        Optional("menu_active_color", default="#ffffff"): Str(),
+                        Optional("menu_inactive_color", default="#a3a3a3"): Str(),
+                        Optional("main_background_color", default="#f6f6f6"): Str(),
+                        Optional("main_text_color", default="#191b23"): Str(),
+                        Optional("success_color", default="#4a8864"): Str(),
+                        Optional("success_color_light", default="#6cbd8e"): Str(),
+                        Optional("fail_color", default="#da1e55"): Str(),
+                        Optional("fail_color_light", default="#d34a5d"): Str(),
+                        Optional("info_color", default="#619dc7"): Str(),
+                        Optional("info_color_light", default="#87b6d8"): Str(),
+                        Optional("light_grey_color", default="#dedfe4"): Str(),
+                        Optional("mid_grey_color", default="#c0c0c0"): Str(),
+                        Optional("dark_grey_color", default="#8c8c8c"): Str(),
+                        Optional("input_placeholder_color", default="#bfbfbf"): Str(),
+                        Optional("input_background_color", default="#dedfe4"): Str(),
+                        Optional("input_text_color", default="#191b23"): Str(),
+                        Optional("nav_width", default="60px"): Str(),
+                    }
+                ),
+                Optional("logo"): Str(),
                 Optional("landingpage", default="documentation"): Str(),
                 Optional("language_code", default="en"): Str(),
                 Optional("upload_folder", default="/var/tmp/"): Str(),
@@ -85,5 +110,14 @@ config_schema = Map(
         Optional("exercise_json", default="static/hugo/exercises.json"): Str(),
         Optional("questionaire_json", default="static/hugo/questionaires.json"): Str(),
         Optional("questionaires_questions_json", default="static/hugo/questionaires_questions.json"): Str(),
+        Optional("init_notifications"): EmptyList()
+        | Seq(
+            Map(
+                {
+                    "title": Str(),
+                    "msg": Str(),
+                }
+            )
+        ),
     }
 )

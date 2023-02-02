@@ -44,6 +44,7 @@ class Configuration:
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
         self.theme = learners_config.get("learners").get("theme")
+        self.logo = learners_config.get("learners").get("logo")
         self.landingpage = learners_config.get("learners").get("landingpage")
         self.language_code = learners_config.get("learners").get("language_code")
         self.static_base_url = learners_config.get("statics").get("directory")
@@ -57,13 +58,15 @@ class Configuration:
         self.staticsites = learners_config.get("staticsites") or []
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
+        self.init_notifications = learners_config.get("init_notifications") or []
 
         self.template = {
             "theme": self.theme,
-            "branding": self.theme not in ["dark", "light"],
+            "logo": self.logo,
             "landingpage": self.landingpage,
             "chat": False,
             "staticsites": self.staticsites,
+            "init_notifications": self.init_notifications,
         }
 
 
@@ -87,7 +90,7 @@ def build_config(app):
 
 def config_app(app):
 
-    Environment(app).register(get_bundle(cfg.theme))
+    Environment(app).register(get_bundle())
 
     app.config["SQLALCHEMY_DATABASE_URI"] = cfg.db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
