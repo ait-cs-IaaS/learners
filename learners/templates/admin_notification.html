@@ -8,6 +8,36 @@ CyberRange
   <div class="content">
   <h1>Notifications</h1>
 
+  <h4>Choose a predefined Notification</h4>
+
+  <p>Click on one of the predefined notifications to use it as message content.</p>
+
+  <div style="margin-bottom: 60px;">
+  {% if init_notifications | length %}
+  <table id="notification_table">
+    <tr>
+        <th width="20%">Title</th>
+        <th>Message</th>
+    </tr>
+
+    {% for init_notification in init_notifications %}
+    <tr onclick="insertNotificationToTextarea(this)">
+      <td id="title"><strong>{{ init_notification["title"] }}</strong></td>
+      <td id="msg">{{ init_notification["msg"] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <span class="no-data">
+    No predefined notifications.
+  </span>
+  {% endif %}
+  </div>
+
+  <h4>Create a new Notification</h4>
+
+  <p>Select the user to whom the notification is to be sent. Multiple and group selection is possible (duplicate selections will be ignored). The position can be used to select the view on which the notification is to be displayed.</p>
+
   <form id="notificationForm">
     <label for="users">Users:</label>
     <select class="users-selection" name="users" id="users" multiple="multiple">
@@ -33,7 +63,7 @@ CyberRange
       <option value='presentations'>presentations</option>
     </select>
     <br><br>
-    <input type="submit" value="Submit" onclick="sendForm()">
+    <button type="submit" class="btn green-btn" onclick="sendForm()">Submit</button>
   </form>
   </div>
 </div>

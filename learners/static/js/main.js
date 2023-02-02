@@ -47,7 +47,7 @@ $(function () {
 		$('#chat-container').toggleClass('hideContent');
 	});
 
-	$('table td').hover(
+	$('table td').not('#notification_table td').hover(
 		function () {
 			var row = $(this).parent();
 			var col = $(this)

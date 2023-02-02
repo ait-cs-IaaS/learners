@@ -122,6 +122,11 @@ function checkNotificationVisibility(notification) {
 	}
 }
 
+function insertNotificationToTextarea(notification) {
+	const msg = notification.querySelector("#msg").textContent;
+	document.querySelector("#notificationForm #msg").value = msg;
+}
+
 $(function () {
 	setNotificationPolling('active');
 	initNotificationBtn();
