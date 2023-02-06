@@ -1,23 +1,28 @@
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="d-flex align-center text-center fill-height">
-      <h1>
-        {{ headline }}
-        <span>{{ headlineHighlight }}</span>
-      </h1>
+  <v-row class="fill-height align-center justify-center">
+    <v-col>
+      <v-row>
+        <v-col offset="1">
+          <h1 class="main-title">
+            {{ headline }}
+            <span>{{ headlineHighlight }}</span>
+          </h1>
+        </v-col>
+      </v-row>
 
-      <!-- eslint-disable vue/no-v-html -->
-      <div v-html="welcomeText" />
-      <!--eslint-enable-->
+      <v-row>
+        <v-col offset="1">
+          <!-- eslint-disable vue/no-v-html -->
+          <div v-html="welcomeText" />
+          <!--eslint-enable-->
+        </v-col>
+      </v-row>
 
-      <div class="py-14" />
-
-      <v-row class="d-flex align-center justify-center">
-        <v-col cols="2">
-          <v-form v-model="form" @submit.prevent="onSubmit">
+      <v-row class="align-start justify-start">
+        <v-col offset="1" xl="3" lg="4" md="6" cols="10">
+          <v-form v-model="form" @submit.prevent="submitHandler">
             <v-text-field
               v-model="username"
-              :readonly="loading"
               :rules="[rules.required]"
               prepend-inner-icon="mdi-account-outline"
               class="mb-2"
@@ -44,7 +49,6 @@
 
             <v-btn
               :disabled="!form"
-              :loading="loading"
               block
               color="success"
               size="large"
@@ -56,75 +60,58 @@
           </v-form>
         </v-col>
       </v-row>
-    </v-responsive>
-  </v-container>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
 import axios from "axios";
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import ymlconfig from "../../../frontend_config.yml";
 
 export default {
   name: "LoginForm",
-  data: () => ({
-    headline: "",
-    headlineHighlight: "",
-    welcomeText: "",
-    showPassword: false,
-    form: false,
-    username: null,
-    password: null,
-    loading: false,
+  data() {
+    return {
+      headline: ymlconfig.headline || "Welcome to",
+      headlineHighlight: ymlconfig.headlineHighlight || "Leaners",
+      welcomeText: ymlconfig.welcomeText || "",
+      showPassword: false,
+      form: false,
+      username: null,
+      password: null,
 
-    rules: {
-      required: (value) => !!value || "Required.",
-    },
-  }),
-  created() {
-    this.getResponse();
+      rules: {
+        required: (value) => !!value || "Required.",
+      },
+    };
   },
   methods: {
-    onSubmit() {
+    async submitHandler() {
       if (!this.form) return;
 
-      this.loading = true;
+      // const data = {
+      //   username: this.username || "",
+      //   password: this.password || "",
+      // };
 
-      const formData = new FormData();
-      formData.append("username", this.username || "");
-      formData.append("password", this.password || "");
+      const response = await axios.post("login", {
+        username: this.username || "",
+        password: this.password || "",
+      });
 
-      const path = "http://localhost:5000/login";
-      console.log(formData);
-      axios
-        .post(path, formData)
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      console.log(response);
+      //     .then((res) => {
+      //       console.log(res.data);
+      //     })
+      //     .catch((err) => {
+      //       console.log(err);
+      //     });
 
-      setTimeout(() => (this.loading = false), 2000);
-    },
-    transformAndClearBody(body) {
-      const htmlBody = marked.parse(body);
-      const sanitizedBody = DOMPurify.sanitize(htmlBody);
-      return sanitizedBody;
-    },
-    getResponse() {
-      const path = "http://localhost:5000";
-      axios
-        .get(path)
-        .then((res) => {
-          console.log(res.data);
-          this.headline = res.data.headline;
-          this.headlineHighlight = res.data.headlineHighlight;
-          this.welcomeText = this.transformAndClearBody(res.data.welcomeText);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      localStorage.setItem("token", response.data.token);
+
+      if (response.data.authenticated) {
+        this.$router.push("/");
+      }
     },
   },
 };
