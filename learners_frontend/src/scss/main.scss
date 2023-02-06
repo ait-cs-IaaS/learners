@@ -1,0 +1,43 @@
+// html,
+// body {
+//   font-family: "Rubik", sans-serif;
+// }
+
+.v-btn:not(.v-btn--outlined) {
+  border: none !important;
+  outline: none !important;
+
+  &::after {
+    border: none !important;
+    outline: none !important;
+  }
+}
+
+h1.main-title {
+  font-size: 5rem;
+  line-height: 1;
+
+  span {
+    display: block;
+  }
+}
+
+.pager {
+  position: absolute;
+  top: 0;
+  left: 56px;
+  height: 100%;
+  width: calc(100% - 56px);
+  overflow-x: hidden;
+  border: 2px solid red;
+  flex-grow: 1;
+}
+
+.fade-leave-active,
+.fade-enter-active {
+  transition: opacity 300ms;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}

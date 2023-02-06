@@ -11,13 +11,15 @@ import "vuetify/styles";
 // Composables
 import { createVuetify } from "vuetify";
 
+import ymlconfig from "../../../frontend_config.yml";
+
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
     themes: {
       light: {
         colors: {
-          primary: "#1867C0",
+          primary: ymlconfig.primary,
           secondary: "#5CBBF6",
         },
       },

@@ -1,0 +1,11 @@
+@use "vuetify/settings" with (
+  $body-font-family: (
+    "Rubik",
+    sans-serif,
+  ),
+  $heading-font-family: (
+    "Rubik",
+    sans-serif,
+  ),
+  $tooltip-background-color: #811616
+);
