@@ -349,7 +349,7 @@ function sendAjax(type, payload) {
 			url: payload.url,
 			headers: Object.assign(
 				{ 'Content-type': 'application/json' },
-				{ Authorization: `Bearer ${getCookie('access_token_cookie')}` },
+				{ Authorization: `Bearer ${getCookie('token')}` },
 				payload.additional_headers
 			),
 			data: payload.data,

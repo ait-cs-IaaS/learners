@@ -8,13 +8,13 @@ home_api = Blueprint("home_api", __name__)
 @home_api.route("/", methods=["GET"])
 def home():
 
-    response = {
-        "headline": "Welcome to",
-        "headlineHighlight": "Learners",
-        "welcomeText": """This is the entry point to the virtual environment of the simulation.<br>
-        Please log in with your assigned credentials:""",
-    }
-    return jsonify(response)
+    # response = {
+    #     "headline": "Welcome to",
+    #     "headlineHighlight": "Learners",
+    #     "welcomeText": """This is the entry point to the virtual environment of the simulation.<br>
+    #     Please log in with your assigned credentials:""",
+    # }
+    # return jsonify(response)
 
     try:
         verify_jwt_in_request()

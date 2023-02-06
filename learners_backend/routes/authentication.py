@@ -21,8 +21,10 @@ def login():
         except Exception:
             return render_template("login.html", **cfg.template)
 
-    username = request.form.get("username", None)
-    password = request.form.get("password", None)
+    data = request.get_json()
+
+    username = data.get("username", None)
+    password = data.get("password", None)
 
     print(username)
     print(password)
@@ -39,8 +41,8 @@ def login():
 
     access_token = create_access_token(identity=username, additional_claims={"admin": admin, "role": user_role})
     # response = make_response(redirect("/result/all", 302)) if admin else make_response(redirect("/access", 302))
-    response = jsonify(authenticated=True)
-    response.set_cookie("access_token_cookie", value=access_token, secure=True, httponly=False)
+    response = jsonify(authenticated=True, token=access_token)
+    response.set_cookie("token", value=access_token, secure=True, httponly=False)
 
     return response
 
