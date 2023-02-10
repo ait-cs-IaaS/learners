@@ -10,7 +10,6 @@ import "vuetify/styles";
 
 // Composables
 import { createVuetify } from "vuetify";
-
 import ymlconfig from "../../../frontend_config.yml";
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
