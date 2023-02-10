@@ -1,5 +1,7 @@
 // Composables
 import { createRouter, createWebHistory } from "vue-router";
+import { store } from "@/store";
+import axios from "axios";
 
 const routes = [
   {
@@ -9,11 +11,7 @@ const routes = [
       {
         path: "",
         name: "Mainpage",
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () =>
-          import(/* webpackChunkName: "home" */ "@/views/Mainpage.vue"),
+        component: () => import("@/views/Mainpage.vue"),
       },
     ],
   },
@@ -24,11 +22,7 @@ const routes = [
       {
         path: "",
         name: "Login",
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () =>
-          import(/* webpackChunkName: "home" */ "@/views/Login.vue"),
+        component: () => import("@/views/Login.vue"),
       },
     ],
   },
@@ -36,7 +30,23 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
+  linkActiveClass: "active",
   routes,
+});
+
+router.beforeEach(async (to) => {
+  // No authorization on public pages
+  const publicPages = ["/login"];
+  const authRequired = !publicPages.includes(to.path);
+
+  // Authenticate using the backend
+  let auth = await axios.get("authentication");
+  if (authRequired && !auth.data.user) {
+    return "/login";
+  }
+
+  // Get tabs from backend
+  await store.dispatch("getTabsFromServer");
 });
 
 export default router;
