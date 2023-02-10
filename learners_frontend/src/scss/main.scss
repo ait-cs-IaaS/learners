@@ -1,7 +1,11 @@
-// html,
-// body {
-//   font-family: "Rubik", sans-serif;
-// }
+html,
+body {
+  overflow: hidden;
+}
+
+[role="link"]:hover {
+  cursor: pointer;
+}
 
 .v-btn:not(.v-btn--outlined) {
   border: none !important;
@@ -22,22 +26,47 @@ h1.main-title {
   }
 }
 
-.pager {
-  position: absolute;
-  top: 0;
-  left: 56px;
-  height: 100%;
-  width: calc(100% - 56px);
-  overflow-x: hidden;
-  border: 2px solid red;
-  flex-grow: 1;
+.badge__badge {
+  pointer-events: none;
 }
 
-.fade-leave-active,
-.fade-enter-active {
-  transition: opacity 300ms;
+.pager {
+  top: 0;
+  transition: all 150ms;
+  position: absolute;
+  width: calc(100vw - 56px);
+  height: 100%;
+  overflow-x: hidden;
+  opacity: 1;
+
+  &.invisible {
+    opacity: 1;
+    z-index: 10;
+    animation: fade 250ms forwards;
+  }
 }
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
+
+@keyframes fade {
+  0% {
+    z-index: 10;
+  }
+  1% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    z-index: -10;
+  }
+}
+
+button.v-btn.admin {
+  border-radius: 0;
+  background-color: #f1f1f1;
+
+  &.active {
+    background-color: red;
+    color: red;
+  }
 }

@@ -7,5 +7,13 @@
     "Rubik",
     sans-serif,
   ),
-  $tooltip-background-color: #811616
+  $tooltip-background-color: #000000c7,
+
+  $badge-font-size: 0.6rem,
+  $badge-height: auto,
+  // $badge-border-radius: 50%,
+  $badge-min-width: 0.95rem,
+  $badge-padding: 3px 2px,
+  $badge-border-width: 2px,
+  $badge-border-color: rgb(var(--v-theme-primary))
 );
