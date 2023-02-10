@@ -1,5 +1,7 @@
 import axios from "axios";
+import { store } from "@/store";
 
 axios.defaults.baseURL = "http://localhost:5000/";
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + localStorage.getItem("token");
+
+let token = store.getters.getJwt;
+if (token) axios.defaults.headers.common["Authorization"] = "Bearer " + token;
