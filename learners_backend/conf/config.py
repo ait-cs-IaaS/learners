@@ -95,7 +95,8 @@ def config_app(app):
     app.config["SQLALCHEMY_DATABASE_URI"] = cfg.db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    app.config["JWT_ACCESS_COOKIE_NAME"] = "jwt_cookie"
+    app.config["JWT_QUERY_STRING_NAME"] = "jwt"
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
-    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
-    app.config["JWT_ACCESS_COOKIE_NAME"] = "token"
+    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies", "query_string"]
