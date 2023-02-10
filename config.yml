@@ -1,6 +1,11 @@
 learners:
-  landingpage: "novnc"
-  # theme: "dark"
+  landingpage: "documentation"
+  logo: |
+    <svg viewBox="0 0 343.71 136.32" style="enable-background:new 0 0 200 200;" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4" style="fill: #fff;"/>
+      <rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/>
+      <polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/>
+    </svg>
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -63,16 +68,16 @@ users:
         target: dosivax_csirt_client_2
         tooltip: Client2
         username: csirt2
-#      soc_client:
-#        target: placeholder_1
-#        tooltip: "SOC client"
-#        username: csirt1
-#        password: placeholder
-#      pps_client:
-#        target: placeholder_3
-#        tooltip: "PPS client"
-#        username: csirt3
-#        password: placeholder
+  #      soc_client:
+  #        target: placeholder_1
+  #        tooltip: "SOC client"
+  #        username: csirt1
+  #        password: placeholder
+  #      pps_client:
+  #        target: placeholder_3
+  #        tooltip: "PPS client"
+  #        username: csirt3
+  #        password: placeholder
   ben:
     password: ben
     # vnc_clients:
