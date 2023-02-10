@@ -2,6 +2,7 @@
 import vue from "@vitejs/plugin-vue";
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import pluginYaml from "vite-plugin-yaml2";
+import svgLoader from "vite-svg-loader";
 
 // Utilities
 import { defineConfig } from "vite";
@@ -24,6 +25,7 @@ export default defineConfig({
       styles: { configFile: "./src/scss/settings.scss" },
     }),
     pluginYaml(),
+    svgLoader(),
   ],
   define: { "process.env": {} },
   resolve: {
