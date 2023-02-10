@@ -1,9 +1,17 @@
-from flask import Blueprint, abort, send_from_directory, make_response, jsonify
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask import Blueprint, send_from_directory, make_response, jsonify, request
+from flask_jwt_extended import jwt_required
 from learners_backend.conf.config import cfg
+
 from learners_backend.logger import logger
 
 statics_api = Blueprint("statics_api", __name__)
+
+
+@statics_api.after_app_request
+def after_request_func(response):
+    if jwt := request.args.get("jwt"):
+        response.set_cookie("jwt_cookie", jwt)
+    return response
 
 
 @statics_api.route("/statics", methods=["GET"])
@@ -20,7 +28,8 @@ def serve_statics(path=""):
         path = f"{path}index.html" if path.endswith("/") else f"{path}/index.html"
 
     try:
-        return send_from_directory(static_root, path)
+        return make_response(send_from_directory(static_root, path))
+
     except Exception as e:
         logger.exception(f"ERROR: Loading file failed: {path}")
         return make_response(jsonify(error="file not found"), 404)
