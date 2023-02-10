@@ -7,3 +7,4 @@ from learners_backend.routes.home import home_api
 from learners_backend.routes.interface import interface_api
 from learners_backend.routes.notification import notification_api
 from learners_backend.routes.statics import statics_api
+from learners_backend.routes.setup import setup_api

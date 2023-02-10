@@ -30,6 +30,7 @@ def main():
     app.register_blueprint(routes.comment_api)
     app.register_blueprint(routes.callback_api)
     app.register_blueprint(routes.statics_api)
+    app.register_blueprint(routes.setup_api)
     app.register_blueprint(routes.admin_api)
 
     return app
