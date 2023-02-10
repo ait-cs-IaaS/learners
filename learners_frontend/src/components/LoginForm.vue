@@ -66,15 +66,15 @@
 
 <script lang="ts">
 import axios from "axios";
-import ymlconfig from "../../../frontend_config.yml";
+import { store } from "@/store";
 
 export default {
   name: "LoginForm",
   data() {
     return {
-      headline: ymlconfig.headline || "Welcome to",
-      headlineHighlight: ymlconfig.headlineHighlight || "Leaners",
-      welcomeText: ymlconfig.welcomeText || "",
+      headline: "Welcome to",
+      headlineHighlight: "Leaners",
+      welcomeText: "",
       showPassword: false,
       form: false,
       username: null,
@@ -85,32 +85,33 @@ export default {
       },
     };
   },
+  created() {
+    (async () => {
+      const response = await axios.get("setup/login");
+      this.headline = response.data.headline || "Welcome to";
+      this.headlineHighlight = response.data.headlineHighlight || "Learners";
+      this.welcomeText = response.data.welcomeText || "";
+      await store.dispatch("setCurrentView", response.data.landingpage);
+      await store.dispatch("setLogo", response.data.logo);
+    })();
+  },
   methods: {
     async submitHandler() {
       if (!this.form) return;
-
-      // const data = {
-      //   username: this.username || "",
-      //   password: this.password || "",
-      // };
-
       const response = await axios.post("login", {
-        username: this.username || "",
-        password: this.password || "",
+        username: this.username,
+        password: this.password,
       });
 
-      console.log(response);
-      //     .then((res) => {
-      //       console.log(res.data);
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
-
-      localStorage.setItem("token", response.data.token);
-
-      if (response.data.authenticated) {
+      const jwt = response.data.jwt;
+      if (jwt) {
+        store.dispatch("setJwt", jwt);
+        axios.defaults.headers.common["Authorization"] = "Bearer " + jwt;
         this.$router.push("/");
+      } else {
+        store.dispatch("unsetJwt");
+        axios.defaults.headers.common["Authorization"] = "";
+        store.dispatch("getTabsFromServer");
       }
     },
   },

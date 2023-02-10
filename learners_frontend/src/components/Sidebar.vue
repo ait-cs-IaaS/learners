@@ -1,35 +1,42 @@
 <template>
   <div>
-    <v-tooltip text="Tooltip" transition="slide-x-transition">
+    <!-- eslint-disable vue/no-v-html -->
+    <v-tooltip :text="authTooltip" transition="slide-x-transition">
       <template #activator="{ props }">
-        <v-btn
-          v-ripple="false"
-          variant="plain"
-          class="rounded-0"
-          block
-          fab
-          icon
-          plain
-          tile
-          color="white"
-          depressed
-          v-bind="props"
-        >
-          <v-icon>mdi-format-list-bulleted-square</v-icon>
-        </v-btn>
+        <router-link to="/login" custom v-slot="{ navigate }">
+          <div
+            role="link"
+            class="px-2 py-5"
+            @click="navigate"
+            v-html="logoSvg"
+            v-bind="props"
+          ></div>
+        </router-link>
       </template>
     </v-tooltip>
+    <!--eslint-enable-->
+    <div class="pt-5 mb-auto d-flex flex-column">
+      <tab-icon v-for="tab in tabs" :key="tab.id" :tab="tab" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import TabIcon from "./sub-components/TabIcon.vue";
+import { store } from "@/store";
+import ITabObject from "@/types";
+
 export default {
   name: "Sidebar",
-  methods: {
-    changeView() {
-      this.$store.commit("changeCurrentView");
-      console.log(this.$store.state.currentView);
-    },
+  components: {
+    TabIcon,
+  },
+  props: {
+    tabs: Array<ITabObject>,
+  },
+  computed: {
+    logoSvg: () => store.getters.getLogo,
+    authTooltip: () => (store.getters.getJwt ? "logout" : "login"),
   },
 };
 </script>
