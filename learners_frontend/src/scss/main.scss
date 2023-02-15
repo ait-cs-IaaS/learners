@@ -17,6 +17,10 @@ body {
   }
 }
 
+.v-btn.v-btn--icon {
+  border-radius: 0;
+}
+
 h1.main-title {
   font-size: 5rem;
   line-height: 1;
@@ -26,8 +30,9 @@ h1.main-title {
   }
 }
 
-.badge__badge {
-  pointer-events: none;
+.v-badge__badge,
+.v-badge__badge::after {
+  pointer-events: none !important;
 }
 
 .pager {
@@ -69,4 +74,9 @@ button.v-btn.admin {
     background-color: red;
     color: red;
   }
+}
+
+button.v-btn.resume-btn,
+button.v-btn.resume-btn span {
+  color: white;
 }
