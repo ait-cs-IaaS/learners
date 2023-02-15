@@ -1,11 +1,11 @@
 from functools import wraps
 
-from flask import render_template
+from flask import make_response, render_template
 from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
 
 from learners_backend.logger import logger
 from learners_backend.conf.config import cfg
-from learners_backend.conf.db_models import TokenBlocklist
+from learners_backend.conf.db_models import TokenBlocklist, User
 from learners_backend.database import db
 
 jwt = JWTManager()
@@ -22,6 +22,7 @@ def token_expired(jwt_header, jwt_payload):
 @jwt.invalid_token_loader
 def token_invalid(jwt_payload):
     error_msg = "Your token is invalid."
+
     cfg.template["admin"] = False
     cfg.template["authenticated"] = False
     return render_template("login.html", **cfg.template, error=error_msg)
@@ -52,6 +53,12 @@ def check_if_token_revoked(jwt_header, jwt_payload):
         return True
 
 
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    username = jwt_data["sub"]
+    return User.query.filter_by(name=username).one_or_none()
+
+
 @jwt.revoked_token_loader
 def token_revoked(jwt_header, jwt_payload):
     error_msg = "Token has been revoked."
@@ -73,6 +80,29 @@ def admin_required():
                 cfg.template["admin"] = False
                 cfg.template["authenticated"] = False
                 return render_template("login.html", **cfg.template, error=error_msg)
+
+        return decorator
+
+    return wrapper
+
+
+def jwt_required_any_location():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+
+            valid_token = False
+            for token_location in ["query_string", "headers", "cookies"]:
+                try:
+                    verify_jwt_in_request(locations=[token_location])
+                    valid_token = True
+                except Exception as e:
+                    pass
+
+            if valid_token:
+                return fn(*args, **kwargs)
+            else:
+                return make_response("No valid token found.", 401)
 
         return decorator
 
