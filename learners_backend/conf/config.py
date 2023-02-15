@@ -59,6 +59,7 @@ class Configuration:
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
         self.init_notifications = learners_config.get("init_notifications") or []
+        self.tabs = learners_config.get("tabs")
 
         self.template = {
             "theme": self.theme,

@@ -71,6 +71,33 @@ config_schema = Map(
                 }
             ),
         ),
+        Optional("tabs"): EmptyDict()
+        | Map(
+            {
+                Optional("standard"): MapPattern(
+                    Str(),
+                    EmptyDict()
+                    | Map(
+                        {
+                            Optional("tooltip"): Str(),
+                            Optional("icon"): Str(),
+                            Optional("url"): Str(),
+                        }
+                    ),
+                ),
+                Optional("staticsites"): MapPattern(
+                    Str(),
+                    EmptyDict()
+                    | Map(
+                        {
+                            Optional("tooltip"): Str(),
+                            Optional("icon"): Str(),
+                            "url": Str(),
+                        }
+                    ),
+                ),
+            }
+        ),
         Optional("venjix", default={"auth_secret": "", "url": ""}): Map(
             {
                 Optional("auth_secret", default=""): Str(),

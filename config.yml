@@ -26,6 +26,16 @@ exercise_json: "static/hugo/exercises.json"
 questionaire_json: "static/hugo/questionaires.json"
 questionaires_questions_json: "static/hugo/questionaires_questions.json"
 
+tabs:
+  standard:
+    documentation:
+      tooltip: "testtooltip"
+    exercises:
+    presentations:
+  staticsites:
+    test:
+      url: "http://localhost:5000/statics/hugo/participant/en/documentation"
+
 serve_documentation: True
 serve_exercises: True
 serve_presentations: True
@@ -66,7 +76,6 @@ users:
       csirt2:
         password: mozart.rocks
         target: dosivax_csirt_client_2
-        tooltip: Client2
         username: csirt2
   #      soc_client:
   #        target: placeholder_1
