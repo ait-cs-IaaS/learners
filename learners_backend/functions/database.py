@@ -50,7 +50,7 @@ def insert_initial_usergroups(*args, **kwargs):
 
 def insert_initial_users(*args, **kwargs):
     for user_name, userDetails in cfg.users.items():
-        user = {"name": user_name, "role": userDetails.get("role")}
+        user = {"name": user_name, "role": userDetails.get("role"), "admin": userDetails.get("admin")}
         db_create_or_update(User, "name", user)
 
 
