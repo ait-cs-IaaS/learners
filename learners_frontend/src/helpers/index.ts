@@ -1,6 +1,7 @@
 import ITabObject from "@/types/index";
 
-export const generateTabs = (tabs, newtabs) => {
+export const generateTabs = (tabs, response) => {
+  const newtabs = response.tabs;
   tabs = (newtabs || []).map((newtab) => {
     const i = tabs.findIndex((_element) => _element.id === newtab.id);
     if (i > -1) {
@@ -20,5 +21,7 @@ export const generateTabs = (tabs, newtabs) => {
     }
   });
 
-  return tabs;
+  const currentView = response.landingpage;
+
+  return { genTabs: tabs, genCurrentView: currentView };
 };
