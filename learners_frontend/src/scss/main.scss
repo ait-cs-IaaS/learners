@@ -1,6 +1,18 @@
-html,
 body {
   overflow: hidden;
+}
+
+html {
+  overflow: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Montserrat", sans-serif;
 }
 
 [role="link"]:hover {
@@ -43,6 +55,7 @@ h1.main-title {
   height: 100%;
   overflow-x: hidden;
   opacity: 1;
+  background-color: #f6f6f6;
 
   &.invisible {
     opacity: 1;
@@ -79,4 +92,45 @@ button.v-btn.admin {
 button.v-btn.resume-btn,
 button.v-btn.resume-btn span {
   color: white;
+}
+
+.v-window-item {
+  transform: translateX(0%) !important;
+  background-color: #f6f6f6;
+}
+.v-window-item.v-window-x-transition-enter-active {
+  transition: all 250ms !important;
+}
+.v-window-item.v-window-x-transition-enter-to,
+.v-window-item.v-window-x-transition-leave-from {
+  opacity: 1;
+  transform: translateX(0px) !important;
+}
+.v-window-item.v-window-x-transition-leave-to,
+.v-window-item.v-window-x-transition-enter-from {
+  opacity: 0;
+  transform: translateX(0px) !important;
+}
+.v-window-item.v-window-x-transition-leave-active {
+  transition: all 800ms !important;
+}
+
+.tab-container {
+  margin: 0;
+  padding: 60px 0;
+}
+
+.type-col {
+  max-width: calc(4ch + 24px) !important;
+}
+
+.exercise-row {
+  transition: all 150ms ease;
+  cursor: pointer;
+  .v-col {
+    align-self: center;
+  }
+  &:hover {
+    color: rgb(var(--v-theme-primary));
+  }
 }
