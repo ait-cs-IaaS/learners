@@ -19,8 +19,14 @@ export const store = createStore({
   mutations: {
     SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
     SET_JWT: (state: { jwt: string }, jwt: string) => (state.jwt = jwt),
-    SET_TABS: (state: { tabs: any }, newtabs: any) =>
-      (state.tabs = generateTabs(state.tabs || [], newtabs)),
+    SET_TABS: (state: { tabs: any; currentView: string }, response: any) => {
+      const { genTabs, genCurrentView } = generateTabs(
+        state.tabs || [],
+        response
+      );
+      state.tabs = genTabs;
+      state.currentView = genCurrentView;
+    },
     SET_CURRENT_VIEW: (state: { currentView: string }, currentView: string) =>
       (state.currentView = currentView),
     SET_OPENED_IN_TAB: (
@@ -36,19 +42,24 @@ export const store = createStore({
   actions: {
     setLogo: ({ commit }: { commit: Commit }, logo: string) =>
       commit("SET_LOGO", logo),
+
     setJwt: ({ commit }: { commit: Commit }, jwt: string) =>
       commit("SET_JWT", jwt),
+
     setOpendInTab: (
       { commit }: { commit: Commit },
       { tabId: string, opened: boolean }
     ) => commit("SET_OPENED_IN_TAB", { tabId: string, opened: boolean }),
+
     unsetJwt: ({ commit }: { commit: Commit }) => commit("SET_JWT", ""),
+
     setCurrentView: ({ commit }: { commit: Commit }, currentView: string) =>
       commit("SET_CURRENT_VIEW", currentView),
+
     async getTabsFromServer({ commit }) {
       try {
         await axios.get("setup/tabs").then((response) => {
-          commit("SET_TABS", response.data.tabs);
+          commit("SET_TABS", response.data);
         });
       } catch (error) {
         console.error(error);

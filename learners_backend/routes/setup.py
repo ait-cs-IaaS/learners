@@ -28,20 +28,15 @@ def getLoginInfo():
 def getSidebar():
 
     if not current_user:
-        print("not logged in")
         return jsonify(tabs=None)
 
-    # current_identity = get_jwt_identity()
-    print("-----> Admin: {} {}".format(current_user.admin, current_user.name))
-    # print(cfg.tabs)
-
-    standard_tabs = cfg.tabs.get("standard")
-    print(standard_tabs)
+    landingpage = cfg.landingpage
 
     tabs = []
 
     if current_user.admin:
         tabs.append(Tab(id="admin", _type="admin").__dict__)
+        landingpage = "admin"
 
     for tab_id, tab_details in cfg.tabs.get("standard").items():
         tabs.append(Tab(id=tab_id, _type="standard", **tab_details).__dict__)
@@ -54,11 +49,11 @@ def getSidebar():
         multiple = len(vnc_clients) > 1
 
         for index, (key, value) in enumerate(vnc_clients.items()):
-            print(index)
-            # print(client)
-            # key, value = client
-            print(key)
-            print(value)
+
+            # Set landingpage to first client if "novnc" is set as landingpage
+            if landingpage == "novnc" and index == 0:
+                landingpage = key
+
             if cfg.jwt_for_vnc_access:
                 additional_claims = {
                     "target": str(value.get("target")),
@@ -77,24 +72,4 @@ def getSidebar():
             tab_index = (index + 1) if multiple else 0
             tabs.append(Tab(id=key, _type="client", index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
 
-    print(tabs)
-
-    # tabs = [tabs[1].__dict__]
-
-    # print(tabs)
-
-    # x = Tab("test", "icon", "tooltip", "standard", "http://...")
-    # print(x)
-    # y = Tab(id="documentation", _type="standard")
-    # print(y)
-
-    # staticsites_tabs = cfg.tabs.get("staticsites")
-    # print(staticsites_tabs)
-
-    # tabs = [
-    #     {"id": "documentation", "type": "default", "url": "http://localhost:5000/statics/hugo/participant/en/documentation"},
-    #     {"id": "exercises", "type": "default", "url": "http://localhost:5000/statics/hugo/participant/en/exercises"},
-    #     {"id": "presentations", "type": "default", "url": "http://localhost:5000/statics/hugo/participant/en/presentations"},
-    # ]
-
-    return jsonify(tabs=tabs)
+    return jsonify(tabs=tabs, landingpage=landingpage)
