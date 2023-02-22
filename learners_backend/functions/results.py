@@ -15,10 +15,10 @@ def construct_results_table(exercises, users) -> Tuple[dict, dict]:
                 row[exercise.global_exercise_id] = int(any(completed_state)) if completed_state else -1
             rows.append(row)
 
-        columns = [{"col_id": "username", "col_name": "user"}]
-        columns.extend({"col_id": exercise.global_exercise_id, "col_name": exercise.exercise_name} for exercise in exercises)
+        cols = [{"id": "username", "name": "user"}]
+        cols.extend({"id": exercise.global_exercise_id, "name": exercise.exercise_name} for exercise in exercises)
 
-        return {"columns": columns, "rows": rows}
+        return {"cols": cols, "rows": rows}
 
     except Exception as e:
         logger.exception(e)
