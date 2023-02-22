@@ -4,6 +4,7 @@ import uuid
 
 from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from learners_backend.jwt_manager import jwt_required_any_location
 from learners_backend.logger import logger
 from learners_backend.functions.database import (
     db_create_execution,
@@ -29,7 +30,7 @@ execution_api = Blueprint("execution_api", __name__)
 
 
 @execution_api.route("/execution/<exercise_type>", methods=["POST"])
-@jwt_required(locations="headers")
+@jwt_required_any_location()
 def run_execution(exercise_type):
 
     username = get_jwt_identity()
