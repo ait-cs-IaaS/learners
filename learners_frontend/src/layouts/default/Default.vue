@@ -1,6 +1,13 @@
 <template>
   <v-container fluid class="pa-0 fill-height">
-    <v-navigation-drawer model-value rail permanent color="primary">
+    <v-navigation-drawer
+      model-value
+      rail
+      permanent
+      color="primary"
+      rail-width="60"
+      style="border: none"
+    >
       <sidebar :tabs="tabs" />
     </v-navigation-drawer>
 

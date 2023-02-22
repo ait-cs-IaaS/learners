@@ -6,7 +6,7 @@
         <router-link to="/login" custom v-slot="{ navigate }">
           <div
             role="link"
-            class="px-2 py-5"
+            class="px-2 py-5 my-3"
             @click="navigate"
             v-html="logoSvg"
             v-bind="props"
