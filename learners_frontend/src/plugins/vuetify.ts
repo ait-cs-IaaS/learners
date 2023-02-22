@@ -10,7 +10,6 @@ import "vuetify/styles";
 
 // Composables
 import { createVuetify } from "vuetify";
-import ymlconfig from "../../../frontend_config.yml";
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
@@ -18,8 +17,10 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          primary: ymlconfig.primary,
+          primary: "#0072bc",
           secondary: "#5CBBF6",
+          success: "#70ae70",
+          warning: "#c12f2f",
         },
       },
     },
