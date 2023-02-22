@@ -9,6 +9,7 @@ from learners_backend.functions.database import (
     get_all_questionaires_sorted,
     get_all_usergroups,
     get_all_users,
+    get_completed_state,
     get_executions_by_user_exercise,
     get_user_by_id,
     get_completion_percentage,
@@ -162,3 +163,151 @@ def admin_notifications():
     usergroups = get_all_usergroups()
 
     return render_template("admin_notification.html", userlist=userlist, usergroups=usergroups, **cfg.template)
+
+
+# @admin_api.route("/submissions", methods=["GET"])
+# @admin_required()
+# def get_all_submissions():
+
+#     grouped_exercises = {}
+#     sorted_exercises = get_all_exercises_sorted()
+
+#     for exercise in sorted_exercises:
+
+#         # Convert SQLalchemy object to dict
+#         exercise = exercise.__dict__
+#         # Remove '_sa_instance_state' from dict
+#         exercise.pop("_sa_instance_state")
+#         # Calculate and add 'completion_percentage'
+#         exercise["completion_percentage"] = get_completion_percentage(exercise.get("id"))
+
+#         page_title = exercise.get("page_title")
+#         parent_title = exercise.get("parent_page_title")
+
+#         # if parent title doesn't exist in dict, create key and add the exercise to its list
+#         if not grouped_exercises.get(parent_title):
+#             grouped_exercises[parent_title] = {page_title: [exercise]}
+#         # if parent title already exists, add exercise to respective key
+#         elif grouped_exercises[parent_title].get(page_title):
+#             grouped_exercises[parent_title][page_title].append(exercise)
+#         # if parent title but no page title exists, add page title and exercise to it
+#         else:
+#             grouped_exercises[parent_title][page_title] = [exercise]
+
+#     table_data = construct_results_table(sorted_exercises, get_all_users())
+
+#     return jsonify(exercises=grouped_exercises, tabledata=table_data)
+
+
+@admin_api.route("/submissions", methods=["GET"])
+@admin_required()
+def get_all_submissions():
+
+    users = get_all_users()
+    exercises = get_all_exercises()
+
+    submissions = []
+
+    for user in users:
+        executions = {"user_id": user.id, "username": user.name}
+        for exercise in exercises:
+            completed_state = [state[0] for state in get_completed_state(user.id, exercise.id)]
+            executions[exercise.global_exercise_id] = int(any(completed_state)) if completed_state else -1
+        submissions.append(executions)
+
+    return jsonify(submissions=submissions)
+
+
+@admin_api.route("/exercises", methods=["GET"])
+@admin_required()
+def get_exercises():
+
+    exercises = []
+    sorted_exercises = get_all_exercises_sorted()
+
+    for exercise in sorted_exercises:
+
+        # Convert SQLalchemy object to dict
+        exercise = exercise.__dict__
+        # Remove '_sa_instance_state' from dict
+        exercise.pop("_sa_instance_state")
+        # Calculate and add 'completion_percentage'
+        exercise["completion_percentage"] = get_completion_percentage(exercise.get("id"))
+
+        exercises.append(exercise)
+
+        # page_title = exercise.get("page_title")
+        # parent_title = exercise.get("parent_page_title")
+
+        # # if parent title doesn't exist in dict, create key and add the exercise to its list
+        # if not exercises.get(parent_title):
+        #     exercises[parent_title] = {page_title: [exercise]}
+        # # if parent title already exists, add exercise to respective key
+        # elif exercises[parent_title].get(page_title):
+        #     exercises[parent_title][page_title].append(exercise)
+        # # if parent title but no page title exists, add page title and exercise to it
+        # else:
+        #     exercises[parent_title][page_title] = [exercise]
+
+    return jsonify(exercises=exercises)
+
+    # users = get_all_users()
+    # exercises = get_all_exercises()
+
+    # submissions = []
+
+    # for user in users:
+    #     executions = {"user_id": user.id, "username": user.name}
+    #     for exercise in exercises:
+    #         completed_state = [state[0] for state in get_completed_state(user.id, exercise.id)]
+    #         executions[exercise.global_exercise_id] = int(any(completed_state)) if completed_state else -1
+    #     submissions.append(executions)
+
+    # return jsonify(submissions=submissions)
+
+    # try:
+    #     rows = []
+    #     for user in get_all_users():
+    #         row = {"user_id": user.id, "username": user.name}
+    #         for exercise in exercises:
+    #             completed_state = [state[0] for state in get_completed_state(user.id, exercise.id)]
+    #             row[exercise.global_exercise_id] = int(any(completed_state)) if completed_state else -1
+    #         rows.append(row)
+
+    #     cols = [{"id": "username", "name": "user"}]
+    #     cols.extend({"id": exercise.global_exercise_id, "name": exercise.exercise_name} for exercise in exercises)
+
+    #     return {"cols": cols, "rows": rows}
+
+    # except Exception as e:
+    #     logger.exception(e)
+    #     return None
+
+    # grouped_exercises = {}
+    # sorted_exercises = get_all_exercises_sorted()
+
+    # for exercise in sorted_exercises:
+
+    #     # Convert SQLalchemy object to dict
+    #     exercise = exercise.__dict__
+    #     # Remove '_sa_instance_state' from dict
+    #     exercise.pop("_sa_instance_state")
+    #     # Calculate and add 'completion_percentage'
+    #     exercise["completion_percentage"] = get_completion_percentage(exercise.get("id"))
+
+    #     page_title = exercise.get("page_title")
+    #     parent_title = exercise.get("parent_page_title")
+
+    #     # if parent title doesn't exist in dict, create key and add the exercise to its list
+    #     if not grouped_exercises.get(parent_title):
+    #         grouped_exercises[parent_title] = {page_title: [exercise]}
+    #     # if parent title already exists, add exercise to respective key
+    #     elif grouped_exercises[parent_title].get(page_title):
+    #         grouped_exercises[parent_title][page_title].append(exercise)
+    #     # if parent title but no page title exists, add page title and exercise to it
+    #     else:
+    #         grouped_exercises[parent_title][page_title] = [exercise]
+
+    # table_data = construct_results_table(sorted_exercises, get_all_users())
+
+    # return jsonify(exercises=grouped_exercises, tabledata=table_data)
