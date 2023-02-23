@@ -30,6 +30,7 @@ tabs:
   standard:
     documentation:
       tooltip: "testtooltip"
+      # icon: "cloud-arrow-down"
     exercises:
     presentations:
   staticsites:

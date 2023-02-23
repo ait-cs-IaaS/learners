@@ -1,18 +1,18 @@
 import json
 
 from flask import Blueprint, jsonify, render_template
-from learners_backend.conf.config import cfg
-from learners_backend.functions.database import (
+from backend.conf.config import cfg
+from backend.functions.database import (
     get_all_exercises,
     get_all_users,
     get_executions_by_user_exercise,
     get_exercise_by_name,
     get_user_by_id,
 )
-from learners_backend.functions.helpers import extract_history
-from learners_backend.functions.results import construct_results_table
-from learners_backend.jwt_manager import admin_required
-from learners_backend.logger import logger
+from backend.functions.helpers import extract_history
+from backend.functions.results import construct_results_table
+from backend.jwt_manager import admin_required
+from backend.logger import logger
 
 admin_api = Blueprint("admin_api", __name__)
 

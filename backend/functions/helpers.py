@@ -2,10 +2,10 @@ import json
 import os
 import time
 from datetime import datetime
-from learners_backend.logger import logger
+from backend.logger import logger
 from flask import url_for
 
-from learners_backend.conf.config import cfg
+from backend.conf.config import cfg
 
 
 def utc_to_local(utc_datetime: str, date: bool = True) -> str:
@@ -77,7 +77,7 @@ def allowed_file(filename):
 
 def replace_attachhment_with_url(formData):
     if formData:
-        from learners_backend.functions.database import get_filename_from_hash
+        from backend.functions.database import get_filename_from_hash
 
         for key, value in formData.items():
             if key == "attachment":

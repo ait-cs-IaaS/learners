@@ -1,1 +1,1 @@
-FLASK_APP="learners_backend"
+FLASK_APP="backend"

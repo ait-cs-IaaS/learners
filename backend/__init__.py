@@ -6,13 +6,13 @@ def main():
     app = Flask(__name__)
 
     with app.app_context():
-        from learners_backend.conf.config import build_config
+        from backend.conf.config import build_config
 
         build_config(app)
-        from learners_backend.database import build_db
+        from backend.database import build_db
 
         build_db(app)
-        from learners_backend.jwt_manager import init_jwt
+        from backend.jwt_manager import init_jwt
 
         init_jwt(app)
 
@@ -20,7 +20,7 @@ def main():
 
         CORS(app)
 
-    import learners_backend.routes as routes
+    import backend.routes as routes
 
     app.register_blueprint(routes.home_api)
     app.register_blueprint(routes.authentication_api)

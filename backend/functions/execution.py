@@ -4,12 +4,12 @@ from typing import Tuple
 
 import requests
 from flask_mail import Message
-from learners_backend.logger import logger
-from learners_backend.conf.config import cfg
-from learners_backend.conf.db_models import Execution, Exercise
-from learners_backend.database import db
-from learners_backend.functions.database import db_update_execution
-from learners_backend.functions.helpers import extract_history
+from backend.logger import logger
+from backend.conf.config import cfg
+from backend.conf.db_models import Execution, Exercise
+from backend.database import db
+from backend.functions.database import db_update_execution
+from backend.functions.helpers import extract_history
 
 
 def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, bool]:

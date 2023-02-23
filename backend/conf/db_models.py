@@ -1,5 +1,5 @@
 # sourcery skip: avoid-builtin-shadow
-from learners_backend.database import db
+from backend.database import db
 from sqlalchemy import func
 
 

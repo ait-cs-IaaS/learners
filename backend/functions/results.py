@@ -1,7 +1,7 @@
 from typing import Tuple
 
-from learners_backend.functions.database import get_completed_state
-from learners_backend.logger import logger
+from backend.functions.database import get_completed_state
+from backend.logger import logger
 
 
 def construct_results_table(exercises, users) -> Tuple[dict, dict]:

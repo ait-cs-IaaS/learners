@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from learners_backend.logger import logger
+from backend.logger import logger
 
 
 db = SQLAlchemy()
@@ -9,8 +9,8 @@ db = SQLAlchemy()
 def build_db(app):
     global db
 
-    from learners_backend.conf.db_models import Execution, Exercise, TokenBlocklist, User
-    from learners_backend.functions.database import insert_exercises, insert_initial_users, insert_questionaires, insert_initial_usergroups
+    from backend.conf.db_models import Execution, Exercise, TokenBlocklist, User
+    from backend.functions.database import insert_exercises, insert_initial_users, insert_questionaires, insert_initial_usergroups
 
     db.init_app(app)
     db.create_all()

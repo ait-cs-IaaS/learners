@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
 
-from learners_backend.functions.helpers import build_urls
-from learners_backend.conf.config import cfg
+from backend.functions.helpers import build_urls
+from backend.conf.config import cfg
 
 interface_api = Blueprint("interface_api", __name__)
 

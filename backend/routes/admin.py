@@ -3,8 +3,8 @@ import time
 
 from flask import Blueprint, jsonify, render_template, request
 from collections import defaultdict
-from learners_backend.conf.config import cfg
-from learners_backend.functions.database import (
+from backend.conf.config import cfg
+from backend.functions.database import (
     get_all_exercises,
     get_all_exercises_sorted,
     get_all_questionaires_sorted,
@@ -22,12 +22,12 @@ from learners_backend.functions.database import (
     get_question_counts,
     get_usergroup_by_name,
 )
-from learners_backend.functions.helpers import convert_to_dict, extract_history, replace_attachhment_with_url, build_urls
-from learners_backend.functions.results import construct_results_table
+from backend.functions.helpers import convert_to_dict, extract_history, replace_attachhment_with_url, build_urls
+from backend.functions.results import construct_results_table
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
-from learners_backend.jwt_manager import admin_required, only_self_or_admin
-from learners_backend.logger import logger
-from learners_backend.conf.config import cfg
+from backend.jwt_manager import admin_required, only_self_or_admin
+from backend.logger import logger
+from backend.conf.config import cfg
 
 admin_api = Blueprint("admin_api", __name__)
 

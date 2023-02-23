@@ -4,9 +4,9 @@ import uuid
 
 from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from learners_backend.jwt_manager import admin_required, jwt_required_any_location, only_self_or_admin
-from learners_backend.logger import logger
-from learners_backend.functions.database import (
+from backend.jwt_manager import admin_required, jwt_required_any_location, only_self_or_admin
+from backend.logger import logger
+from backend.functions.database import (
     db_create_execution,
     db_create_file,
     get_all_exercises,
@@ -22,12 +22,12 @@ from learners_backend.functions.database import (
     get_user_by_id,
     get_user_by_name,
 )
-from learners_backend.functions.execution import call_venjix, update_execution_response, wait_for_response
-from learners_backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict
+from backend.functions.execution import call_venjix, update_execution_response, wait_for_response
+from backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict
 
 
 from werkzeug.utils import secure_filename
-from learners_backend.conf.config import cfg
+from backend.conf.config import cfg
 
 
 execution_api = Blueprint("execution_api", __name__)

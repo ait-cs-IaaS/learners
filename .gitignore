@@ -1,19 +1,19 @@
 *.retry
 .idea/
 .envrc
-learners_backend/data.db
+backend/data.db
 develop_config.yml
-learners_backend/static/gen
-learners_backend/static/hugo
-learners_backend/static/documentation
-learners_backend/static/exercises
+backend/static/gen
+backend/static/hugo
+backend/static/documentation
+backend/static/exercises
 learners_data/*.db
 rendered_hugo_content/
-learners_frontend/node_modules/
-learners_frontend/frontend/node_modules/
-learners_frontend/frontend/public
-learners_frontend/frontend/dist
-learners_frontend/frontend/.DS_Store
+frontend/node_modules/
+frontend/node_modules/
+frontend/public
+frontend/dist
+frontend/.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -41,9 +41,9 @@ share/python-wheels/
 MANIFEST
 
 # DOCKER
-docker/learners_backend/__data/data.db
-docker/learners_backend/__templates/*
-docker/learners_backend/__webroot/*
+docker/backend/__data/data.db
+docker/backend/__templates/*
+docker/backend/__webroot/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

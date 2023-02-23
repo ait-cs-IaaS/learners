@@ -3,7 +3,7 @@ import json
 
 from flask import Blueprint, jsonify, request, send_from_directory, render_template, make_response
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, get_jwt
-from learners_backend.functions.database import (
+from backend.functions.database import (
     convert_usernames_to_ids,
     db_create_notification,
     get_next_notifications_by_user,
@@ -13,10 +13,10 @@ from learners_backend.functions.database import (
     update_notification_link,
 )
 
-from learners_backend.functions.helpers import build_urls, is_json
-from learners_backend.conf.config import cfg
-from learners_backend.jwt_manager import admin_required
-from learners_backend.logger import logger
+from backend.functions.helpers import build_urls, is_json
+from backend.conf.config import cfg
+from backend.jwt_manager import admin_required
+from backend.logger import logger
 
 notification_api = Blueprint("notification_api", __name__)
 

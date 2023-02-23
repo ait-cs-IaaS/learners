@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, make_response, render_template, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from learners_backend.functions.database import (
+from backend.functions.database import (
     db_create_comment,
     get_all_comments,
     get_exercise_by_global_exercise_id,
     get_user_by_id,
 )
 
-from learners_backend.conf.config import cfg
-from learners_backend.jwt_manager import admin_required
+from backend.conf.config import cfg
+from backend.jwt_manager import admin_required
 
 
 comment_api = Blueprint("comment_api", __name__)

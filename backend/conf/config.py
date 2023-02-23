@@ -4,8 +4,8 @@ import os
 from datetime import timedelta
 
 from flask_assets import Environment
-from learners_backend.logger import logger
-from learners_backend.assets import get_bundle
+from backend.logger import logger
+from backend.assets import get_bundle
 from strictyaml import YAMLError, load
 
 cfg = None
@@ -16,7 +16,7 @@ class Configuration:
         config_file = os.getenv("LEARNERS_CONFIG") or os.path.join(os.getcwd(), "config.yml")
 
         learners_config = {}
-        from learners_backend.conf.config_schema import config_schema
+        from backend.conf.config_schema import config_schema
 
         try:
             with open(config_file, "r") as stream:

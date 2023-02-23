@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, jsonify
 from flask_jwt_extended import get_jwt, verify_jwt_in_request
-from learners_backend.logger import logger
+from backend.logger import logger
 
 home_api = Blueprint("home_api", __name__)
 

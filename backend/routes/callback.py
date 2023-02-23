@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
 from flask import Blueprint, json, jsonify, make_response, request
-from learners_backend.functions.database import db_update_execution
-from learners_backend.logger import logger
+from backend.functions.database import db_update_execution
+from backend.logger import logger
 
 callback_api = Blueprint("callback_api", __name__)
 

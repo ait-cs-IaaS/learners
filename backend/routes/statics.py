@@ -1,9 +1,9 @@
 from flask import Blueprint, send_from_directory, make_response, jsonify, request
 from flask_jwt_extended import current_user
-from learners_backend.conf.config import cfg
-from learners_backend.jwt_manager import jwt_required_any_location
+from backend.conf.config import cfg
+from backend.jwt_manager import jwt_required_any_location
 
-from learners_backend.logger import logger
+from backend.logger import logger
 
 statics_api = Blueprint("statics_api", __name__)
 

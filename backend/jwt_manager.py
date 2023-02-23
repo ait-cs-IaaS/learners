@@ -2,12 +2,12 @@ from functools import wraps
 
 from flask import jsonify, make_response, render_template
 from flask_jwt_extended import JWTManager, get_jwt, verify_jwt_in_request
-from learners_backend.functions.database import get_user_by_name
+from backend.functions.database import get_user_by_name
 
-from learners_backend.logger import logger
-from learners_backend.conf.config import cfg
-from learners_backend.conf.db_models import TokenBlocklist, User
-from learners_backend.database import db
+from backend.logger import logger
+from backend.conf.config import cfg
+from backend.conf.db_models import TokenBlocklist, User
+from backend.database import db
 
 jwt = JWTManager()
 

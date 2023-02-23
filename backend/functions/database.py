@@ -5,9 +5,9 @@ from sqlite3 import IntegrityError
 import string
 from typing import Tuple
 
-from learners_backend.logger import logger, EXERCISE_INFO
-from learners_backend.conf.config import cfg
-from learners_backend.conf.db_models import (
+from backend.logger import logger, EXERCISE_INFO
+from backend.conf.config import cfg
+from backend.conf.db_models import (
     Attachment,
     Execution,
     Exercise,
@@ -21,8 +21,8 @@ from learners_backend.conf.db_models import (
     Usergroup,
     UsergroupAssociation,
 )
-from learners_backend.database import db
-from learners_backend.functions.helpers import extract_json_content
+from backend.database import db
+from backend.functions.helpers import extract_json_content
 from sqlalchemy import event, nullsfirst
 from sqlalchemy.orm import joinedload
 
