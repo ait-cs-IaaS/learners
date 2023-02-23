@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0 fill-height">
+  <v-container fluid class="pa-0">
     <v-navigation-drawer
       model-value
       rail
@@ -11,7 +11,7 @@
       <sidebar :tabs="tabs" />
     </v-navigation-drawer>
 
-    <v-main class="fill-height">
+    <v-main>
       <router-view :tabs="tabs" />
     </v-main>
   </v-container>

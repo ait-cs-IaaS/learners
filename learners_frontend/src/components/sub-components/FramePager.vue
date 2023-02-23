@@ -1,7 +1,8 @@
 <template>
   <div
-    class="content-container pager exercises d-flex justify-center flex-wrap align-content-center"
+    class="content-container pager exercises justify-center flex-wrap align-content-center"
     :class="{ invisible: !(currentView === tab.id) }"
+    v-show="currentView === tab.id"
   >
     <v-card
       v-if="tab.openedInTab"
@@ -34,8 +35,8 @@
       :src="iframeSrc"
       frameborder="0"
       noresize="noresize"
+      style="height: 100vh"
       width="100%"
-      height="100%"
     ></iframe>
   </div>
 </template>
@@ -51,7 +52,7 @@ export default {
   },
   computed: {
     currentView() {
-      return store.state.currentView;
+      return store.getters.getCurrentView;
     },
     iframeSrc() {
       const jwt = store.getters.getJwt;

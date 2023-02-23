@@ -1,9 +1,11 @@
-body {
-  overflow: hidden;
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+  display: none;
 }
-
+body,
 html {
-  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 h1,
@@ -51,11 +53,12 @@ h1.main-title {
   top: 0;
   transition: all 150ms;
   position: absolute;
-  width: calc(100vw - 56px);
-  height: 100%;
-  overflow-x: hidden;
+  width: calc(100vw - 60px);
+  height: 100vh;
+  overflow: hidden;
   opacity: 1;
   background-color: #f6f6f6;
+  display: block !important;
 
   &.invisible {
     opacity: 1;
@@ -79,13 +82,27 @@ h1.main-title {
   }
 }
 
-button.v-btn.admin {
-  border-radius: 0;
-  background-color: #f1f1f1;
-
+button.v-btn {
+  opacity: 0.5;
+  transition: all 150ms ease;
   &.active {
-    background-color: red;
-    color: red;
+    color: white !important;
+    opacity: 1;
+  }
+  &.admin {
+    border-radius: 0;
+    background-color: #f1f1f15e;
+    opacity: 1;
+    color: rgb(var(--v-theme-primary)) !important;
+
+    &:hover {
+      color: white !important;
+    }
+    &.active {
+      background-color: #f1f1f15e;
+      opacity: 1;
+      color: white !important;
+    }
   }
 }
 

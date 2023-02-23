@@ -1,7 +1,8 @@
 <template>
   <div
-    class="content-container pager exercises d-flex flex-wrap"
+    class="content-container pager exercises flex-wrap"
     :class="{ invisible: !(currentView === 'admin') }"
+    v-show="currentView === 'admin'"
     style="overflow-y: scroll"
   >
     <v-container class="pa-5 mt-5">
@@ -22,7 +23,10 @@
                 <submissions-overview class="tab-container" />
               </v-window-item>
               <v-window-item value="Exercises">
-                <exercises-overview class="tab-container" />
+                <exercises-overview
+                  :currentTab="adminTabs"
+                  class="tab-container"
+                />
               </v-window-item>
               <v-window-item value="Notifications">
                 Notifications
@@ -48,13 +52,18 @@ export default {
   },
   computed: {
     currentView() {
-      return store.state.currentView;
+      return store.getters.getCurrentView;
     },
   },
   data() {
     return {
-      adminTabs: null,
+      adminTabs: "Submissions",
     };
+  },
+  mounted() {
+    document.body.style.overflowY = "auto";
   },
 };
 </script>
+
+// TODO: Remove visibility when not in focus (SCROLLBAR)
