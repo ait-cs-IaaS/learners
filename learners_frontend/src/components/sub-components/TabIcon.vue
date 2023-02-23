@@ -3,7 +3,7 @@
     <template #activator="{ props }">
       <v-badge
         location="bottom end"
-        color="white"
+        color="primary lighten3"
         text-color="primary"
         bordered
         rounded
@@ -16,16 +16,16 @@
         <v-btn
           v-ripple="false"
           variant="plain"
-          :class="{ admin: tab._type === 'admin' }"
+          :class="{
+            admin: tab._type === 'admin',
+            active: tab.id === currentView,
+          }"
           block
           icon
-          selected-class="active"
-          :theme="tab._type === 'admin' ? 'light' : 'dark'"
-          :color="tab._type === 'admin' ? 'primary' : 'white'"
           v-bind="props"
           @click="changeView"
         >
-          <v-icon>{{ tab.icon }}</v-icon>
+          <SvgIcon :name="tab.icon" sidebar />
         </v-btn>
       </v-badge>
     </template>
@@ -35,11 +35,21 @@
 <script lang="ts">
 import ITabObject from "@/types";
 import { store } from "@/store";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "TabIcon",
+  components: {
+    SvgIcon,
+  },
   props: {
     tab: { type: Object as () => ITabObject, default: null },
+  },
+
+  computed: {
+    currentView() {
+      return store.getters.getCurrentView;
+    },
   },
   methods: {
     async changeView() {
