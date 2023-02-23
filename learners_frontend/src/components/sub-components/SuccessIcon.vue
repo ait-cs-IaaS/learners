@@ -1,18 +1,18 @@
 <template>
   <svg
-    class="success_checkmark"
+    class="success-checkmark"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 52 52"
   >
     <circle
-      class="success_checkmark__circle"
+      class="success-checkmark-circle"
       cx="26"
       cy="26"
       r="25"
       fill="none"
     />
     <path
-      class="success_checkmark__check"
+      class="success-checkmark-check"
       fill="none"
       d="M14.1 27.2l7.1 7.2 16.7-16.8"
     />
@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style>
-.success_checkmark__circle {
+.success-checkmark-circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
   stroke-width: 2;
@@ -35,7 +35,7 @@ export default {
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
-.success_checkmark {
+.success-checkmark {
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -47,7 +47,7 @@ export default {
   animation: success_fill 0.4s ease-in-out 0.4s forwards,
     scale 0.3s ease-in-out 0.9s both;
 }
-.success_checkmark__check {
+.success-checkmark-check {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
