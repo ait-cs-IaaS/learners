@@ -1,5 +1,5 @@
 <template>
-  <v-row class="fill-height align-center justify-center">
+  <v-row class="align-center justify-center" style="height: 100vh">
     <v-col>
       <v-row>
         <v-col offset="1">
@@ -45,7 +45,7 @@
               counter
             >
               <template v-slot:prepend-inner>
-                <SvgIcon name="lock-closed" />
+                <SvgIcon name="key" />
               </template>
               <template v-slot:append-inner>
                 <div @click="showPassword = !showPassword">
