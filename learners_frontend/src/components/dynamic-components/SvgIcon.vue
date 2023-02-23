@@ -3,7 +3,7 @@
     :class="{
       'sidebar-hero-icon': sidebar,
       'content-hero-icon': !sidebar,
-      'clickable-icon': clickable,
+      clickable: clickable,
     }"
     class="hero-icon"
   >
@@ -46,10 +46,6 @@ export default {
   display: flex;
   justify-content: center;
   align-content: center;
-}
-
-.hero-icon.clickable-icon {
-  cursor: pointer;
 }
 
 .hero-icon.sidebar-hero-icon {
