@@ -17,7 +17,7 @@ class Tab:
     ):
         self.id = id
         self._type = _type
-        self.icon = defaultIcon(id, _type)
+        self.icon = icon or defaultIcon(id, _type)
         self.tooltip = tooltip if tooltip else id
         self.url = url if url else defaultUrl(id, _type, user_role, language)
         self.index = index
@@ -37,21 +37,21 @@ def defaultUrl(id: string, _type: string, user_role: string, language: string) -
 def defaultIcon(id: string, _type: string) -> string:
     if _type == "standard":
         if id == "documentation":
-            return "mdi-file-document-outline"
+            return "clipboard-document-list"
         elif id == "exercises":
-            return "mdi-play-circle-outline"
+            return "play-circle"
         elif id == "presentations":
-            return "mdi-presentation"
+            return "presentation-chart-line"
     elif _type == "staticsite":
         if id == "mitre":
             return "mdi-alpha-m-box-outline"
         elif id == "drawio":
             return "mdi-graph-outline"
         else:
-            return "mdi-web"
+            return "globe-alt"
     elif _type == "admin":
-        return "mdi-shield-crown-outline"
+        return "bookmark"
     elif _type == "client":
-        return "mdi-monitor"
+        return "tv"
     else:
-        return "mdi-border-none-variant"
+        return "beaker"
