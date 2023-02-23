@@ -24,28 +24,36 @@
             <v-text-field
               v-model="username"
               :rules="[rules.required]"
-              prepend-inner-icon="mdi-account-outline"
               class="mb-2"
               variant="outlined"
               clearable
               label="Username"
-            />
+            >
+              <template v-slot:prepend-inner>
+                <SvgIcon name="user" />
+              </template>
+            </v-text-field>
 
             <v-text-field
               v-model="password"
-              :append-inner-icon="
-                showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'
-              "
               :rules="[rules.required]"
               :type="showPassword ? 'text' : 'password'"
-              prepend-inner-icon="mdi-lock-outline"
               name="input-10-1"
               label="Password"
               hint="Enter provided password"
               variant="outlined"
               counter
-              @click:append="showPassword = !showPassword"
-            />
+            >
+              <template v-slot:prepend-inner>
+                <SvgIcon name="lock-closed" />
+              </template>
+              <template v-slot:append-inner>
+                <div @click="showPassword = !showPassword">
+                  <SvgIcon v-if="showPassword" name="eye" clickable />
+                  <SvgIcon v-else name="eye-slash" clickable />
+                </div>
+              </template>
+            </v-text-field>
 
             <v-btn
               :disabled="!form"
@@ -67,9 +75,13 @@
 <script lang="ts">
 import axios from "axios";
 import { store } from "@/store";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "LoginForm",
+  components: {
+    SvgIcon,
+  },
   data() {
     return {
       headline: "Welcome to",

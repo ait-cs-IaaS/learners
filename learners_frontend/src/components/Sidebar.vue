@@ -33,8 +33,8 @@
             v-bind="props"
             @click="notifications"
           >
-            <v-icon v-if="notifications_enabled"> mdi-bell-outline </v-icon>
-            <v-icon v-else> mdi-bell-off-outline </v-icon>
+            <SvgIcon v-if="notifications_enabled" name="bell-alert" sidebar />
+            <SvgIcon v-else name="bell-slash" sidebar />
           </v-btn>
         </template>
       </v-tooltip>
@@ -51,7 +51,7 @@
             v-bind="props"
             @click="openNewTab"
           >
-            <v-icon> mdi-open-in-new </v-icon>
+            <SvgIcon name="arrow-top-right-on-square" sidebar />
           </v-btn>
         </template>
       </v-tooltip>
@@ -63,11 +63,13 @@
 import TabIcon from "./sub-components/TabIcon.vue";
 import { store } from "@/store";
 import ITabObject from "@/types";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "Sidebar",
   components: {
     TabIcon,
+    SvgIcon,
   },
   data() {
     return {
@@ -84,7 +86,6 @@ export default {
   methods: {
     notifications() {
       this.notifications_enabled = !this.notifications_enabled;
-      console.log("notifications");
     },
     openNewTab() {
       const currentView = store.getters.getCurrentView;
