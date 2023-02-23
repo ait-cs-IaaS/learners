@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-dialog v-model="showLoader" :scrim="false" persistent width="auto">
+      <h5>Requesting data</h5>
+      <v-progress-linear
+        class="mt-3"
+        color="primary"
+        indeterminate
+        rounded
+        height="6"
+      ></v-progress-linear>
+    </v-dialog>
+
     <div
       v-for="(exerciseGroup, exerciseGroupName, index) in exerciseGroups"
       class="mb-12"
@@ -31,12 +42,14 @@
             class="py-0 mt-0 exercise-row"
           >
             <v-col class="type-col">
-              <v-icon v-if="exercise.exercise_type === 'script'"
-                >mdi-console</v-icon
-              >
-              <v-icon v-if="exercise.exercise_type === 'form'"
-                >mdi-list-box-outline</v-icon
-              >
+              <SvgIcon
+                v-if="exercise.exercise_type === 'script'"
+                name="command-line"
+              />
+              <SvgIcon
+                v-if="exercise.exercise_type === 'form'"
+                name="list-bullet"
+              />
             </v-col>
             <v-col cols="5">
               <h3>
@@ -57,12 +70,7 @@
             </v-col>
             <v-col class="type-col">
               <v-badge :content="14" color="error">
-                <v-icon
-                  primary
-                  small
-                  icon="mdi-message-outline"
-                  size="x-large"
-                ></v-icon>
+                <SvgIcon name="chat-bubble-left" />
               </v-badge>
             </v-col>
           </v-row>
@@ -94,12 +102,14 @@
 import SuccessIcon from "../sub-components/SuccessIcon.vue";
 import FailIcon from "../sub-components/FailIcon.vue";
 import axios from "axios";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "ExercisesOverview",
   components: {
     SuccessIcon,
     FailIcon,
+    SvgIcon,
   },
   data() {
     return {
@@ -108,43 +118,56 @@ export default {
       cols: <any>[{ id: "username", name: "user" }],
       rows: <any>[],
       exerciseGroups: <any>[],
+      loading: false,
     };
   },
-  computed: {},
+  props: {
+    currentTab: { type: String, require: false },
+  },
+  computed: {
+    showLoader() {
+      return this.loading && this.currentTab === "Exercises";
+    },
+  },
   methods: {},
   async beforeMount() {
-    axios.get("exercises").then((res) => {
-      const exercises = res.data.exercises;
+    this.loading = true;
+    axios
+      .get("exercises")
+      .then((res) => {
+        console.log(res.data);
+        const exercises = res.data.exercises;
 
-      // const exerciseGroups = exercises.reduce((exerciseGroups, item) => {
-      //   const exerciseGroup = exerciseGroups[item.parent_page_title] || [];
-      //   exerciseGroup.push(item);
-      //   exerciseGroups[item.parent_page_title] = exerciseGroup;
-      //   return exerciseGroups;
-      // }, {});
+        // const exerciseGroups = exercises.reduce((exerciseGroups, item) => {
+        //   const exerciseGroup = exerciseGroups[item.parent_page_title] || [];
+        //   exerciseGroup.push(item);
+        //   exerciseGroups[item.parent_page_title] = exerciseGroup;
+        //   return exerciseGroups;
+        // }, {});
 
-      this.exerciseGroups = exercises.reduce((exerciseGroups, item) => {
-        const exerciseGroup = exerciseGroups[item.parent_page_title] || {
-          childExercises: [],
-          completionPercentage: 0,
-        };
-        exerciseGroup.childExercises.push(item);
-        exerciseGroup.completionPercentage += item.completion_percentage;
-        exerciseGroups[item.parent_page_title] = exerciseGroup;
-        return exerciseGroups;
-      }, {});
+        this.exerciseGroups = exercises.reduce((exerciseGroups, item) => {
+          const exerciseGroup = exerciseGroups[item.parent_page_title] || {
+            childExercises: [],
+            completionPercentage: 0,
+          };
+          exerciseGroup.childExercises.push(item);
+          exerciseGroup.completionPercentage += item.completion_percentage;
+          exerciseGroups[item.parent_page_title] = exerciseGroup;
+          return exerciseGroups;
+        }, {});
 
-      console.log(this.exerciseGroups);
+        console.log(this.exerciseGroups);
 
-      // exercises.sort((a, b) => (a.order_weight > b.order_weight ? 1 : -1));
-      // exercises.forEach((exercise) => {
-      //   console.log(exercise);
-      //   this.cols.push({
-      //     id: exercise.global_exercise_id,
-      //     name: exercise.exercise_name,
-      //   });
-      // });
-    });
+        // exercises.sort((a, b) => (a.order_weight > b.order_weight ? 1 : -1));
+        // exercises.forEach((exercise) => {
+        //   console.log(exercise);
+        //   this.cols.push({
+        //     id: exercise.global_exercise_id,
+        //     name: exercise.exercise_name,
+        //   });
+        // });
+      })
+      .finally(() => (this.loading = false));
 
     axios.get("submissions").then((res) => {
       const submissions = res.data.submissions;
