@@ -110,3 +110,14 @@ def is_json(json_string):
         return True
     except ValueError:
         return False
+
+
+def convert_to_dict(db_list):
+    dict_list = []
+
+    for element in db_list:
+        element = element.__dict__
+        element.pop("_sa_instance_state")
+        dict_list.append(element)
+
+    return dict_list
