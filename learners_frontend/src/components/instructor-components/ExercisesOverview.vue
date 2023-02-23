@@ -1,14 +1,7 @@
 <template>
   <div>
     <v-dialog v-model="showLoader" :scrim="false" persistent width="auto">
-      <h5>Requesting data</h5>
-      <v-progress-linear
-        class="mt-3"
-        color="primary"
-        indeterminate
-        rounded
-        height="6"
-      ></v-progress-linear>
+      <loader />
     </v-dialog>
 
     <div
@@ -48,7 +41,7 @@
               />
               <SvgIcon
                 v-if="exercise.exercise_type === 'form'"
-                name="list-bullet"
+                name="book-open"
               />
             </v-col>
             <v-col cols="5">
@@ -99,10 +92,12 @@
 </template>
 
 <script lang="ts">
-import SuccessIcon from "../sub-components/SuccessIcon.vue";
-import FailIcon from "../sub-components/FailIcon.vue";
-import axios from "axios";
+import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
+import FailIcon from "@/components/sub-components/FailIcon.vue";
+import Loader from "@/components/sub-components/Loader.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
+import axios from "axios";
+import { store } from "@/store";
 
 export default {
   name: "ExercisesOverview",
@@ -110,6 +105,7 @@ export default {
     SuccessIcon,
     FailIcon,
     SvgIcon,
+    Loader,
   },
   data() {
     return {
@@ -126,7 +122,10 @@ export default {
   },
   computed: {
     showLoader() {
-      return this.loading && this.currentTab === "Exercises";
+      const viewCondition = store.getters.getCurrentView === "admin";
+      const tabCondition = this.currentTab === "Exercises";
+      const eventCondition = this.loading;
+      return viewCondition && tabCondition && eventCondition;
     },
   },
   methods: {},

@@ -11,26 +11,31 @@
           <h1>Admin Area</h1>
         </v-col>
         <v-col>
-          <v-tabs v-model="adminTabs" bg-color="#f1f1f1" :mandatory="true">
+          <v-tabs v-model="currentTab" bg-color="#f1f1f1" :mandatory="true">
             <v-tab value="Submissions">Submissions Overview</v-tab>
             <v-tab value="Exercises">Exercises</v-tab>
             <v-tab value="Notifications">Notifications</v-tab>
+            <v-tab value="Feedback">Feedback</v-tab>
           </v-tabs>
 
           <v-card-text>
-            <v-window v-model="adminTabs">
+            <v-window v-model="currentTab">
               <v-window-item value="Submissions">
-                <submissions-overview class="tab-container" />
+                <submissions-overview
+                  :currentTab="currentTab"
+                  class="tab-container"
+                />
               </v-window-item>
               <v-window-item value="Exercises">
                 <exercises-overview
-                  :currentTab="adminTabs"
+                  :currentTab="currentTab"
                   class="tab-container"
                 />
               </v-window-item>
               <v-window-item value="Notifications">
                 Notifications
               </v-window-item>
+              <v-window-item value="Feedback"> Feedback </v-window-item>
             </v-window>
           </v-card-text>
         </v-col>
@@ -57,7 +62,7 @@ export default {
   },
   data() {
     return {
-      adminTabs: "Submissions",
+      currentTab: "Submissions",
     };
   },
   mounted() {
@@ -65,5 +70,3 @@ export default {
   },
 };
 </script>
-
-// TODO: Remove visibility when not in focus (SCROLLBAR)
