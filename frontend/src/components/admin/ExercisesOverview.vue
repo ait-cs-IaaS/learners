@@ -21,20 +21,21 @@
         </v-progress-linear>
 
         <v-container class="pa-5">
-          <v-row class="text-grey">
-            <v-col class="type-col">Type</v-col>
-            <v-col cols="5">Name</v-col>
-            <v-col>Page</v-col>
-            <v-col cols="2">Progress</v-col>
-            <v-col class="type-col"></v-col>
+          <v-row class="text-grey d-none d-sm-flex">
+            <v-col sm="1" class="d-none d-lg-flex">Type</v-col>
+            <v-col sm="4" lg="5">Name</v-col>
+            <v-col sm="3">Page</v-col>
+            <v-col sm="2">Progress</v-col>
+            <v-col sm="2" lg="1" class="action-col">Actions</v-col>
           </v-row>
 
           <v-row
             v-for="exercise in exerciseGroup.childExercises"
             :key="exercise"
             class="py-0 mt-0 exercise-row"
+            @click="showDetails(exercise)"
           >
-            <v-col class="type-col">
+            <v-col sm="1" class="d-none d-lg-flex">
               <SvgIcon
                 v-if="exercise.exercise_type === 'script'"
                 name="command-line"
@@ -44,15 +45,15 @@
                 name="book-open"
               />
             </v-col>
-            <v-col cols="5">
+            <v-col cols="12" sm="4" lg="5">
               <h3>
                 {{ exercise.exercise_name }}
               </h3>
             </v-col>
-            <v-col>
+            <v-col cols="12" sm="3">
               {{ exercise.page_title }}
             </v-col>
-            <v-col cols="2">
+            <v-col cols="8" sm="2" class="process">
               <v-progress-linear
                 v-model="exercise.completion_percentage"
                 color="success"
@@ -61,25 +62,44 @@
                 {{ exercise.completion_percentage }}
               </v-progress-linear>
             </v-col>
-            <v-col class="type-col">
-              <v-badge :content="14" color="error">
+            <v-col cols="4" sm="2" lg="1" class="action-col">
+              <!-- <v-badge :content="14" color="error" class="mx-2">
                 <SvgIcon name="chat-bubble-left" />
-              </v-badge>
+              </v-badge> -->
+              <SvgIcon
+                name="user-group"
+                class="mx-2"
+                clickable
+                @click.stop="manageGroups(exercise)"
+              />
+              <SvgIcon
+                name="eye"
+                class="mx-2"
+                clickable
+                @click.stop="manageVisibility(exercise)"
+              />
             </v-col>
           </v-row>
         </v-container>
       </v-card>
     </div>
+
+    <!-- Dialog -->
+    <v-dialog v-model="dialog" width="60%">
+      <exercise-card :exercise="selectedExercise" />
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
+import ExerciseCard from "@/components/admin/ExerciseCard.vue";
 import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
 import FailIcon from "@/components/sub-components/FailIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import axios from "axios";
 import { store } from "@/store";
+import { IExerciseObject } from "@/types";
 
 export default {
   name: "ExercisesOverview",
@@ -88,15 +108,17 @@ export default {
     FailIcon,
     SvgIcon,
     Loader,
+    ExerciseCard,
   },
   data() {
     return {
       tabledata: { cols: <any>[], rows: <any>[] },
       submissions: [],
-      cols: <any>[{ id: "username", name: "user" }],
-      rows: <any>[],
       exerciseGroups: <any>[],
+      detailsIdentifier: { exerciseId: "" },
       loading: false,
+      dialog: false,
+      selectedExercise: Object as () => IExerciseObject,
     };
   },
   props: {
@@ -110,7 +132,20 @@ export default {
       return viewCondition && tabCondition && eventCondition;
     },
   },
-  methods: {},
+  methods: {
+    showDetails(exercise) {
+      this.selectedExercise = exercise;
+      this.dialog = true;
+    },
+    manageGroups(exercise) {
+      console.log("Manage Group: Not implemented yet.");
+      console.log(exercise);
+    },
+    manageVisibility(exercise) {
+      console.log("Manage Visibility: Not implemented yet.");
+      console.log(exercise);
+    },
+  },
   async beforeMount() {
     this.loading = true;
     axios
@@ -118,13 +153,6 @@ export default {
       .then((res) => {
         console.log(res.data);
         const exercises = res.data.exercises;
-
-        // const exerciseGroups = exercises.reduce((exerciseGroups, item) => {
-        //   const exerciseGroup = exerciseGroups[item.parent_page_title] || [];
-        //   exerciseGroup.push(item);
-        //   exerciseGroups[item.parent_page_title] = exerciseGroup;
-        //   return exerciseGroups;
-        // }, {});
 
         this.exerciseGroups = exercises.reduce((exerciseGroups, item) => {
           const exerciseGroup = exerciseGroups[item.parent_page_title] || {
@@ -138,25 +166,8 @@ export default {
         }, {});
 
         console.log(this.exerciseGroups);
-
-        // exercises.sort((a, b) => (a.order_weight > b.order_weight ? 1 : -1));
-        // exercises.forEach((exercise) => {
-        //   console.log(exercise);
-        //   this.cols.push({
-        //     id: exercise.global_exercise_id,
-        //     name: exercise.exercise_name,
-        //   });
-        // });
       })
       .finally(() => (this.loading = false));
-
-    axios.get("submissions").then((res) => {
-      const submissions = res.data.submissions;
-      console.log(submissions);
-      submissions.forEach((submission) => {
-        this.rows.push(submission);
-      });
-    });
   },
 };
 </script>
