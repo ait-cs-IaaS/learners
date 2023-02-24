@@ -45,12 +45,12 @@
 </template>
 
 <script lang="ts">
-import SubmissionsOverview from "../instructor-components/SubmissionsOverview.vue";
-import ExercisesOverview from "../instructor-components/ExercisesOverview.vue";
+import SubmissionsOverview from "@/components/admin/SubmissionsOverview.vue";
+import ExercisesOverview from "@/components/admin/ExercisesOverview.vue";
 import { store } from "@/store";
 
 export default {
-  name: "InstructorPanel",
+  name: "AdminArea",
   components: {
     SubmissionsOverview,
     ExercisesOverview,

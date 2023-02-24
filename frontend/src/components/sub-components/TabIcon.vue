@@ -33,9 +33,9 @@
 </template>
 
 <script lang="ts">
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import ITabObject from "@/types";
 import { store } from "@/store";
-import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "TabIcon",

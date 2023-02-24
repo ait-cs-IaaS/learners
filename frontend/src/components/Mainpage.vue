@@ -1,13 +1,13 @@
 <template>
   <div class="d-flex main-view-container">
     <frame-pager v-for="tab in filteredTabs" :key="tab.id" :tab="tab" />
-    <instructor-panel v-if="admin" />
+    <admin-area v-if="admin" />
   </div>
 </template>
 
 <script lang="ts">
-import FramePager from "./sub-components/FramePager.vue";
-import InstructorPanel from "./sub-components/InstructorPanel.vue";
+import FramePager from "@/components/general/FramePager.vue";
+import AdminArea from "@/components/admin/AdminArea.vue";
 import ITabObject from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
@@ -16,10 +16,10 @@ export default {
   name: "Mainpage",
   components: {
     FramePager,
-    InstructorPanel,
+    AdminArea,
   },
   props: {
-    tabs: Array<ITabObject>,
+    tabs: { type: Array<ITabObject>, require: true },
   },
   computed: {
     admin() {

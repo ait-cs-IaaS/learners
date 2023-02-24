@@ -73,9 +73,9 @@
 </template>
 
 <script lang="ts">
-import axios from "axios";
-import { store } from "@/store";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
+import { store } from "@/store";
+import axios from "axios";
 
 export default {
   name: "LoginForm",

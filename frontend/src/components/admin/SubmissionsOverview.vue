@@ -61,9 +61,10 @@
 </template>
 
 <script lang="ts">
-import SubmissionCard from "@/components/sub-components/SubmissionCard.vue";
+import SubmissionCard from "@/components/admin/SubmissionCard.vue";
 import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
 import FailIcon from "@/components/sub-components/FailIcon.vue";
+import Loader from "@/components/sub-components/Loader.vue";
 import { store } from "@/store";
 import axios from "axios";
 
@@ -73,6 +74,7 @@ export default {
     SuccessIcon,
     FailIcon,
     SubmissionCard,
+    Loader,
   },
   data() {
     return {

@@ -60,10 +60,10 @@
 </template>
 
 <script lang="ts">
-import TabIcon from "./sub-components/TabIcon.vue";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
+import TabIcon from "@/components/sub-components/TabIcon.vue";
 import { store } from "@/store";
 import ITabObject from "@/types";
-import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 
 export default {
   name: "Sidebar",

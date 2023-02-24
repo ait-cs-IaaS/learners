@@ -70,24 +70,6 @@
         </v-container>
       </v-card>
     </div>
-    <!-- <v-table>
-      <thead>
-        <tr>
-          <th class="text-left" v-for="col in cols" :key="col.id">
-            {{ col.name }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in rows" :key="row.user_id">
-          <td class="text-left" v-for="col in cols" :key="col.id">
-            <success-icon v-if="row[col.id] === 1" />
-            <fail-icon v-else-if="row[col.id] === -1" />
-            <span v-else>{{ row[col.id] }}</span>
-          </td>
-        </tr>
-      </tbody>
-    </v-table> -->
   </div>
 </template>
 
