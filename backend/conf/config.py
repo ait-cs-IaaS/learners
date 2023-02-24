@@ -93,6 +93,7 @@ def config_app(app):
 
     Environment(app).register(get_bundle())
 
+    app.config["JSON_SORT_KEYS"] = False
     app.config["SQLALCHEMY_DATABASE_URI"] = cfg.db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

@@ -8,3 +8,4 @@ from backend.routes.interface import interface_api
 from backend.routes.notification import notification_api
 from backend.routes.statics import statics_api
 from backend.routes.setup import setup_api
+from backend.routes.users import users_api
