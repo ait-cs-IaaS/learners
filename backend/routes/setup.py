@@ -5,6 +5,7 @@ from flask import Blueprint, make_response, redirect, render_template, request, 
 from flask_jwt_extended import create_access_token, current_user, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
 from backend.classes.Tab import Tab
 from backend.conf.config import cfg
+from backend.jwt_manager import admin_required
 
 from backend.logger import logger
 
@@ -73,3 +74,12 @@ def getSidebar():
             tabs.append(Tab(id=key, _type="client", index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
 
     return jsonify(tabs=tabs, landingpage=landingpage)
+
+
+@setup_api.route("/setup/notifications", methods=["GET"])
+@admin_required()
+def getSetupNotifications():
+
+    notifications = cfg.init_notifications
+
+    return jsonify(initialNotifications=notifications)
