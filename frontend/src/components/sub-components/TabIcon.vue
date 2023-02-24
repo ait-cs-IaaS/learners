@@ -3,7 +3,7 @@
     <template #activator="{ props }">
       <v-badge
         location="bottom end"
-        color="primary lighten3"
+        color="white"
         text-color="primary"
         bordered
         rounded
@@ -34,7 +34,8 @@
 
 <script lang="ts">
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
-import ITabObject from "@/types";
+import { ITabObject } from "@/types";
+import type { PropType } from "vue";
 import { store } from "@/store";
 
 export default {
@@ -43,7 +44,7 @@ export default {
     SvgIcon,
   },
   props: {
-    tab: { type: Object as () => ITabObject, default: null },
+    tab: { type: Object as PropType<ITabObject>, require: true, default: null },
   },
 
   computed: {

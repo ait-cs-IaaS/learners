@@ -140,6 +140,14 @@ button.v-btn.resume-btn span {
 .type-col {
   max-width: calc(4ch + 24px) !important;
 }
+.action-col {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  .content-hero-icon {
+    min-width: 22px;
+  }
+}
 
 .exercise-row {
   transition: all 150ms ease;
@@ -148,7 +156,13 @@ button.v-btn.resume-btn span {
     align-self: center;
   }
   &:hover {
-    color: rgb(var(--v-theme-primary));
+    [class*="v-col-"]:not(.action-col):not(.process) {
+      color: rgb(var(--v-theme-primary)) !important;
+    }
+    // :not(.action-col svg) {
+    // .action-col {
+    //   color: red;
+    // }
   }
 }
 
