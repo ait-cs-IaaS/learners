@@ -5,50 +5,12 @@
     </v-dialog>
 
     <h2>Submissions Overview</h2>
-    <v-table class="mt-2">
-      <thead>
-        <tr>
-          <th
-            class="text-left"
-            v-for="exercise in exercises"
-            :key="exercise.id"
-          >
-            {{ exercise.name }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="submission in submissions" :key="submission.user_id">
-          <td
-            class="text-left"
-            v-for="exercise in exercises"
-            :key="exercise.id"
-          >
-            <!-- Success Icon -->
-            <success-icon
-              class="clickable"
-              v-if="submission[exercise.id].completed === 1"
-              @click="showDetails(exercise.id, submission['user_id'])"
-            />
-
-            <!-- Fail Icon -->
-            <fail-icon
-              class="clickable"
-              v-else-if="
-                submission[exercise.id].completed === -1 &&
-                submission[exercise.id].executions.len > 0
-              "
-            />
-            <!-- Username -->
-            <span v-else-if="exercise.id === 'username'">{{
-              submission[exercise.id]
-            }}</span>
-            <!-- Empty -->
-            <span v-else> - </span>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <data-table
+      class="mt-3"
+      :headers="exercises"
+      :items="submissions"
+      @showDetails="showDetails"
+    />
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" width="60%">
@@ -62,23 +24,23 @@
 
 <script lang="ts">
 import SubmissionCard from "@/components/admin/SubmissionCard.vue";
-import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
-import FailIcon from "@/components/sub-components/FailIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
+import DataTable from "@/components/sub-components/DataTable.vue";
 import { store } from "@/store";
 import axios from "axios";
 
 export default {
   name: "SubmissionsOverview",
   components: {
-    SuccessIcon,
-    FailIcon,
     SubmissionCard,
     Loader,
+    DataTable,
   },
   data() {
     return {
-      exercises: <any>[{ id: "username", name: "user" }],
+      exercises: <any>[
+        { value: "username", text: "user", fixed: true, sortable: true },
+      ],
       submissions: <any>[],
       dialog: false,
       detailsIdentifier: { userId: 0, exerciseId: "" },
@@ -97,7 +59,7 @@ export default {
     },
   },
   methods: {
-    showDetails(exerciseId, userId) {
+    showDetails({ exerciseId, userId }) {
       this.dialog = true;
       this.detailsIdentifier = { userId: userId, exerciseId: exerciseId };
     },
@@ -108,10 +70,11 @@ export default {
       exercises.sort((a, b) => (a.order_weight > b.order_weight ? 1 : -1));
       exercises.forEach((exercise) => {
         this.exercises.push({
-          id: exercise.global_exercise_id,
-          name: exercise.exercise_name,
+          value: exercise.global_exercise_id,
+          text: exercise.exercise_name,
         });
       });
+      console.log(this.exercises);
     });
 
     axios.get("submissions").then((res) => {
@@ -119,6 +82,7 @@ export default {
       submissions.forEach((submission) => {
         this.submissions.push(submission);
       });
+      console.log(this.submissions);
     });
   },
 };
