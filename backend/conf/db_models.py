@@ -37,12 +37,10 @@ class Usergroup(db.Model):
 
 
 class UsergroupAssociation(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    usergroup_id = db.Column(db.ForeignKey("usergroup.id"))
-    user_id = db.Column(db.ForeignKey("user.id"))
+    usergroup_id = db.Column(db.ForeignKey("usergroup.id"), primary_key=True)
+    user_id = db.Column(db.ForeignKey("user.id"), primary_key=True)
     usergroup = db.relationship("Usergroup", back_populates="users")
     user = db.relationship("User", back_populates="usergroups")
-    constraint = db.UniqueConstraint("usergroup_id", "user_id")
 
 
 class Execution(db.Model):
