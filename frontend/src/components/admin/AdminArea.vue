@@ -33,7 +33,10 @@
                 />
               </v-window-item>
               <v-window-item value="Notifications">
-                Notifications
+                <notifications-overview
+                  :currentTab="currentTab"
+                  class="tab-container"
+                />
               </v-window-item>
               <v-window-item value="Feedback"> Feedback </v-window-item>
             </v-window>
@@ -47,6 +50,7 @@
 <script lang="ts">
 import SubmissionsOverview from "@/components/admin/SubmissionsOverview.vue";
 import ExercisesOverview from "@/components/admin/ExercisesOverview.vue";
+import NotificationsOverview from "@/components/admin/NotificationsOverview.vue";
 import { store } from "@/store";
 
 export default {
@@ -54,6 +58,7 @@ export default {
   components: {
     SubmissionsOverview,
     ExercisesOverview,
+    NotificationsOverview,
   },
   computed: {
     currentView() {
