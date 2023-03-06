@@ -28,10 +28,10 @@ def getLoginInfo():
 @jwt_required(optional=True)
 def getSidebar():
 
-    if not current_user:
-        return jsonify(tabs=None)
-
     landingpage = cfg.landingpage
+
+    if not current_user:
+        return jsonify(tabs=None, landingpage=landingpage, logo=cfg.logo)
 
     tabs = []
 
@@ -73,7 +73,7 @@ def getSidebar():
             tab_index = (index + 1) if multiple else 0
             tabs.append(Tab(id=key, _type="client", index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
 
-    return jsonify(tabs=tabs, landingpage=landingpage)
+    return jsonify(tabs=tabs, landingpage=landingpage, logo=cfg.logo)
 
 
 @setup_api.route("/setup/notifications", methods=["GET"])
