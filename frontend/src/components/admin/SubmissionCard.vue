@@ -74,7 +74,6 @@ export default {
     userId: { type: Number, require: true },
     exerciseId: { type: String, require: true },
   },
-  computed: {},
   data() {
     return {
       exerciseName: "",

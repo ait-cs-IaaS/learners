@@ -42,13 +42,14 @@
 </template>
 
 <script lang="ts">
-import TabObject from "@/types";
+import { ITabObject } from "@/types";
 import { store } from "@/store";
+import { PropType } from "vue";
 
 export default {
   name: "FramePager",
   props: {
-    tab: { type: Object as () => TabObject, default: null },
+    tab: { type: Object as PropType<ITabObject>, require: true, default: null },
   },
   computed: {
     currentView() {

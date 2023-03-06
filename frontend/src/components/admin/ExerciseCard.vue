@@ -74,7 +74,6 @@ export default {
       default: null,
     },
   },
-  computed: {},
   data() {
     return {
       exerciseName: "",

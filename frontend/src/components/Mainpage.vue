@@ -8,7 +8,7 @@
 <script lang="ts">
 import FramePager from "@/components/general/FramePager.vue";
 import AdminArea from "@/components/admin/AdminArea.vue";
-import ITabObject from "@/types";
+import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
 
