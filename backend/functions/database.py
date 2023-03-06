@@ -38,12 +38,16 @@ def insert_initial_usergroups(*args, **kwargs):
             usergroups.extend(userDetails.get("groups") or [])
 
         for group in usergroups:
-            db_usergroup = Usergroup.query.filter_by(name=group).first()
-            usergroup = db_usergroup if db_usergroup else Usergroup(name=group)
 
-            new_usergroup_association = UsergroupAssociation()
-            new_usergroup_association.user = db_user
-            new_usergroup_association.usergroup = usergroup
+            db_create_or_update(Usergroup, "name", {"name": group})
+            usergroup = Usergroup.query.filter_by(name=group).first()
+
+            new_usergroup_association = {
+                "user": db_user,
+                "usergroup": usergroup,
+            }
+
+            db_create_or_update(UsergroupAssociation, "user + usergroup", new_usergroup_association)
 
     db.session.commit()
 
