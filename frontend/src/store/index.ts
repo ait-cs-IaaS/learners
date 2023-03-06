@@ -1,7 +1,7 @@
 import { Commit, createStore } from "vuex";
 import VuexPersister from "vuex-persister";
 import { generateTabs } from "@/helpers";
-import ITabObject from "@/types";
+import { ITabObject } from "@/types";
 import axios from "axios";
 
 const vuexPersister = new VuexPersister({
@@ -15,10 +15,13 @@ export const store = createStore({
     jwt: "",
     currentView: "",
     tabs: Array<ITabObject>,
+    error: "",
   },
   mutations: {
     SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
     SET_JWT: (state: { jwt: string }, jwt: string) => (state.jwt = jwt),
+    SET_ERROR: (state: { error: string }, error_msg: string) =>
+      (state.error = error_msg),
     SET_TABS: (state: { tabs: any; currentView: string }, response: any) => {
       const { genTabs, genCurrentView } = generateTabs(
         state.tabs || [],
@@ -46,6 +49,11 @@ export const store = createStore({
     setJwt: ({ commit }: { commit: Commit }, jwt: string) =>
       commit("SET_JWT", jwt),
 
+    setError: ({ commit }: { commit: Commit }, error_msg: string) =>
+      commit("SET_ERROR", error_msg),
+
+    resetTabs: ({ commit }: { commit: Commit }) => commit("SET_TABS", []),
+
     setOpendInTab: (
       { commit }: { commit: Commit },
       { tabId: string, opened: boolean }
@@ -57,18 +65,19 @@ export const store = createStore({
       commit("SET_CURRENT_VIEW", currentView),
 
     async getTabsFromServer({ commit }) {
-      try {
-        await axios.get("setup/tabs").then((response) => {
+      await axios
+        .get("setup/tabs")
+        .then((response) => {
           commit("SET_TABS", response.data);
-        });
-      } catch (error) {
-        console.error(error);
-      }
+          commit("SET_LOGO", response.data.logo);
+        })
+        .catch((error) => commit("SET_TABS", []));
     },
   },
   getters: {
     getLogo: (state) => state.logo,
     getJwt: (state) => state.jwt,
+    getError: (state) => state.error,
     getTabs: (state) => state.tabs,
     getCurrentView: (state) => state.currentView,
   },
