@@ -108,6 +108,9 @@ export default {
     },
     openNewTab() {
       const currentView = store.getters.getCurrentView;
+
+      if (currentView === "admin") return false;
+
       const activeTab = this.tabs?.find((tab) => {
         return tab.id === currentView;
       });
