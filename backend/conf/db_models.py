@@ -9,25 +9,26 @@ class User(db.Model):
     role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     admin = db.Column(db.Integer, nullable=False, default=0)
     executions = db.relationship("Execution", backref="user", lazy=True)
-    notifications = db.relationship("NotificationAssociation", back_populates="user")
+    # notifications = db.relationship("NotificationAssociation", back_populates="user")
     usergroups = db.relationship("UsergroupAssociation", back_populates="user")
 
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    msg = db.Column(db.String(240), nullable=True)
-    position = db.Column(db.String(120), nullable=True)
-    users = db.relationship("NotificationAssociation", back_populates="notification")
+    message = db.Column(db.String(240), nullable=True)
+    positions = db.Column(db.String(120), nullable=True)
+    recipients = db.Column(db.String(120), nullable=True)
+    # recipients = db.relationship("NotificationAssociation", back_populates="notification")
 
 
-class NotificationAssociation(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    sent = db.Column(db.Integer, nullable=False, default=0)
-    notification_id = db.Column(db.ForeignKey("notification.id"))
-    user_id = db.Column(db.ForeignKey("user.id"))
-    notification = db.relationship("Notification", back_populates="users")
-    user = db.relationship("User", back_populates="notifications")
-    constraint = db.UniqueConstraint("notification_id", "user_id")
+# class NotificationAssociation(db.Model):
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     sent = db.Column(db.Integer, nullable=False, default=0)
+#     notification_id = db.Column(db.ForeignKey("notification.id"))
+#     user_id = db.Column(db.ForeignKey("user.id"))
+#     notification = db.relationship("Notification", back_populates="users")
+#     user = db.relationship("User", back_populates="notifications")
+#     constraint = db.UniqueConstraint("notification_id", "user_id")
 
 
 class Usergroup(db.Model):
