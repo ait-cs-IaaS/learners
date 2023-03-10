@@ -68,6 +68,7 @@
               <v-row>
                 <v-col cols="8" class="pl-0 pt-0">
                   <v-autocomplete
+                    class="autocomplete-inputs"
                     v-model="recipients"
                     :items="resipientsOptions"
                     chips
@@ -97,12 +98,11 @@
                         <hr />
                       </div>
                       <v-list-item v-else v-bind="props">
-                        <template v-slot:default="{ isActive, toggle }">
+                        <template v-slot:default="{ isActive }">
                           <v-list-item-action>
                             <v-checkbox
                               :modelValue="isActive"
                               color="primary"
-                              @click="toggle"
                             ></v-checkbox>
                           </v-list-item-action>
                         </template>
@@ -112,6 +112,7 @@
                 </v-col>
                 <v-col cols="4" class="pa-0">
                   <v-select
+                    class="autocomplete-inputs"
                     label="Position"
                     v-model="positions"
                     :items="positionOptions"
@@ -130,8 +131,7 @@
                     :model-value="message"
                     @input="message = $event.target.value"
                   >
-                    ></v-textarea
-                  >
+                  </v-textarea>
                 </v-col>
                 <v-col cols="12" class="pa-0 d-flex justify-end">
                   <v-btn
@@ -331,5 +331,9 @@ export default {
     background-color: white;
     border: solid 1px #555;
   }
+}
+
+.autocomplete-inputs .v-input__control {
+  min-height: 60px;
 }
 </style>
