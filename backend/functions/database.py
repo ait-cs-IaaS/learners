@@ -12,7 +12,6 @@ from backend.conf.db_models import (
     Execution,
     Exercise,
     Notification,
-    NotificationAssociation,
     User,
     Comment,
     Questionaire,
@@ -469,87 +468,143 @@ def get_question_counts(global_question_id):
         return [""], [0]
 
 
-def db_create_notification(user_ids: list, msg: str, position: str = "all") -> bool:
+def db_create_notification(recipients: str, message: str, positions: str = "all") -> bool:
     try:
-        notification = Notification(msg=msg, position=position)
-
-        for user_id in user_ids:
-            user = get_user_by_id(user_id)
-
-            new_notification_association = NotificationAssociation()
-            new_notification_association.user = user
-            new_notification_association.notification = notification
-
+        notification = Notification(recipients=recipients, message=message, positions=positions)
+        db.session.add(notification)
         db.session.commit()
-        return True
+
+        return notification.id
 
     except Exception as e:
         logger.exception(e)
         return False
 
 
-def get_notifications_by_user(username: str = None, limit: bool = True, only_new: bool = False) -> list:
+def get_last_notification() -> dict:
     try:
-        session = db.session.query(NotificationAssociation).join(User).filter_by(name=username)
-        totalNotifications = session.count()
-        session = session.join(Notification)
+        # allow to execute from within sse context
+        from backend import app
 
-        if only_new:
-            session = session.filter(NotificationAssociation.sent == False)
+        with app.app_context():
+            session = db.session.query(Notification).order_by(Notification.id.desc())
+            notification = session.first()
+            return notification
 
-        if limit:
-            session = session.order_by(NotificationAssociation.id.desc()).limit(1)
-        else:
-            session = session.order_by(NotificationAssociation.id.asc())
-
-        return (
-            session.with_entities(
-                Notification.msg.label("msg"), Notification.position.label("position"), NotificationAssociation.id.label("association_id")
-            ).all(),
-            totalNotifications,
-        )
     except Exception as e:
         logger.exception(e)
-        return None
+        return False
 
 
-def get_prev_notifications_by_user(username: str = None, current_notification_id: int = None) -> list:
-    return get_adjacent_notification(username, current_notification_id, "prev")
-
-
-def get_next_notifications_by_user(username: str = None, current_notification_id: int = None) -> list:
-    return get_adjacent_notification(username, current_notification_id, "next")
-
-
-def get_adjacent_notification(username: str = None, current_notification_id: int = None, mode: str = None) -> list:
+def get_notification_by_id(notification_id: int) -> dict:
     try:
-        session = db.session.query(NotificationAssociation).join(User).filter_by(name=username)
-        totalNotifications = session.count()
+        # allow to execute from within sse context
+        from backend import app
 
-        if mode == "prev":
-            session = session.order_by(NotificationAssociation.id.desc()).join(Notification)
-            session = session.filter(NotificationAssociation.id < current_notification_id)
-        elif mode == "next":
-            session = session.order_by(NotificationAssociation.id.asc()).join(Notification)
-            session = session.filter(NotificationAssociation.id > current_notification_id)
+        with app.app_context():
+            session = db.session.query(Notification)
+            notification = session.filter_by(id=notification_id).first()
 
-        return (
-            session.with_entities(
-                Notification.msg.label("msg"), Notification.position.label("position"), NotificationAssociation.id.label("association_id")
-            ).first(),
-            totalNotifications,
-        )
+            return notification
+
     except Exception as e:
         logger.exception(e)
-        return None
+        return False
 
 
-def update_notification_link(association_id) -> bool:
+def get_all_notifications() -> dict:
     try:
-        session = db.session.query(NotificationAssociation).filter_by(id=association_id)
-        session = session.update(dict(sent=True))
-        db.session.commit()
-        return True
+        session = db.session.query(Notification)
+        notifications = session.all()
+
+        return notifications
+
     except Exception as e:
         logger.exception(e)
-        return None
+        return False
+
+
+def get_notifications_by_user(user_id: int) -> dict:
+    try:
+        session = db.session.query(Notification).all()
+
+        notifications = []
+        for notification in session:
+            # Convert json lists to lists
+            notification.recipients = json.loads(notification.recipients)
+            notification.positions = json.loads(notification.positions)
+            if user_id in notification.recipients:
+                notifications.append(notification)
+
+        return notifications
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+# def get_notifications_by_user(username: str = None, limit: bool = True, only_new: bool = False) -> list:
+#     try:
+#         session = db.session.query(NotificationAssociation).join(User).filter_by(name=username)
+#         totalNotifications = session.count()
+#         session = session.join(Notification)
+
+#         if only_new:
+#             session = session.filter(NotificationAssociation.sent == False)
+
+#         if limit:
+#             session = session.order_by(NotificationAssociation.id.desc()).limit(1)
+#         else:
+#             session = session.order_by(NotificationAssociation.id.asc())
+
+#         return (
+#             session.with_entities(
+#                 Notification.msg.label("msg"), Notification.position.label("position"), NotificationAssociation.id.label("association_id")
+#             ).all(),
+#             totalNotifications,
+#         )
+#     except Exception as e:
+#         logger.exception(e)
+#         return None
+
+
+# def get_prev_notifications_by_user(username: str = None, current_notification_id: int = None) -> list:
+#     return get_adjacent_notification(username, current_notification_id, "prev")
+
+
+# def get_next_notifications_by_user(username: str = None, current_notification_id: int = None) -> list:
+#     return get_adjacent_notification(username, current_notification_id, "next")
+
+
+# def get_adjacent_notification(username: str = None, current_notification_id: int = None, mode: str = None) -> list:
+#     try:
+#         session = db.session.query(NotificationAssociation).join(User).filter_by(name=username)
+#         totalNotifications = session.count()
+
+#         if mode == "prev":
+#             session = session.order_by(NotificationAssociation.id.desc()).join(Notification)
+#             session = session.filter(NotificationAssociation.id < current_notification_id)
+#         elif mode == "next":
+#             session = session.order_by(NotificationAssociation.id.asc()).join(Notification)
+#             session = session.filter(NotificationAssociation.id > current_notification_id)
+
+#         return (
+#             session.with_entities(
+#                 Notification.msg.label("msg"), Notification.position.label("position"), NotificationAssociation.id.label("association_id")
+#             ).first(),
+#             totalNotifications,
+#         )
+#     except Exception as e:
+#         logger.exception(e)
+#         return None
+
+
+# def update_notification_link(association_id) -> bool:
+#     try:
+#         session = db.session.query(NotificationAssociation).filter_by(id=association_id)
+#         session = session.update(dict(sent=True))
+#         db.session.commit()
+#         return True
+#     except Exception as e:
+#         logger.exception(e)
+#         return None
