@@ -46,12 +46,10 @@
               />
             </v-col>
             <v-col cols="12" sm="4" lg="5">
-              <h3>
-                {{ exercise.exercise_name }}
-              </h3>
+              <h3 v-html="exercise.exercise_name"></h3>
             </v-col>
             <v-col cols="12" sm="3">
-              {{ exercise.page_title }}
+              <span v-html="exercise.page_title"> </span>
             </v-col>
             <v-col cols="8" sm="2" class="process">
               <v-progress-linear
