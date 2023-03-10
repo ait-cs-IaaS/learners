@@ -8,13 +8,17 @@ html {
   scrollbar-width: none;
 }
 
-h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
   font-family: "Montserrat", sans-serif;
+}
+
+h1,
+h2 {
+  color: rgb(var(--v-theme-primary));
 }
 
 [role="link"]:hover {
@@ -47,6 +51,16 @@ h1.main-title {
 .v-badge__badge,
 .v-badge__badge::after {
   pointer-events: none !important;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 5ms ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 
 .pager {
@@ -83,7 +97,7 @@ h1.main-title {
 }
 
 button.v-btn {
-  opacity: 0.5;
+  // opacity: 0.5;
   transition: all 150ms ease;
   &.active {
     color: white !important;
@@ -168,4 +182,10 @@ button.v-btn.resume-btn span {
 
 .clickable {
   cursor: pointer;
+}
+
+@media (min-width: 2560px) {
+  .v-main .v-container {
+    max-width: 1800px !important;
+  }
 }
