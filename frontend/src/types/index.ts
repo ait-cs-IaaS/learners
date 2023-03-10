@@ -22,3 +22,8 @@ export interface IExerciseObject {
   order_weight: number;
   completion_percentage: number;
 }
+
+export interface INotificationObject {
+  message: string;
+  positions: Array<string>;
+}
