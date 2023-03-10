@@ -14,12 +14,11 @@ export const store = createStore({
     logo: "",
     jwt: "",
     currentView: "",
-    tabs: Array<ITabObject>,
+    tabs: new Array<ITabObject>(),
     error: "",
-    notifications: Array<INotificationObject>,
+    notifications: new Array<INotificationObject>(),
     currentNotification: 0,
     showNotifications: true,
-    eventSource: null,
   },
   mutations: {
     SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
@@ -46,9 +45,6 @@ export const store = createStore({
       });
       tab.openedInTab = payload.opened;
     },
-
-    SET_EVT_SOURCE: (state: { eventSource: any }, eventSource: EventSource) =>
-      (state.eventSource = eventSource),
 
     SET_CURRENT_NOTIFICATION: (
       state: { currentNotification: number },
@@ -102,9 +98,6 @@ export const store = createStore({
     setCurrentView: ({ commit }: { commit: Commit }, currentView: string) =>
       commit("SET_CURRENT_VIEW", currentView),
 
-    setEvtSource: ({ commit }: { commit: Commit }, eventSource: EventSource) =>
-      commit("SET_EVT_SOURCE", eventSource),
-
     setCurrentNotification: (
       { commit }: { commit: Commit },
       currentNotification: number
@@ -155,12 +148,14 @@ export const store = createStore({
     getJwt: (state) => state.jwt,
     getError: (state) => state.error,
     getTabs: (state) => state.tabs,
-    getCurrentView: (state) => state.currentView,
-    getEvtSource: (state) => state.eventSource,
-    getNotifications: (state) => state.notifications,
-    getCurrentNotification: (state) => state.currentNotification,
+    getCurrentView: (state) => state.currentView || "",
+    getNotifications: (state) => state.notifications || [],
+    getCurrentNotification: (state) => state.currentNotification || 0,
     getShowNotifications: (state) => state.showNotifications,
-    getNotificationsLength: (state) => state.notifications.length,
+    getNotificationsLength: (state) => {
+      if (state.notifications) return state.notifications.length;
+      else return 0;
+    },
   },
   plugins: [vuexPersister.persist],
 });
