@@ -28,13 +28,29 @@
             block
             icon
             selected-class="active"
-            theme="dark"
+            theme="light"
             color="white"
             v-bind="props"
-            @click="notifications"
+            @click="toggleNotifications"
           >
-            <SvgIcon v-if="notifications_enabled" name="bell-alert" sidebar />
-            <SvgIcon v-else name="bell-slash" sidebar />
+            <v-badge
+              location="bottom end"
+              color="white"
+              text-color="primary"
+              bordered
+              rounded
+              transition="scale-transition"
+              :model-value="showNotifications && numberOfNotifications > 0"
+              :content="numberOfNotifications"
+              offset-x="-2"
+              offset-y="-2"
+              max="99"
+            >
+              <Transition mode="out-in">
+                <SvgIcon v-if="showNotifications" name="bell-alert" sidebar />
+                <SvgIcon v-else name="bell-slash" sidebar />
+              </Transition>
+            </v-badge>
           </v-btn>
         </template>
       </v-tooltip>
@@ -82,10 +98,13 @@ export default {
   computed: {
     logoSvg: () => store.getters.getLogo,
     authTooltip: () => (store.getters.getJwt ? "logout" : "login"),
+    showNotifications: () => store.getters.getShowNotifications,
+    numberOfNotifications: () => store.getters.getNotificationsLength,
   },
   methods: {
-    notifications() {
-      this.notifications_enabled = !this.notifications_enabled;
+    toggleNotifications() {
+      if (this.showNotifications) store.dispatch("disableNotifications");
+      else store.dispatch("enableNotifications");
     },
     openNewTab() {
       const currentView = store.getters.getCurrentView;
