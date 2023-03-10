@@ -24,7 +24,7 @@
     "vue-cookies": "^1.8.2",
     "vue-router": "^4.0.0",
     "vue3-easy-data-table": "^1.5.34",
-    "vuetify": "^3.0.0",
+    "vuetify": "^3.1.8",
     "vuex": "^4.1.0",
     "vuex-persister": "^1.0.0",
     "webfontloader": "^1.0.0",
