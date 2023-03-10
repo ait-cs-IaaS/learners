@@ -39,7 +39,13 @@ export default {
   data() {
     return {
       exercises: <any>[
-        { value: "username", text: "user", fixed: true, sortable: true },
+        {
+          value: "username",
+          text: "user",
+          parent: "user",
+          fixed: true,
+          sortable: true,
+        },
       ],
       submissions: <any>[],
       dialog: false,
@@ -72,9 +78,9 @@ export default {
         this.exercises.push({
           value: exercise.global_exercise_id,
           text: exercise.exercise_name,
+          parent: exercise.parent_page_title,
         });
       });
-      console.log(this.exercises);
     });
 
     axios.get("submissions").then((res) => {

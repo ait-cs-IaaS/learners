@@ -1,7 +1,32 @@
 <template>
-  <EasyDataTable :headers="headers" :items="items">
+  <EasyDataTable :headers="headers" :items="items" id="submission-table">
     <template #loading>
       <loader />
+    </template>
+
+    <template #customize-headers>
+      <thead class="customize-headers">
+        <tr>
+          <th
+            v-for="topheader in getHeaders()"
+            :colspan="topheader['span']"
+            class="top-header"
+            :class="{ sticky: topheader['text'] == 'user' }"
+          >
+            <span v-html="topheader['text']" v-if="topheader['text'] != 'user'">
+            </span>
+          </th>
+        </tr>
+        <tr>
+          <th
+            v-for="subheader in headers"
+            class="sub-header"
+            :class="{ sticky: subheader.text == 'user' }"
+          >
+            <span v-html="subheader.text"> </span>
+          </th>
+        </tr>
+      </thead>
     </template>
 
     <template
@@ -52,7 +77,7 @@ export default {
   },
   props: {
     headers: {
-      type: Array<Header>,
+      type: Array<any>,
       require: true,
     },
     items: {
@@ -65,6 +90,72 @@ export default {
     getSlotName(value) {
       return `item-${value}`;
     },
+
+    getHeaders() {
+      let topHeaders = [] as { text: string; span: number }[];
+      for (const item of this.headers || []) {
+        const i = topHeaders.findIndex((elem) => elem.text === item.parent);
+        if (i > -1) topHeaders[i].span += 1;
+        else topHeaders.push({ text: item.parent, span: 1 });
+      }
+      return topHeaders;
+    },
   },
 };
 </script>
+
+<style lang="scss">
+.top-header {
+  background-color: rgba(var(--v-theme-primary), 0.5);
+  border-right: 2px solid white;
+  padding: 8px;
+  white-space: nowrap;
+  text-align: center;
+  font-weight: normal;
+}
+
+.sub-header {
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  border-right: 2px solid white;
+  padding: 8px;
+  text-align: left;
+  vertical-align: bottom;
+  font-weight: normal;
+
+  span {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+#submission-table {
+  border-radius: 4px;
+  border: none;
+}
+
+#submission-table table {
+  table-layout: auto !important;
+  th,
+  td,
+  thead th,
+  tbody td,
+  tfoot td,
+  tfoot th {
+    width: auto !important;
+  }
+
+  td:not(:first-child) {
+    text-align: center;
+  }
+}
+
+.sticky {
+  left: 0px;
+  z-index: 1;
+  position: sticky;
+  background-color: white;
+  box-shadow: 5px 3px 3px 0px #0000001f;
+}
+</style>
