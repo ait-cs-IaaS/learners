@@ -112,7 +112,7 @@ def is_json(json_string):
         return False
 
 
-def convert_to_dict(db_list):
+def convert_to_dict(db_list: list) -> list:
     dict_list = []
 
     for element in db_list:
