@@ -1,5 +1,6 @@
 import { store } from "@/store";
-import { ITabObject } from "@/types/index";
+import { INotificationObject, ITabObject } from "@/types/index";
+import axios from "axios";
 
 export const generateTabs = (tabs, response) => {
   const newtabs = response.tabs;
@@ -27,7 +28,25 @@ export const generateTabs = (tabs, response) => {
   return { genTabs: tabs, genCurrentView: currentView };
 };
 
-import axios from "axios";
+export const extractNotifications = (responseData) => {
+  let newNotifications;
+
+  if (Array.isArray(responseData)) {
+    newNotifications = (responseData || []).map((newNotification) => {
+      return <INotificationObject>{
+        message: `${newNotification?.message}`,
+        positions: newNotification?.positions,
+      };
+    });
+  } else {
+    newNotifications = <INotificationObject>{
+      message: `${JSON.parse(responseData)?.message}`,
+      positions: JSON.parse(responseData)?.positions,
+    };
+  }
+
+  return newNotifications;
+};
 
 export const httpErrorHandler = (error) => {
   if (error === null) throw new Error("Unrecoverable error!! Error is null!");
