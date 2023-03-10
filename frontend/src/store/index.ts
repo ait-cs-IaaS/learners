@@ -1,7 +1,7 @@
 import { Commit, createStore } from "vuex";
 import VuexPersister from "vuex-persister";
-import { generateTabs } from "@/helpers";
-import { ITabObject } from "@/types";
+import { extractNotifications, generateTabs } from "@/helpers";
+import { ITabObject, INotificationObject } from "@/types";
 import axios from "axios";
 
 const vuexPersister = new VuexPersister({
@@ -16,6 +16,10 @@ export const store = createStore({
     currentView: "",
     tabs: Array<ITabObject>,
     error: "",
+    notifications: Array<INotificationObject>,
+    currentNotification: 0,
+    showNotifications: true,
+    eventSource: null,
   },
   mutations: {
     SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
@@ -32,6 +36,7 @@ export const store = createStore({
     },
     SET_CURRENT_VIEW: (state: { currentView: string }, currentView: string) =>
       (state.currentView = currentView),
+
     SET_OPENED_IN_TAB: (
       state: { tabs: any },
       payload: { tabId: string; opened: boolean }
@@ -41,6 +46,39 @@ export const store = createStore({
       });
       tab.openedInTab = payload.opened;
     },
+
+    SET_EVT_SOURCE: (state: { eventSource: any }, eventSource: EventSource) =>
+      (state.eventSource = eventSource),
+
+    SET_CURRENT_NOTIFICATION: (
+      state: { currentNotification: number },
+      currentNotification: number
+    ) => (state.currentNotification = currentNotification),
+
+    SET_CURRENT_NOTIFICATION_TO_LAST: (state: {
+      currentNotification: number;
+      notifications: any;
+    }) => (state.currentNotification = state.notifications.length - 1),
+    DEC_CURRENT_NOTIFICATION: (state: { currentNotification: number }) => {
+      if (state.currentNotification > 0) state.currentNotification -= 1;
+    },
+    INC_CURRENT_NOTIFICATION: (state: {
+      currentNotification: number;
+      notifications: any;
+    }) => {
+      if (state.currentNotification < state.notifications.length - 1)
+        return (state.currentNotification += 1);
+    },
+    SET_NOTIFICATIONS: (state: { notifications: any }, payload: any) =>
+      (state.notifications = payload),
+    APPEND_TO_NOTIFICATIONS: (
+      state: { notifications: any },
+      payload: INotificationObject
+    ) => state.notifications.push(payload),
+    SET_SHOW_NOTIFICATIONS_STATE: (
+      state: { showNotifications: boolean },
+      newState: boolean
+    ) => (state.showNotifications = newState),
   },
   actions: {
     setLogo: ({ commit }: { commit: Commit }, logo: string) =>
@@ -64,6 +102,28 @@ export const store = createStore({
     setCurrentView: ({ commit }: { commit: Commit }, currentView: string) =>
       commit("SET_CURRENT_VIEW", currentView),
 
+    setEvtSource: ({ commit }: { commit: Commit }, eventSource: EventSource) =>
+      commit("SET_EVT_SOURCE", eventSource),
+
+    setCurrentNotification: (
+      { commit }: { commit: Commit },
+      currentNotification: number
+    ) => commit("SET_CURRENT_NOTIFICATION", currentNotification),
+
+    setCurrentNotificationToLast: ({ commit }: { commit: Commit }) =>
+      commit("SET_CURRENT_NOTIFICATION_TO_LAST"),
+
+    decCurrentNotification: ({ commit }: { commit: Commit }) =>
+      commit("DEC_CURRENT_NOTIFICATION"),
+
+    incCurrentNotification: ({ commit }: { commit: Commit }) =>
+      commit("INC_CURRENT_NOTIFICATION"),
+
+    appendToNotifications: (
+      { commit }: { commit: Commit },
+      payload: INotificationObject
+    ) => commit("APPEND_TO_NOTIFICATIONS", payload),
+
     async getTabsFromServer({ commit }) {
       await axios
         .get("setup/tabs")
@@ -73,6 +133,22 @@ export const store = createStore({
         })
         .catch((error) => commit("SET_TABS", []));
     },
+
+    async getNotificationsFromServer({ commit }) {
+      await axios.get("notifications").then((response) => {
+        commit(
+          "SET_NOTIFICATIONS",
+          extractNotifications(response.data.notifications)
+        );
+        commit("SET_CURRENT_NOTIFICATION_TO_LAST");
+      });
+    },
+
+    enableNotifications: ({ commit }: { commit: Commit }) =>
+      commit("SET_SHOW_NOTIFICATIONS_STATE", true),
+
+    disableNotifications: ({ commit }: { commit: Commit }) =>
+      commit("SET_SHOW_NOTIFICATIONS_STATE", false),
   },
   getters: {
     getLogo: (state) => state.logo,
@@ -80,6 +156,11 @@ export const store = createStore({
     getError: (state) => state.error,
     getTabs: (state) => state.tabs,
     getCurrentView: (state) => state.currentView,
+    getEvtSource: (state) => state.eventSource,
+    getNotifications: (state) => state.notifications,
+    getCurrentNotification: (state) => state.currentNotification,
+    getShowNotifications: (state) => state.showNotifications,
+    getNotificationsLength: (state) => state.notifications.length,
   },
   plugins: [vuexPersister.persist],
 });
