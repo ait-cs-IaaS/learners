@@ -38,7 +38,12 @@
                   class="tab-container"
                 />
               </v-window-item>
-              <v-window-item value="Feedback"> Feedback </v-window-item>
+              <v-window-item value="Feedback">
+                <feedback-overview
+                  :currentTab="currentTab"
+                  class="tab-container"
+                />
+              </v-window-item>
             </v-window>
           </v-card-text>
         </v-col>
@@ -51,6 +56,7 @@
 import SubmissionsOverview from "@/components/admin/SubmissionsOverview.vue";
 import ExercisesOverview from "@/components/admin/ExercisesOverview.vue";
 import NotificationsOverview from "@/components/admin/NotificationsOverview.vue";
+import FeedbackOverview from "@/components/admin/FeedbackOverview.vue";
 import { store } from "@/store";
 
 export default {
@@ -59,6 +65,7 @@ export default {
     SubmissionsOverview,
     ExercisesOverview,
     NotificationsOverview,
+    FeedbackOverview,
   },
   computed: {
     currentView() {
