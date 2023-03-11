@@ -1,7 +1,6 @@
 from flask import Blueprint, send_from_directory, make_response, jsonify, request
-from flask_jwt_extended import current_user
+from flask_jwt_extended import current_user, jwt_required
 from backend.conf.config import cfg
-from backend.jwt_manager import jwt_required_any_location
 
 from backend.logger import logger
 
@@ -18,10 +17,8 @@ def after_request_func(response):
 @statics_api.route("/statics", methods=["GET"])
 @statics_api.route("/statics/", methods=["GET"])
 @statics_api.route("/statics/<path:path>", methods=["GET"])
-@jwt_required_any_location()
+@jwt_required()
 def serve_statics(path=""):
-
-    # print("-----> Current user: {} {} {}".format(current_user.id, current_user.name, current_user.role))
 
     # Load static defaults
     static_root = cfg.static_base_url  # Directory holding the static sites
@@ -35,4 +32,4 @@ def serve_statics(path=""):
 
     except Exception as e:
         logger.exception(f"ERROR: Loading file failed: {path}")
-        return make_response(jsonify(error="file not found"), 404)
+        return jsonify(error="file not found"), 404

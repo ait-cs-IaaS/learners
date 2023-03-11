@@ -15,6 +15,7 @@ setup_api = Blueprint("setup_api", __name__)
 @setup_api.route("/setup/login", methods=["GET"])
 def getLoginInfo():
 
+    # TODO: get from config file
     return jsonify(
         headline="Welcome to the",
         headlineHighlight="CyberRange",

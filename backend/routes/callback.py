@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from flask import Blueprint, json, jsonify, make_response, request
+from flask import Blueprint, json, jsonify, request
 from backend.functions.database import db_update_execution
 from backend.logger import logger
 
@@ -20,8 +20,8 @@ def callback(execution_uuid):
             msg=resp.get("msg") or None,
             partial=resp.get("partial") or False,
         )
-        return make_response(jsonify(success=True), 200)
+        return jsonify(success=True), 200
 
     except Exception as e:
         logger.exception(e)
-        return make_response(jsonify(success=False, exception=e), 500)
+        return jsonify(success=False, exception=e), 500

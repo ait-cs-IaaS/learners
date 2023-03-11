@@ -1,5 +1,4 @@
-from flask import Blueprint, redirect, jsonify
-from flask_jwt_extended import get_jwt, verify_jwt_in_request
+from flask import Blueprint, jsonify
 from backend.functions.database import get_all_usergroups, get_all_users
 from backend.jwt_manager import admin_required
 from backend.logger import logger
