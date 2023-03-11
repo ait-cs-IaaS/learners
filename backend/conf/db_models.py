@@ -81,14 +81,13 @@ class Exercise(db.Model):
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
-    comments = db.relationship("Comment", backref="exercise", lazy=True)
 
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    comment = db.Column(db.String(), nullable=True)
+    comment = db.Column(db.String(), nullable=False)
+    page = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    global_exercise_id = db.Column(db.String(), db.ForeignKey("exercise.global_exercise_id"), nullable=False)
 
 
 class Questionaire(db.Model):
