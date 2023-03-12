@@ -3,27 +3,30 @@ import { createRouter, createWebHistory } from "vue-router";
 import { store } from "@/store";
 import axios from "axios";
 import { httpErrorHandler } from "@/helpers";
+import Default from "@/layouts/default/Default.vue";
+import Mainpage from "@/views/Mainpage.vue";
+import Login from "@/views/Login.vue";
 
 const routes = [
   {
     path: "/",
-    component: () => import("@/layouts/default/Default.vue"),
+    component: Default,
     children: [
       {
         path: "",
         name: "Mainpage",
-        component: () => import("@/views/Mainpage.vue"),
+        component: Mainpage,
       },
     ],
   },
   {
     path: "/login",
-    component: () => import("@/layouts/default/Default.vue"),
+    component: Default,
     children: [
       {
         path: "",
         name: "Login",
-        component: () => import("@/views/Login.vue"),
+        component: Login,
       },
     ],
   },
