@@ -1,9 +1,11 @@
 <template>
   <div class="d-flex main-view-container">
-    <notification
-      v-show="showNotifications && !notificationClosed"
-      @hide="notificationClosed = true"
-    />
+    <transition name="fade">
+      <notification
+        v-show="showNotifications && !notificationClosed"
+        @hide="notificationClosed = true"
+      />
+    </transition>
 
     <frame-pager v-for="tab in filteredTabs" :key="tab.id" :tab="tab" />
     <admin-area v-if="admin" />
@@ -64,16 +66,32 @@ export default {
       };
 
       this.evtSource.addEventListener("newNotification", (event) => {
-        console.log(event);
-        console.log(event.data);
-
         this.notificationClosed = false;
         const newNotification = extractNotifications(event.data);
-
-        console.log(newNotification);
-
+        newNotification.event = "newNotification";
+        // Store actions
         store.dispatch("appendToNotifications", newNotification);
         store.dispatch("setCurrentNotificationToLast");
+      });
+
+      this.evtSource.addEventListener("newSubmission", (event) => {
+        this.notificationClosed = false;
+        const newNotification = extractNotifications(event.data);
+        newNotification.event = "newSubmission";
+        // Store actions
+        store.dispatch("appendToNotifications", newNotification);
+        store.dispatch("setCurrentNotificationToLast");
+        store.dispatch("setAdminForceReload", "submissions");
+      });
+
+      this.evtSource.addEventListener("newComment", (event) => {
+        this.notificationClosed = false;
+        const newNotification = extractNotifications(event.data);
+        newNotification.event = "newComment";
+        // Store actions
+        store.dispatch("appendToNotifications", newNotification);
+        store.dispatch("setCurrentNotificationToLast");
+        store.dispatch("setAdminForceReload", "feedback");
       });
 
       this.evtSource.onerror = function (error) {
@@ -99,3 +117,12 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.fade-leave-active {
+  transition: opacity 1.5s;
+}
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
