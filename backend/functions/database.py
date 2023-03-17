@@ -23,7 +23,6 @@ from backend.conf.db_models import (
 )
 from backend.database import db
 from backend.functions.helpers import extract_json_content
-from sqlalchemy import nullsfirst
 
 
 def insert_initial_usergroups(*args, **kwargs):
@@ -191,7 +190,7 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
 def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
     try:
         executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
-        last_execution = executions.order_by(nullsfirst(Execution.response_timestamp.desc()), Execution.execution_timestamp.desc()).first()
+        last_execution = executions.order_by(Execution.response_timestamp.desc(), Execution.execution_timestamp.desc()).first()
         executions = executions.order_by(Execution.execution_timestamp.desc()).all()
         return last_execution, executions
     except Execution as e:
