@@ -3,8 +3,6 @@
     class="pa-5 d-flex justify-center align-content-center"
     min-height="450"
   >
-    <loader v-if="loading" width="300px" />
-
     <!-- Header -->
     <v-toolbar-title v-if="!loading" class="details-card-title">
       <span class="text-grey">Exercise:</span>
@@ -54,19 +52,11 @@
 </template>
 
 <script lang="ts">
-import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
-import FailIcon from "@/components/sub-components/FailIcon.vue";
-import Loader from "@/components/sub-components/Loader.vue";
 import type { PropType } from "vue";
 import { IExerciseObject } from "@/types";
 
 export default {
   name: "ExerciseCard",
-  components: {
-    SuccessIcon,
-    FailIcon,
-    Loader,
-  },
   props: {
     exercise: {
       type: Object as PropType<IExerciseObject>,

@@ -3,7 +3,14 @@
     class="pa-5 d-flex justify-center align-content-center"
     min-height="450"
   >
-    <loader v-if="loading" width="300px" />
+    <v-progress-circular
+      class="ma-auto"
+      color="grey"
+      indeterminate
+      :width="3"
+      :size="18"
+      v-show="loading"
+    ></v-progress-circular>
 
     <!-- Header -->
     <v-toolbar-title v-if="!loading" class="details-card-title">
