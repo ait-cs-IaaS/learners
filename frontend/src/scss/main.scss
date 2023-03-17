@@ -128,6 +128,7 @@ button.v-btn.resume-btn span {
 .v-window-item {
   transform: translateX(0%) !important;
   background-color: #f6f6f6;
+  min-height: 100vh;
 }
 .v-window-item.v-window-x-transition-enter-active {
   transition: all 250ms !important;
@@ -182,6 +183,18 @@ button.v-btn.resume-btn span {
 
 .clickable {
   cursor: pointer;
+}
+
+.no-data {
+  display: block;
+  background-color: #e8e8e8;
+  padding: 20px;
+  text-align: center;
+  font-style: italic;
+}
+
+.admin-tabs-container {
+  background-color: #e8e8e8;
 }
 
 @media (min-width: 2560px) {
