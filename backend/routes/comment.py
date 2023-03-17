@@ -1,24 +1,26 @@
-from backend.functions.helpers import convert_to_dict
+from backend.classes.SSE_element import SSE_element
+from backend.functions.helpers import convert_to_dict, sse_create_and_publish
 from flask import Blueprint, jsonify, make_response, render_template, request
 from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_create_comment,
+    db_create_notification,
     get_all_comments,
     get_comment_by_id,
     get_comments_by_userid,
     get_user_by_id,
+    get_users_by_role,
 )
 
 from backend.conf.config import cfg
 from backend.jwt_manager import admin_required, jwt_required_any_location
+from backend.classes.sse import sse
 
 
 comment_api = Blueprint("comment_api", __name__)
 
 
 # Post new comment
-# TODO: Adapt endpoint in theme to "comments"
-@comment_api.route("/comment", methods=["POST"])
 @comment_api.route("/comments", methods=["POST"])
 @jwt_required()
 def run_execution():
@@ -28,6 +30,7 @@ def run_execution():
     page = data.get("page")
 
     if db_create_comment(comment=comment, page=page, user_id=current_user.id):
+        sse_create_and_publish(event="newComment", user=current_user, page=page)
         return jsonify(success=True), 200
 
     return jsonify(success=False), 500
