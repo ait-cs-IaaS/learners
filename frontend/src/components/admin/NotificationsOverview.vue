@@ -1,12 +1,19 @@
 <template>
   <div>
-    <v-dialog v-model="showLoader" :scrim="false" persistent width="auto">
-      <loader />
-    </v-dialog>
+    <h2 class="mb-3">
+      Notifications Overview
 
-    <h2 class="mb-3">Notifications Overview</h2>
+      <v-progress-circular
+        class="mx-2 mb-1"
+        color="grey"
+        indeterminate
+        :width="3"
+        :size="18"
+        v-show="loading"
+      ></v-progress-circular>
+    </h2>
 
-    <div v-if="!showLoader">
+    <div>
       <v-card class="pa-5 mb-5">
         <h3>Choose a predefined Notification</h3>
         <p>
@@ -175,7 +182,10 @@ export default {
       form: false,
       // Recipients
       recipients: [],
-      resipientsOptions: <any>[],
+      resipientsUsersOptions: <any>[],
+      resipientsGroupsOptions: <any>[],
+      // resipientsOptions: <any>[],
+
       // Positions
       positions: ["all"],
       positionOptions: ["documentation", "exercises", "clients", "all"],
@@ -187,11 +197,16 @@ export default {
     currentTab: { type: String, require: false },
   },
   computed: {
-    showLoader() {
-      const viewCondition = store.getters.getCurrentView === "admin";
-      const tabCondition = this.currentTab === "Notifications";
-      const eventCondition = this.usersLoading || this.notificationLoading;
-      return viewCondition && tabCondition && eventCondition;
+    loading() {
+      return (
+        this.usersLoading || this.groupsLoading || this.notificationLoading
+      );
+    },
+    forceReload() {
+      return store.getters.getAdminForceReload("notifications");
+    },
+    resipientsOptions() {
+      return [...this.resipientsUsersOptions, ...this.resipientsGroupsOptions];
     },
   },
   methods: {
@@ -206,64 +221,78 @@ export default {
         message: this.message,
         positions: this.positions,
       });
+    },
+    async getDataFromServer() {
+      this.notificationLoading = true;
+      store.dispatch("unsetAdminForceReload", "notifications");
+      axios
+        .get("setup/notifications")
+        .then((res) => {
+          this.initialNotifications = res.data.initialNotifications;
+        })
+        .finally(() => {
+          this.notificationLoading = false;
+        });
 
-      console.log(response);
+      this.usersLoading = true;
+      let resipientsOptions = <any>[];
+      let UsersOptions = <any>[];
+      axios
+        .get("users")
+        .then((res) => {
+          const users = res.data.users;
+          UsersOptions.push({
+            header: "Users",
+          });
+          users.forEach((user) => {
+            UsersOptions.push({
+              name: user.name,
+              value: user.id,
+            });
+          });
+          UsersOptions.push({
+            divider: true,
+          });
+        })
+        .finally(() => {
+          this.resipientsUsersOptions = UsersOptions;
+          this.usersLoading = false;
+        });
+
+      this.groupsLoading = true;
+      let GroupsOptions = <any>[];
+      axios
+        .get("usergroups")
+        .then((res) => {
+          const groups = res.data.groups;
+          GroupsOptions.push({
+            header: "Groups",
+          });
+          groups.forEach((group) => {
+            GroupsOptions.push({
+              name: group.name,
+              value: group.ids,
+            });
+          });
+          GroupsOptions.push({
+            divider: true,
+          });
+        })
+        .finally(() => {
+          this.resipientsGroupsOptions = GroupsOptions;
+          this.groupsLoading = false;
+        });
     },
   },
-  async beforeMount() {
-    this.notificationLoading = true;
-    axios
-      .get("setup/notifications")
-      .then((res) => {
-        this.initialNotifications = res.data.initialNotifications;
-      })
-      .finally(() => {
-        this.notificationLoading = false;
-      });
-
-    this.usersLoading = true;
-    axios
-      .get("users")
-      .then((res) => {
-        const users = res.data.users;
-        this.resipientsOptions.push({
-          header: "Users",
-        });
-        users.forEach((user) => {
-          this.resipientsOptions.push({
-            name: user.name,
-            value: user.id,
-          });
-        });
-        this.resipientsOptions.push({
-          divider: true,
-        });
-      })
-      .finally(() => {
-        this.usersLoading = false;
-      });
-
-    this.groupsLoading = true;
-    axios
-      .get("usergroups")
-      .then((res) => {
-        const groups = res.data.groups;
-        this.resipientsOptions.push({
-          header: "Groups",
-        });
-        groups.forEach((group) => {
-          this.resipientsOptions.push({
-            name: group.name,
-            value: group.ids,
-          });
-        });
-        this.resipientsOptions.push({
-          divider: true,
-        });
-      })
-      .finally(() => {
-        this.groupsLoading = false;
-      });
+  watch: {
+    forceReload: {
+      handler(new_state, old_state) {
+        if (new_state === true || old_state === undefined) {
+          this.getDataFromServer();
+        }
+      },
+      immediate: true,
+    },
   },
 };
 </script>

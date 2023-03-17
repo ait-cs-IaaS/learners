@@ -1,12 +1,41 @@
 <template>
   <div>
-    <v-dialog v-model="showLoader" :scrim="false" persistent width="auto">
-      <loader />
-    </v-dialog>
+    <div>
+      <h2 class="mb-3">
+        Feedback Overview
 
-    <h2 class="mb-3">Feedback Overview</h2>
+        <v-progress-circular
+          class="mx-2 mb-1"
+          color="grey"
+          indeterminate
+          :width="3"
+          :size="18"
+          v-show="loading"
+        ></v-progress-circular>
+      </h2>
 
-    <div v-if="!showLoader">bla</div>
+      <template v-for="(comments, page) in commentsDict">
+        <div>
+          <h3 v-html="page" class="my-4"></h3>
+          <div
+            v-for="comment in comments"
+            :key="comment"
+            class="details-card-row"
+          >
+            <div class="details-card-label">
+              User: {{ unescape(comment.user) }}
+            </div>
+            <div class="details-card-input">
+              {{ comment.comment }}
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div v-if="Object.keys(commentsDict).length === 0" class="no-data">
+        No data.
+      </div>
+    </div>
   </div>
 </template>
 
@@ -23,104 +52,44 @@ export default {
   },
   data() {
     return {
-      initialNotifications: <any>[],
-      // Loader conditions
-      notificationLoading: false,
-      usersLoading: false,
-      groupsLoading: false,
-      // Form
-      form: false,
-      // Recipients
-      recipients: [],
-      resipientsOptions: <any>[],
-      // Positions
-      positions: ["all"],
-      positionOptions: ["documentation", "exercises", "clients", "all"],
-      // Message
-      message: "",
+      commentsDict: <any>{},
+      loading: false,
     };
   },
   props: {
     currentTab: { type: String, require: false },
   },
   computed: {
-    showLoader() {
-      const viewCondition = store.getters.getCurrentView === "admin";
-      const tabCondition = this.currentTab === "Notifications";
-      const eventCondition = this.usersLoading || this.notificationLoading;
-      return viewCondition && tabCondition && eventCondition;
+    forceReload() {
+      return store.getters.getAdminForceReload("feedback");
     },
   },
   methods: {
-    async submitHandler() {
-      if (!this.form) return;
-
-      const recipients = this.recipients.flatMap((num) => num);
-      const dedubRecipients = [...new Set(recipients)];
-
-      const response = await axios.post("notifications", {
-        recipients: dedubRecipients,
-        message: this.message,
-        positions: this.positions,
-      });
-
-      console.log(response);
+    unescape(_string) {
+      return _string.replaceAll("_", " ");
+    },
+    async getDataFromServer() {
+      this.loading = true;
+      store.dispatch("unsetAdminForceReload", "feedback");
+      axios
+        .get("comments")
+        .then((res) => {
+          this.commentsDict = res.data.comments;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
   },
-  async beforeMount() {
-    this.notificationLoading = true;
-    axios
-      .get("setup/notifications")
-      .then((res) => {
-        this.initialNotifications = res.data.initialNotifications;
-      })
-      .finally(() => {
-        this.notificationLoading = false;
-      });
-
-    this.usersLoading = true;
-    axios
-      .get("users")
-      .then((res) => {
-        const users = res.data.users;
-        this.resipientsOptions.push({
-          header: "Users",
-        });
-        users.forEach((user) => {
-          this.resipientsOptions.push({
-            name: user.name,
-            value: user.id,
-          });
-        });
-        this.resipientsOptions.push({
-          divider: true,
-        });
-      })
-      .finally(() => {
-        this.usersLoading = false;
-      });
-
-    this.groupsLoading = true;
-    axios
-      .get("usergroups")
-      .then((res) => {
-        const groups = res.data.groups;
-        this.resipientsOptions.push({
-          header: "Groups",
-        });
-        groups.forEach((group) => {
-          this.resipientsOptions.push({
-            name: group.name,
-            value: group.ids,
-          });
-        });
-        this.resipientsOptions.push({
-          divider: true,
-        });
-      })
-      .finally(() => {
-        this.groupsLoading = false;
-      });
+  watch: {
+    forceReload: {
+      handler(new_state, old_state) {
+        if (new_state === true || old_state === undefined) {
+          this.getDataFromServer();
+        }
+      },
+      immediate: true,
+    },
   },
 };
 </script>

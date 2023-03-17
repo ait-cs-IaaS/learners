@@ -11,7 +11,12 @@
           <h1>Admin Area</h1>
         </v-col>
         <v-col>
-          <v-tabs v-model="currentTab" bg-color="#f1f1f1" :mandatory="true">
+          <v-tabs
+            @click="triggerUpdate(currentTab)"
+            v-model="currentTab"
+            mandatory
+            class="admin-tabs-container"
+          >
             <v-tab value="Submissions">Submissions Overview</v-tab>
             <v-tab value="Exercises">Exercises</v-tab>
             <v-tab value="Notifications">Notifications</v-tab>
@@ -70,6 +75,11 @@ export default {
   computed: {
     currentView() {
       return store.getters.getCurrentView;
+    },
+  },
+  methods: {
+    triggerUpdate(tab) {
+      store.dispatch("setAdminForceReload", tab.toLowerCase());
     },
   },
   data() {
