@@ -34,12 +34,14 @@ export const extractNotifications = (responseData) => {
   if (Array.isArray(responseData)) {
     newNotifications = (responseData || []).map((newNotification) => {
       return <INotificationObject>{
+        event: `${newNotification?.event}`,
         message: `${newNotification?.message}`,
         positions: newNotification?.positions,
       };
     });
   } else {
     newNotifications = <INotificationObject>{
+      event: `${JSON.parse(responseData)?.event}`,
       message: `${JSON.parse(responseData)?.message}`,
       positions: JSON.parse(responseData)?.positions,
     };
