@@ -4,11 +4,13 @@ from datetime import datetime, timezone
 from sqlite3 import IntegrityError
 import string
 from typing import Tuple
+from backend.classes.SSE_element import SSE_element
 
 from backend.logger import logger, EXERCISE_INFO
 from backend.conf.config import cfg
 from backend.conf.db_models import (
     Attachment,
+    Cache,
     Execution,
     Exercise,
     Notification,
@@ -177,9 +179,12 @@ def db_create_questionaire_execution(global_questionaire_id: str, answers: dict,
 def db_create_comment(comment: str, page: str, user_id: int) -> bool:
 
     try:
-        comment = Comment(comment=escape(comment), user_id=user_id, page=escape(page))
-        db.session.add(comment)
-        db.session.commit()
+        new_comment = {
+            "user_id": user_id,
+            "comment": comment,
+            "page": page,
+        }
+        db_create_or_update(Comment, "user_id + page", new_comment)
         return True
 
     except Exception as e:
@@ -233,6 +238,10 @@ def get_user_by_name(name: str) -> dict:
 
 def get_user_by_id(id: int) -> dict:
     return generic_getter(User, "id", id)
+
+
+def get_users_by_role(role: str) -> list:
+    return generic_getter(User, "role", role, all=True)
 
 
 def get_all_users() -> list:
@@ -380,6 +389,14 @@ def get_filename_from_hash(filename_hash):
         return None
 
 
+def get_cache_by_ids(user_id: int, global_exercise_id: str) -> dict:
+    try:
+        return db.session.query(Cache).filter_by(user_id=user_id).filter_by(global_exercise_id=global_exercise_id).first()
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
 def get_all_exercises_sorted() -> list:
     try:
         return db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
@@ -471,9 +488,15 @@ def get_question_counts(global_question_id):
         return [""], [0]
 
 
-def db_create_notification(recipients: str, message: str, positions: str = "all") -> bool:
+def db_create_notification(sse_element: SSE_element) -> bool:
     try:
-        notification = Notification(recipients=recipients, message=message, positions=positions)
+        print(sse_element)
+        notification = Notification(
+            event=sse_element.event,
+            message=sse_element.message,
+            recipients=json.dumps(sse_element.recipients),
+            positions=json.dumps(sse_element.positions),
+        )
         db.session.add(notification)
         db.session.commit()
 
