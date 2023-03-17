@@ -1,14 +1,17 @@
 import json
 import os
 import uuid
+from backend.classes.SSE_element import SSE_element
 
 from flask import Blueprint, jsonify, request, send_from_directory
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
 from backend.jwt_manager import admin_required, jwt_required_any_location, only_self_or_admin
 from backend.logger import logger
+from backend.classes.sse import sse
 from backend.functions.database import (
     db_create_execution,
     db_create_file,
+    db_create_notification,
     get_all_exercises,
     get_all_users,
     get_completed_state,
@@ -21,9 +24,10 @@ from backend.functions.database import (
     get_exercises_by_group,
     get_user_by_id,
     get_user_by_name,
+    get_users_by_role,
 )
 from backend.functions.execution import call_venjix, update_execution_response, wait_for_response
-from backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict
+from backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict, sse_create_and_publish
 
 
 from werkzeug.utils import secure_filename
@@ -50,6 +54,25 @@ def run_execution(exercise_type):
         if exercise_type == "form":
             response["connected"] = True
             response["executed"] = True
+
+    # exercise = get_exercise_by_global_exercise_id(data.get("name"))
+
+    sse_create_and_publish(event="newSubmission", user=current_user, exercise=get_exercise_by_global_exercise_id(data.get("name")))
+
+    # newSubmission_event = SSE_element(
+    #     event="newSubmission",
+    #     message=f"<h4>New submission</h4>User: {current_user.name}<br>Exercise: {exercise_name} ",
+    #     recipients=[admin_user.id for admin_user in get_users_by_role("admin")],
+    # )
+
+    # # Create Database entry
+    # db_create_notification(newSubmission_event)
+
+    # # Notify Users
+    # sse.publish(newSubmission_event)
+
+    # print(data.get("name"))
+    # print(exercise_name)
 
     return jsonify(response)
 
@@ -170,7 +193,7 @@ def submit_questionaire(global_questionaire_id):
     if db_create_questionaire_execution(global_questionaire_id, answers, username):
         response["completed"] = True
     else:
-        if get_user_by_name(username).role is "participant":
+        if get_user_by_name(username).role == "participant":
             response["msg"] = "Database error"
         else:
             response["msg"] = "User not permitted"

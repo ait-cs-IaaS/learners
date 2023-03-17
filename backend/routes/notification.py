@@ -25,17 +25,13 @@ def postNotifications():
 
         newNotification = SSE_element(
             event="newNotification",
-            recipients=formdata["recipients"],
             message=formdata["message"],
+            recipients=formdata["recipients"],
             positions=formdata["positions"],
         )
 
         # Create Database entry
-        db_create_notification(
-            recipients=json.dumps(newNotification.recipients),
-            message=newNotification.message,
-            positions=json.dumps(newNotification.positions),
-        )
+        db_create_notification(newNotification)
 
         # Notify Users
         sse.publish(newNotification)
@@ -67,7 +63,9 @@ def stream():
         while True:
             notification = sse_queue.get()
             if user_id in notification.recipients:
+                print(notification.toJson())
                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
+                print(msg)
                 yield msg
 
     return Response(eventStream(current_user.id), mimetype="text/event-stream")

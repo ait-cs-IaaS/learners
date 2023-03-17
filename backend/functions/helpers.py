@@ -104,6 +104,35 @@ def build_urls(config, role, user_id=None):
     return config.template
 
 
+def sse_create_and_publish(event: str = "newNotification", message: str = "", user=None, page=None, exercise=None) -> bool:
+
+    # Import
+    from backend.classes.sse import sse
+    from backend.classes.SSE_element import SSE_element
+    from backend.functions.database import db_create_notification, get_users_by_role
+
+    # Conditional publishing
+    if event == "newSubmission":
+        message = f"<h4>New submission</h4>User: {user.name}<br>Exercise: {exercise.exercise_name} "
+        recipients = [admin_user.id for admin_user in get_users_by_role("admin")]
+
+    if event == "newComment":
+        message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page} "
+        recipients = [admin_user.id for admin_user in get_users_by_role("admin")]
+
+    new_event = SSE_element(
+        event=event,
+        message=message,
+        recipients=recipients,
+    )
+
+    # Create Database entry
+    db_create_notification(new_event)
+
+    # Notify Users
+    sse.publish(new_event)
+
+
 def is_json(json_string):
     try:
         json.loads(json_string)
