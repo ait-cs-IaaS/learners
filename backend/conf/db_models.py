@@ -15,9 +15,10 @@ class User(db.Model):
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    event = db.Column(db.String(120), nullable=True)
     message = db.Column(db.String(240), nullable=True)
-    positions = db.Column(db.String(120), nullable=True)
     recipients = db.Column(db.String(120), nullable=True)
+    positions = db.Column(db.String(120), nullable=True)
     # recipients = db.relationship("NotificationAssociation", back_populates="notification")
 
 
@@ -81,6 +82,12 @@ class Exercise(db.Model):
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
+
+
+class Cache(db.Model):
+    user_id = db.Column(db.ForeignKey("user.id"), primary_key=True)
+    global_exercise_id = db.Column(db.ForeignKey("exercise.global_exercise_id"), primary_key=True)
+    form_data = db.Column(db.String(), nullable=True)
 
 
 class Comment(db.Model):
