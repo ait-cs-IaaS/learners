@@ -1,9 +1,29 @@
 <template>
-  <div class="notification-container" :class="{ animating: animate }">
-    <div
-      class="notification-content"
-      v-html="currentNotifications?.message"
-    ></div>
+  <div
+    class="notification-container"
+    :class="{
+      animating: animate,
+      submission:
+        currentNotifications?.event == 'newSubmission' ||
+        currentNotifications?.event == 'newComment',
+    }"
+  >
+    <div class="notification-grid">
+      <SvgIcon
+        name="check-circle"
+        notification
+        v-if="currentNotifications?.event == 'newSubmission'"
+      />
+      <SvgIcon
+        name="chat-bubble-bottom-center-text"
+        notification
+        v-if="currentNotifications?.event == 'newComment'"
+      />
+      <div
+        class="notification-content"
+        v-html="currentNotifications?.message"
+      ></div>
+    </div>
     <div class="notification-controls">
       <v-tooltip location="top" text="previous" transition="fade-transition">
         <template #activator="{ props }">
@@ -73,13 +93,6 @@ export default {
   components: {
     SvgIcon,
   },
-  props: {
-    message: {
-      type: String,
-      require: false,
-      default: "Requesting data ...",
-    },
-  },
   data() {
     return {
       contentChanging: false,
@@ -95,6 +108,16 @@ export default {
         console.log(index);
         console.log(notifications[index]);
         this.triggerAnimation();
+        const currentNotification = notifications[index];
+        if (
+          currentNotification?.event == "newSubmission" ||
+          currentNotification?.event == "newComment"
+        ) {
+          console.log("autohide");
+          setTimeout(() => {
+            this.$emit("hide");
+          }, 5000);
+        }
         return notifications[index];
       }
     },
@@ -127,14 +150,19 @@ export default {
   z-index: 99 !important;
   bottom: 14px !important;
   left: 74px !important;
+  // TODO: just for development:
   // pointer-events: none;
   padding: 24px;
   border-radius: 4px;
-  min-width: 340px;
+  min-width: 400px;
   max-width: 40%;
 
   &.animating {
     animation: fade-in 600ms ease;
+  }
+
+  &.submission {
+    background-color: rgba(75, 138, 102, 0.9);
   }
   h1,
   h2,
@@ -175,5 +203,9 @@ export default {
   height: 34px;
   padding: 8px;
   border-radius: 4px;
+}
+
+.notification-grid {
+  display: flex;
 }
 </style>
