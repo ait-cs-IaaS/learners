@@ -1,27 +1,22 @@
-from backend.classes.SSE_element import SSE_element
 from backend.functions.helpers import convert_to_dict, sse_create_and_publish
-from flask import Blueprint, jsonify, make_response, render_template, request
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_create_comment,
-    db_create_notification,
     get_all_comments,
     get_comment_by_id,
     get_comments_by_userid,
     get_user_by_id,
-    get_users_by_role,
 )
 
-from backend.conf.config import cfg
-from backend.jwt_manager import admin_required, jwt_required_any_location
-from backend.classes.sse import sse
+from backend.jwt_manager import admin_required
 
 
-comment_api = Blueprint("comment_api", __name__)
+comments_api = Blueprint("comments_api", __name__)
 
 
 # Post new comment
-@comment_api.route("/comments", methods=["POST"])
+@comments_api.route("/comments", methods=["POST"])
 @jwt_required()
 def run_execution():
 
@@ -37,7 +32,7 @@ def run_execution():
 
 
 # Get all comments, grouped by the page titles
-@comment_api.route("/comments", methods=["GET"])
+@comments_api.route("/comments", methods=["GET"])
 @admin_required()
 def getComments():
 
@@ -55,7 +50,7 @@ def getComments():
 
 
 # Get specific comment based on comment ID
-@comment_api.route("/comments/<comment_id>", methods=["GET"])
+@comments_api.route("/comments/<comment_id>", methods=["GET"])
 @admin_required()
 def getCommentById(comment_id):
 
@@ -66,7 +61,7 @@ def getCommentById(comment_id):
 
 
 # Get all user comments based on the user ID
-@comment_api.route("/comments/user/<user_id>", methods=["GET"])
+@comments_api.route("/comments/user/<user_id>", methods=["GET"])
 @admin_required()
 def getUserComments(user_id):
 

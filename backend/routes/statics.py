@@ -1,5 +1,5 @@
 from flask import Blueprint, send_from_directory, make_response, jsonify, request
-from flask_jwt_extended import current_user, jwt_required
+from flask_jwt_extended import jwt_required
 from backend.conf.config import cfg
 
 from backend.logger import logger

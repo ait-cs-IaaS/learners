@@ -1,10 +1,9 @@
 import hashlib
 import json
 from datetime import datetime, timezone
-from sqlite3 import IntegrityError
 import string
 from typing import Tuple
-from backend.classes.SSE_element import SSE_element
+from backend.classes.SSE import SSE_Event
 
 from backend.logger import logger, EXERCISE_INFO
 from backend.conf.config import cfg
@@ -24,10 +23,7 @@ from backend.conf.db_models import (
 )
 from backend.database import db
 from backend.functions.helpers import extract_json_content
-from sqlalchemy import event, nullsfirst
-from sqlalchemy.orm import joinedload
-
-from flask import escape, jsonify
+from sqlalchemy import nullsfirst
 
 
 def insert_initial_usergroups(*args, **kwargs):
@@ -488,14 +484,14 @@ def get_question_counts(global_question_id):
         return [""], [0]
 
 
-def db_create_notification(sse_element: SSE_element) -> bool:
+def db_create_notification(sse_Event: SSE_Event) -> bool:
     try:
-        print(sse_element)
+        print(sse_Event)
         notification = Notification(
-            event=sse_element.event,
-            message=sse_element.message,
-            recipients=json.dumps(sse_element.recipients),
-            positions=json.dumps(sse_element.positions),
+            event=sse_Event.event,
+            message=sse_Event.message,
+            recipients=json.dumps(sse_Event.recipients),
+            positions=json.dumps(sse_Event.positions),
         )
         db.session.add(notification)
         db.session.commit()

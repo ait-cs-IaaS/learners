@@ -1,17 +1,14 @@
-import json
 import os
 import uuid
-from backend.classes.SSE_element import SSE_element
 
 from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
 from backend.jwt_manager import admin_required, jwt_required_any_location, only_self_or_admin
 from backend.logger import logger
-from backend.classes.sse import sse
+from backend.classes.SSE import sse
 from backend.functions.database import (
     db_create_execution,
     db_create_file,
-    db_create_notification,
     get_all_exercises,
     get_all_users,
     get_completed_state,
@@ -19,12 +16,10 @@ from backend.functions.database import (
     get_executions_by_user_exercise,
     get_exercise_by_global_exercise_id,
     db_create_questionaire_execution,
-    get_exercise_by_name,
     get_exercise_groups,
     get_exercises_by_group,
     get_user_by_id,
     get_user_by_name,
-    get_users_by_role,
 )
 from backend.functions.execution import call_venjix, update_execution_response, wait_for_response
 from backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict, sse_create_and_publish
@@ -34,10 +29,10 @@ from werkzeug.utils import secure_filename
 from backend.conf.config import cfg
 
 
-execution_api = Blueprint("execution_api", __name__)
+executions_api = Blueprint("executions_api", __name__)
 
 
-@execution_api.route("/execution/<exercise_type>", methods=["POST"])
+@executions_api.route("/execution/<exercise_type>", methods=["POST"])
 @jwt_required_any_location()
 def run_execution(exercise_type):
 
@@ -55,29 +50,12 @@ def run_execution(exercise_type):
             response["connected"] = True
             response["executed"] = True
 
-    # exercise = get_exercise_by_global_exercise_id(data.get("name"))
-
     sse_create_and_publish(event="newSubmission", user=current_user, exercise=get_exercise_by_global_exercise_id(data.get("name")))
-
-    # newSubmission_event = SSE_element(
-    #     event="newSubmission",
-    #     message=f"<h4>New submission</h4>User: {current_user.name}<br>Exercise: {exercise_name} ",
-    #     recipients=[admin_user.id for admin_user in get_users_by_role("admin")],
-    # )
-
-    # # Create Database entry
-    # db_create_notification(newSubmission_event)
-
-    # # Notify Users
-    # sse.publish(newSubmission_event)
-
-    # print(data.get("name"))
-    # print(exercise_name)
 
     return jsonify(response)
 
 
-@execution_api.route("/execution/<global_exercise_id>", methods=["GET"])
+@executions_api.route("/execution/<global_exercise_id>", methods=["GET"])
 @jwt_required()
 def get_execution(global_exercise_id):
 
@@ -109,7 +87,7 @@ def get_execution(global_exercise_id):
     return jsonify(response)
 
 
-@execution_api.route("/execution-state", methods=["GET"])
+@executions_api.route("/execution-state", methods=["GET"])
 @jwt_required()
 def get_execution_state():
 
@@ -133,7 +111,7 @@ def get_execution_state():
     return jsonify(success_list=results)
 
 
-@execution_api.route("/upload", methods=["POST"])
+@executions_api.route("/upload", methods=["POST"])
 @jwt_required(locations="headers")
 def upload_file():
 
@@ -175,13 +153,13 @@ def upload_file():
     return jsonify(response)
 
 
-@execution_api.route("/upload/<name>")
+@executions_api.route("/upload/<name>")
 @jwt_required()
 def download_file(name):
     return send_from_directory(cfg.upload_folder, name)
 
 
-@execution_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
+@executions_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
 @jwt_required(locations="headers")
 def submit_questionaire(global_questionaire_id):
 
@@ -204,7 +182,7 @@ def submit_questionaire(global_questionaire_id):
 # NEW
 
 
-@execution_api.route("/submissions", methods=["GET"])
+@executions_api.route("/submissions", methods=["GET"])
 @admin_required()
 def get_all_submissions():
 
@@ -228,7 +206,7 @@ def get_all_submissions():
     return jsonify(submissions=submissions)
 
 
-@execution_api.route("/submissions/<user_id>/<global_exercise_id>", methods=["GET"])
+@executions_api.route("/submissions/<user_id>/<global_exercise_id>", methods=["GET"])
 @only_self_or_admin()
 def get_user_exercise_submissions(user_id, global_exercise_id):
 

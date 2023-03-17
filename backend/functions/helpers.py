@@ -3,7 +3,6 @@ import os
 import time
 from datetime import datetime
 from backend.logger import logger
-from flask import url_for
 
 from backend.conf.config import cfg
 
@@ -107,8 +106,7 @@ def build_urls(config, role, user_id=None):
 def sse_create_and_publish(event: str = "newNotification", message: str = "", user=None, page=None, exercise=None) -> bool:
 
     # Import
-    from backend.classes.sse import sse
-    from backend.classes.SSE_element import SSE_element
+    from backend.classes.SSE import SSE_Event, sse
     from backend.functions.database import db_create_notification, get_users_by_role
 
     # Conditional publishing
@@ -120,7 +118,7 @@ def sse_create_and_publish(event: str = "newNotification", message: str = "", us
         message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page} "
         recipients = [admin_user.id for admin_user in get_users_by_role("admin")]
 
-    new_event = SSE_element(
+    new_event = SSE_Event(
         event=event,
         message=message,
         recipients=recipients,

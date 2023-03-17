@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from flask import Blueprint, make_response, redirect, render_template, request, jsonify
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
+from flask import Blueprint, render_template, request, jsonify
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from backend.conf.config import cfg
 from backend.conf.db_models import TokenBlocklist
 from backend.database import db

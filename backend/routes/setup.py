@@ -1,8 +1,5 @@
-from datetime import datetime, timezone
-import json
-
-from flask import Blueprint, make_response, redirect, render_template, request, jsonify
-from flask_jwt_extended import create_access_token, current_user, get_jwt, get_jwt_identity, jwt_required, verify_jwt_in_request
+from flask import Blueprint, jsonify
+from flask_jwt_extended import create_access_token, current_user, jwt_required
 from backend.classes.Tab import Tab
 from backend.conf.config import cfg
 from backend.jwt_manager import admin_required
@@ -80,7 +77,5 @@ def getSidebar():
 @setup_api.route("/setup/notifications", methods=["GET"])
 @admin_required()
 def getSetupNotifications():
-
     notifications = cfg.init_notifications
-
     return jsonify(initialNotifications=notifications)

@@ -22,17 +22,15 @@ def main():
 
     import backend.routes as routes
 
-    app.register_blueprint(routes.home_api)
     app.register_blueprint(routes.authentication_api)
-    app.register_blueprint(routes.interface_api)
-    app.register_blueprint(routes.notification_api)
-    app.register_blueprint(routes.execution_api)
-    app.register_blueprint(routes.comment_api)
+    app.register_blueprint(routes.notifications_api)
+    app.register_blueprint(routes.executions_api)
+    app.register_blueprint(routes.comments_api)
     app.register_blueprint(routes.cache_api)
     app.register_blueprint(routes.callback_api)
     app.register_blueprint(routes.statics_api)
     app.register_blueprint(routes.setup_api)
-    app.register_blueprint(routes.admin_api)
+    app.register_blueprint(routes.exercises_api)
     app.register_blueprint(routes.users_api)
 
     return app

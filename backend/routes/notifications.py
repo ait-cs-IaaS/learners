@@ -1,6 +1,4 @@
-import json
-from backend.classes.SSE_element import SSE_element
-from backend.classes.sse import sse
+from backend.classes.SSE import SSE_Event, sse
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required, current_user
@@ -13,17 +11,17 @@ from backend.functions.helpers import convert_to_dict
 from backend.jwt_manager import admin_required
 from backend.logger import logger
 
-notification_api = Blueprint("notification_api", __name__)
+notifications_api = Blueprint("notifications_api", __name__)
 
 
-@notification_api.route("/notifications", methods=["POST"])
+@notifications_api.route("/notifications", methods=["POST"])
 @admin_required()
 def postNotifications():
 
     try:
         formdata = request.get_json()
 
-        newNotification = SSE_element(
+        newNotification = SSE_Event(
             event="newNotification",
             message=formdata["message"],
             recipients=formdata["recipients"],
@@ -43,7 +41,7 @@ def postNotifications():
         return jsonify(success=False, exception=e), 500
 
 
-@notification_api.route("/notifications", methods=["GET"])
+@notifications_api.route("/notifications", methods=["GET"])
 @jwt_required()
 def getNotifications():
 
@@ -53,7 +51,7 @@ def getNotifications():
     return jsonify(notifications=notifications), 200
 
 
-@notification_api.route("/stream")
+@notifications_api.route("/stream")
 @jwt_required()
 def stream():
     def eventStream(user_id):

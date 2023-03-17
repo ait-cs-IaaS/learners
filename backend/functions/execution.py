@@ -3,10 +3,9 @@ import time
 from typing import Tuple
 
 import requests
-from flask_mail import Message
 from backend.logger import logger
 from backend.conf.config import cfg
-from backend.conf.db_models import Execution, Exercise
+from backend.conf.db_models import Execution
 from backend.database import db
 from backend.functions.database import db_update_execution
 from backend.functions.helpers import extract_history
