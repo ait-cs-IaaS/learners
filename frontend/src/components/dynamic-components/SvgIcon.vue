@@ -3,6 +3,7 @@
     :class="{
       'sidebar-hero-icon': sidebar,
       'content-hero-icon': !sidebar,
+      'notification-hero-icon': notification,
       clickable: clickable,
     }"
     class="hero-icon"
@@ -30,6 +31,11 @@ export default {
       required: false,
       default: false,
     },
+    notification: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   computed: {
@@ -41,7 +47,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .hero-icon {
   display: flex;
   justify-content: center;
@@ -54,5 +60,13 @@ export default {
 
 .hero-icon.content-hero-icon {
   width: 22px;
+}
+
+.hero-icon.notification-hero-icon {
+  width: 40px;
+  margin-right: 20px;
+  svg {
+    color: white;
+  }
 }
 </style>
