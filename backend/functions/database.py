@@ -35,7 +35,7 @@ def insert_initial_usergroups(*args, **kwargs):
 
         for group in usergroups:
 
-            db_create_or_update(Usergroup, "name", {"name": group})
+            db_create_or_update(Usergroup, ["name"], {"name": group})
             usergroup = Usergroup.query.filter_by(name=group).first()
 
             new_usergroup_association = {
@@ -43,7 +43,7 @@ def insert_initial_usergroups(*args, **kwargs):
                 "usergroup": usergroup,
             }
 
-            db_create_or_update(UsergroupAssociation, "user + usergroup", new_usergroup_association)
+            db_create_or_update(UsergroupAssociation, ["user", "usergroup"], new_usergroup_association)
 
     db.session.commit()
 
@@ -51,30 +51,30 @@ def insert_initial_usergroups(*args, **kwargs):
 def insert_initial_users(*args, **kwargs):
     for user_name, userDetails in cfg.users.items():
         user = {"name": user_name, "role": userDetails.get("role"), "admin": userDetails.get("admin")}
-        db_create_or_update(User, "name", user)
+        db_create_or_update(User, ["name"], user)
 
 
 def insert_exercises(app, *args, **kwargs):
     exercises = extract_json_content(app, cfg.exercise_json, EXERCISE_INFO)
     for exercise in exercises:
-        db_create_or_update(Exercise, "global_exercise_id", exercise)
+        db_create_or_update(Exercise, ["global_exercise_id"], exercise)
 
 
 def insert_questionaires(app, *args, **kwargs):
     questionaires = extract_json_content(app, cfg.questionaire_json)
     for questionaire in questionaires:
-        db_create_or_update(Questionaire, "global_questionaire_id", questionaire)
+        db_create_or_update(Questionaire, ["global_questionaire_id"], questionaire)
 
     questions = extract_json_content(app, cfg.questionaires_questions_json)
     for question in questions:
-        db_create_or_update(QuestionaireQuestion, "global_question_id", question)
+        db_create_or_update(QuestionaireQuestion, ["global_question_id"], question)
 
 
-def db_create_or_update(db_model, filter_keys: str = None, passed_element: dict = None) -> bool:
+def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None) -> bool:
     # check if element already exists
     try:
         session = db.session.query(db_model)
-        for filter_key in filter_keys.split("+"):
+        for filter_key in filter_keys:
             kwargs = {filter_key.strip(): passed_element[filter_key.strip()]}
             session = session.filter_by(**kwargs)
         current_db_entry = session.first()
@@ -163,7 +163,7 @@ def db_create_questionaire_execution(global_questionaire_id: str, answers: dict,
                 "global_question_id": global_question_id,
                 "global_questionaire_id": global_questionaire_id,
             }
-            db_create_or_update(QuestionaireAnswer, "user_id + global_question_id", new_answer)
+            db_create_or_update(QuestionaireAnswer, ["user_id", "global_question_id"], new_answer)
         return True
 
     except Exception as e:
@@ -179,7 +179,7 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
             "comment": comment,
             "page": page,
         }
-        db_create_or_update(Comment, "user_id + page", new_comment)
+        db_create_or_update(Comment, ["user_id", "page"], new_comment)
         return True
 
     except Exception as e:

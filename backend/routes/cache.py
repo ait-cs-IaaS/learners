@@ -24,7 +24,7 @@ def putCache():
         "form_data": json.dumps(data.get("form_data")),
     }
 
-    db_create_or_update(Cache, "user_id + global_exercise_id", new_cache_entry)
+    db_create_or_update(Cache, ["user_id", "global_exercise_id"], new_cache_entry)
 
     return jsonify(updated=True), 200
 
