@@ -19,6 +19,12 @@ export const store = createStore({
     notifications: new Array<INotificationObject>(),
     currentNotification: 0,
     showNotifications: true,
+    adminForceReload: {
+      submissions: false,
+      exercises: false,
+      notifications: false,
+      feedback: false,
+    },
   },
   mutations: {
     SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
@@ -75,6 +81,10 @@ export const store = createStore({
       state: { showNotifications: boolean },
       newState: boolean
     ) => (state.showNotifications = newState),
+    SET_ADMIN_FORCE_RELOAD: (
+      state: { adminForceReload: any },
+      newState: { tab: string; state: boolean }
+    ) => (state.adminForceReload[newState.tab] = newState.state),
   },
   actions: {
     setLogo: ({ commit }: { commit: Commit }, logo: string) =>
@@ -142,6 +152,12 @@ export const store = createStore({
 
     disableNotifications: ({ commit }: { commit: Commit }) =>
       commit("SET_SHOW_NOTIFICATIONS_STATE", false),
+
+    setAdminForceReload: ({ commit }: { commit: Commit }, tab: string) =>
+      commit("SET_ADMIN_FORCE_RELOAD", { tab: tab, state: true }),
+
+    unsetAdminForceReload: ({ commit }: { commit: Commit }, tab: string) =>
+      commit("SET_ADMIN_FORCE_RELOAD", { tab: tab, state: false }),
   },
   getters: {
     getLogo: (state) => state.logo,
@@ -149,6 +165,9 @@ export const store = createStore({
     getError: (state) => state.error,
     getTabs: (state) => state.tabs,
     getCurrentView: (state) => state.currentView || "",
+    getAdminForceReload: (state) => (tab) => {
+      return state.adminForceReload[tab];
+    },
     getNotifications: (state) => state.notifications || [],
     getCurrentNotification: (state) => state.currentNotification || 0,
     getShowNotifications: (state) => state.showNotifications,
