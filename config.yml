@@ -99,7 +99,7 @@ users:
   admin:
     password: admin
     admin: True
-    role: instructor
+    role: admin
     groups:
       - csirts
 
