@@ -112,6 +112,14 @@ export default {
   white-space: nowrap;
   text-align: center;
   font-weight: normal;
+
+  & span {
+    display: inline-block; // This is what you're missing
+    max-width: 180px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 .sub-header {
