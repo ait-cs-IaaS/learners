@@ -24,6 +24,7 @@ export interface IExerciseObject {
 }
 
 export interface INotificationObject {
+  event: string;
   message: string;
   positions: Array<string>;
 }
