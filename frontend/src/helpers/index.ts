@@ -1,5 +1,9 @@
 import { store } from "@/store";
-import { INotificationObject, ITabObject } from "@/types/index";
+import {
+  INotificationObject,
+  ITabObject,
+  IQuestionaireObject,
+} from "@/types/index";
 import axios from "axios";
 
 export const generateTabs = (tabs, response) => {
@@ -48,6 +52,43 @@ export const extractNotifications = (responseData) => {
   }
 
   return newNotifications;
+};
+
+export const extractQuestionaires = (responseData) => {
+  let newQuestionaires;
+
+  if (Array.isArray(responseData)) {
+    newQuestionaires = (responseData || []).map((newQuestionaire) => {
+      // event: `${newQuestionaire?.event}`,
+      return <IQuestionaireObject>{
+        id: newQuestionaire?.id,
+        question: newQuestionaire?.question,
+        multiple: newQuestionaire?.multiple,
+        answers: JSON.parse(newQuestionaire?.answers),
+        language: newQuestionaire?.language,
+        global_question_id: newQuestionaire?.global_question_id,
+        global_questionaire_id: newQuestionaire?.global_questionaire_id,
+        page_title: newQuestionaire?.page_title,
+      };
+    });
+  } else {
+    // JSON.parse(event.data)?.question
+    // event: `${JSON.parse(responseData)?.event}`,
+    newQuestionaires = <IQuestionaireObject>{
+      id: (JSON.parse(responseData)?.question).id,
+      question: (JSON.parse(responseData)?.question).question,
+      multiple: (JSON.parse(responseData)?.question).multiple,
+      answers: JSON.parse((JSON.parse(responseData)?.question).answers),
+      language: (JSON.parse(responseData)?.question).language,
+      global_question_id:
+        (JSON.parse(responseData)?.question).global_question_id,
+      global_questionaire_id:
+        (JSON.parse(responseData)?.question).global_questionaire_id,
+      page_title: (JSON.parse(responseData)?.question).page_title,
+    };
+  }
+
+  return newQuestionaires;
 };
 
 export const httpErrorHandler = (error) => {
