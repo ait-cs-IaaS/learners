@@ -15,7 +15,7 @@ from backend.functions.database import (
     get_current_executions,
     get_executions_by_user_exercise,
     get_exercise_by_global_exercise_id,
-    db_create_questionaire_execution,
+    # db_create_questionaire_execution,
     get_exercise_groups,
     get_exercises_by_group,
     get_user_by_id,
@@ -159,24 +159,24 @@ def download_file(name):
     return send_from_directory(cfg.upload_folder, name)
 
 
-@executions_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
-@jwt_required(locations="headers")
-def submit_questionaire(global_questionaire_id):
+# @executions_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
+# @jwt_required(locations="headers")
+# def submit_questionaire(global_questionaire_id):
 
-    username = get_jwt_identity()
-    response = {"executed": True, "completed": False}
+#     username = get_jwt_identity()
+#     response = {"executed": True, "completed": False}
 
-    answers = request.get_json()
+#     answers = request.get_json()
 
-    if db_create_questionaire_execution(global_questionaire_id, answers, username):
-        response["completed"] = True
-    else:
-        if get_user_by_name(username).role == "participant":
-            response["msg"] = "Database error"
-        else:
-            response["msg"] = "User not permitted"
+#     if db_create_questionaire_execution(global_questionaire_id, answers, username):
+#         response["completed"] = True
+#     else:
+#         if get_user_by_name(username).role == "participant":
+#             response["msg"] = "Database error"
+#         else:
+#             response["msg"] = "User not permitted"
 
-    return jsonify(response)
+#     return jsonify(response)
 
 
 # NEW
