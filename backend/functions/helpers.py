@@ -111,11 +111,11 @@ def sse_create_and_publish(event: str = "newNotification", message: str = "", us
 
     # Conditional publishing
     if event == "newSubmission":
-        message = f"<h4>New submission</h4>User: {user.name}<br>Exercise: {exercise.exercise_name} "
+        message = f"<h4>New submission</h4>User: {user.name}<br>Exercise: {exercise.exercise_name}"
         recipients = [admin_user.id for admin_user in get_users_by_role("admin")]
 
     if event == "newComment":
-        message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page} "
+        message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page}"
         recipients = [admin_user.id for admin_user in get_users_by_role("admin")]
 
     new_event = SSE_Event(
@@ -139,12 +139,15 @@ def is_json(json_string):
         return False
 
 
-def convert_to_dict(db_list: list) -> list:
-    dict_list = []
+# remove instance element from db result
+def convert_to_dict(input):
+    if single := not isinstance(input, list):
+        input = [input]
 
-    for element in db_list:
+    output = []
+    for element in input:
         element = element.__dict__
         element.pop("_sa_instance_state")
-        dict_list.append(element)
+        output.append(element)
 
-    return dict_list
+    return output[0] if single else output
