@@ -20,6 +20,7 @@
             <v-tab value="Submissions">Submissions Overview</v-tab>
             <v-tab value="Exercises">Exercises</v-tab>
             <v-tab value="Notifications">Notifications</v-tab>
+            <v-tab value="Questionaire">Questionaire</v-tab>
             <v-tab value="Feedback">Feedback</v-tab>
           </v-tabs>
 
@@ -43,6 +44,12 @@
                   class="tab-container"
                 />
               </v-window-item>
+              <v-window-item value="Questionaire">
+                <questionaire-overview
+                  :currentTab="currentTab"
+                  class="tab-container"
+                />
+              </v-window-item>
               <v-window-item value="Feedback">
                 <feedback-overview
                   :currentTab="currentTab"
@@ -61,6 +68,7 @@
 import SubmissionsOverview from "@/components/admin/SubmissionsOverview.vue";
 import ExercisesOverview from "@/components/admin/ExercisesOverview.vue";
 import NotificationsOverview from "@/components/admin/NotificationsOverview.vue";
+import QuestionaireOverview from "@/components/admin/QuestionaireOverview.vue";
 import FeedbackOverview from "@/components/admin/FeedbackOverview.vue";
 import { store } from "@/store";
 
@@ -70,6 +78,7 @@ export default {
     SubmissionsOverview,
     ExercisesOverview,
     NotificationsOverview,
+    QuestionaireOverview,
     FeedbackOverview,
   },
   computed: {
