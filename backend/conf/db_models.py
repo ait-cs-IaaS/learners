@@ -9,7 +9,6 @@ class User(db.Model):
     role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     admin = db.Column(db.Integer, nullable=False, default=0)
     executions = db.relationship("Execution", backref="user", lazy=True)
-    # notifications = db.relationship("NotificationAssociation", back_populates="user")
     usergroups = db.relationship("UsergroupAssociation", back_populates="user")
 
 
@@ -19,17 +18,6 @@ class Notification(db.Model):
     message = db.Column(db.String(240), nullable=True)
     recipients = db.Column(db.String(120), nullable=True)
     positions = db.Column(db.String(120), nullable=True)
-    # recipients = db.relationship("NotificationAssociation", back_populates="notification")
-
-
-# class NotificationAssociation(db.Model):
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     sent = db.Column(db.Integer, nullable=False, default=0)
-#     notification_id = db.Column(db.ForeignKey("notification.id"))
-#     user_id = db.Column(db.ForeignKey("user.id"))
-#     notification = db.relationship("Notification", back_populates="users")
-#     user = db.relationship("User", back_populates="notifications")
-#     constraint = db.UniqueConstraint("notification_id", "user_id")
 
 
 class Usergroup(db.Model):
@@ -100,35 +88,32 @@ class Comment(db.Model):
 class Questionaire(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     global_questionaire_id = db.Column(db.String(120), nullable=False)
-    local_questionaire_id = db.Column(db.Integer, nullable=False)
-    questionaire_name = db.Column(db.String(120), nullable=False)
     page_title = db.Column(db.String(120), nullable=False)
     parent_page_title = db.Column(db.String(120), nullable=False)
     root_weight = db.Column(db.Integer, nullable=False)
     parent_weight = db.Column(db.Integer, nullable=False)
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
+    questions = db.relationship("QuestionaireQuestion", backref="questionaire", lazy=True)
 
 
 class QuestionaireQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    global_question_id = db.Column(db.String(120), nullable=False)
-    local_question_id = db.Column(db.Integer, nullable=False)
+    global_question_id = db.Column(db.String(120), primary_key=True)
+    id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(), nullable=False)
-    options = db.Column(db.String(), nullable=False)
-    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), nullable=False)
+    answers = db.Column(db.String(), nullable=False)
+    language = db.Column(db.String(), nullable=False, primary_key=True)
+    multiple = db.Column(db.Integer, nullable=False, default=1)
+    active = db.Column(db.Integer, nullable=False, default=0)
+    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), primary_key=True)
 
 
 class QuestionaireAnswer(db.Model):
-    class Meta:
-        include_relationships = True
-        load_instance = True
-
     id = db.Column(db.Integer, primary_key=True)
-    answer = db.Column(db.String(), nullable=False)
+    answers = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
     global_question_id = db.Column(db.Integer, db.ForeignKey("questionaire_question.global_question_id"), nullable=False)
-    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), nullable=False)
 
 
 class TokenBlocklist(db.Model):
