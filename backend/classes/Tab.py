@@ -51,6 +51,8 @@ def defaultIcon(id: string, _type: string) -> string:
             return "globe-alt"
     elif _type == "admin":
         return "bookmark"
+    elif _type == "user":
+        return "user"
     elif _type == "client":
         return "tv"
     else:
