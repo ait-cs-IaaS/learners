@@ -33,6 +33,8 @@ def getSidebar():
 
     tabs = []
 
+    tabs.append(Tab(id="user", _type="user").__dict__)
+
     if current_user.admin:
         tabs.append(Tab(id="admin", _type="admin").__dict__)
         landingpage = "admin"
