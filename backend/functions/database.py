@@ -13,16 +13,17 @@ from backend.conf.db_models import (
     Execution,
     Exercise,
     Notification,
+    QuestionaireAnswer,
     User,
     Comment,
     Questionaire,
     QuestionaireQuestion,
-    QuestionaireAnswer,
+    # QuestionaireAnswer,
     Usergroup,
     UsergroupAssociation,
 )
 from backend.database import db
-from backend.functions.helpers import extract_json_content
+from backend.functions.helpers import convert_to_dict, extract_json_content
 
 
 def insert_initial_usergroups(*args, **kwargs):
@@ -63,11 +64,33 @@ def insert_exercises(app, *args, **kwargs):
 def insert_questionaires(app, *args, **kwargs):
     questionaires = extract_json_content(app, cfg.questionaire_json)
     for questionaire in questionaires:
-        db_create_or_update(Questionaire, ["global_questionaire_id"], questionaire)
 
-    questions = extract_json_content(app, cfg.questionaires_questions_json)
-    for question in questions:
-        db_create_or_update(QuestionaireQuestion, ["global_question_id"], question)
+        new_questionaire = {
+            "global_questionaire_id": questionaire["global_questionaire_id"],
+            "page_title": questionaire["page_title"],
+            "parent_page_title": questionaire["parent_page_title"],
+            "root_weight": questionaire["root_weight"],
+            "parent_weight": questionaire["parent_weight"],
+            "child_weight": questionaire["child_weight"],
+            "order_weight": questionaire["order_weight"],
+        }
+
+        db_create_or_update(Questionaire, ["global_questionaire_id"], new_questionaire)
+        db.session.flush()
+
+        for language in questionaire["questions"]:
+            for question in questionaire["questions"][language]:
+                new_question = {
+                    "global_question_id": question["global_question_id"],
+                    "id": question["id"],
+                    "question": question["question"],
+                    "answers": json.dumps(question["answers"]),
+                    "language": language,
+                    "multiple": question["multiple"],
+                    "global_questionaire_id": questionaire["global_questionaire_id"],
+                }
+
+                db_create_or_update(QuestionaireQuestion, ["global_question_id", "language"], new_question)
 
 
 def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None) -> bool:
@@ -149,26 +172,26 @@ def db_create_execution(exercise_type: str, data: dict, username: str, execution
         return False
 
 
-def db_create_questionaire_execution(global_questionaire_id: str, answers: dict, username: str) -> bool:
+# def db_create_questionaire_execution(global_questionaire_id: str, answers: dict, username: str) -> bool:
 
-    try:
-        user = get_user_by_name(username)
-        if user.role != "participant":
-            return False
+#     try:
+#         user = get_user_by_name(username)
+#         if user.role != "participant":
+#             return False
 
-        for global_question_id, answer in answers.items():
-            new_answer = {
-                "user_id": user.id,
-                "answer": answer,
-                "global_question_id": global_question_id,
-                "global_questionaire_id": global_questionaire_id,
-            }
-            db_create_or_update(QuestionaireAnswer, ["user_id", "global_question_id"], new_answer)
-        return True
+#         for global_question_id, answer in answers.items():
+#             new_answer = {
+#                 "user_id": user.id,
+#                 "answer": answer,
+#                 "global_question_id": global_question_id,
+#                 "global_questionaire_id": global_questionaire_id,
+#             }
+#             db_create_or_update(QuestionaireAnswer, ["user_id", "global_question_id"], new_answer)
+#         return True
 
-    except Exception as e:
-        logger.exception(e)
-        return False
+#     except Exception as e:
+#         logger.exception(e)
+#         return False
 
 
 def db_create_comment(comment: str, page: str, user_id: int) -> bool:
@@ -241,6 +264,10 @@ def get_users_by_role(role: str) -> list:
 
 def get_all_users() -> list:
     return generic_getter(User, "role", "participant", all=True)
+
+
+def get_all_userids() -> list:
+    return [id[0] for id in db.session.query(User).with_entities(User.id).all()]
 
 
 def get_all_exercises() -> list:
@@ -408,6 +435,82 @@ def get_all_questionaires_sorted() -> list:
         return None
 
 
+def get_grouped_questionaires() -> list:
+    try:
+        questionaires = db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
+        grouped_questionaires = []
+
+        for questionaire in questionaires:
+
+            # extract questions
+            questions = []
+            for question in questionaire.questions:
+                questions.append(
+                    {
+                        "id": question.id,
+                        "question": question.question,
+                        "answers": question.answers,
+                        "language": question.language,
+                        "active": question.active,
+                        "global_question_id": question.global_question_id,
+                    }
+                )
+
+            questionaire_object = convert_to_dict(questionaire)
+
+            # append questions
+            questionaire_object["questions"] = questions
+            grouped_questionaires.append(questionaire_object)
+
+        return grouped_questionaires
+
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def db_activate_questioniare_question(global_question_id) -> bool:
+    try:
+        question = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first()
+
+        # Set active state
+        setattr(question, "active", True)
+        db.session.flush()
+        db.session.commit()
+
+        questionaire = db.session.query(Questionaire).filter_by(global_questionaire_id=question.global_questionaire_id).first()
+        question_dict = convert_to_dict(question)
+
+        # Adjust dict
+        question_dict["multiple"] = bool(question_dict.get("multiple"))
+        question_dict["active"] = bool(question_dict.get("active"))
+        question_dict["page_title"] = questionaire.page_title
+
+        return question_dict
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+def db_create_questionaire_answer(global_question_id: str, answers: str, user_id: int) -> bool:
+
+    try:
+
+        if isinstance(answers, int):
+            answers = [answers]
+
+        submission = QuestionaireAnswer(answers=json.dumps(answers), user_id=user_id, global_question_id=global_question_id)
+
+        db.session.add(submission)
+        db.session.commit()
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
 def get_completion_percentage(exercise_id):
 
     users = get_all_users()
@@ -428,19 +531,19 @@ def get_completion_percentage(exercise_id):
         return 0
 
 
-def get_questionaire_completion_percentage(global_questionaire_id):
+# def get_questionaire_completion_percentage(global_questionaire_id):
 
-    users = get_all_users()
+#     users = get_all_users()
 
-    try:
-        answers = (
-            db.session.query(QuestionaireAnswer).filter_by(global_questionaire_id=global_questionaire_id).join(User).group_by(User.id).all()
-        )
-        return len(answers) / len(users) * 100
+#     try:
+#         answers = (
+#             db.session.query(QuestionaireAnswer).filter_by(global_questionaire_id=global_questionaire_id).join(User).group_by(User.id).all()
+#         )
+#         return len(answers) / len(users) * 100
 
-    except Exception as e:
-        logger.exception(e)
-        return 0
+#     except Exception as e:
+#         logger.exception(e)
+#         return 0
 
 
 def get_results_of_single_exercise(global_exercise_id):
@@ -463,29 +566,28 @@ def get_results_of_single_exercise(global_exercise_id):
         return 0
 
 
-def get_question_counts(global_question_id):
-    try:
-        options = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first().options
-        labels = [option.strip() for option in (options).split(";")]
-        counts = []
+# def get_question_counts(global_question_id):
+#     try:
+#         options = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first().options
+#         labels = [option.strip() for option in (options).split(";")]
+#         counts = []
 
-        for label in labels:
-            counts.append(
-                db.session.query(QuestionaireAnswer).filter_by(answer=label).filter_by(global_question_id=global_question_id).count()
-            )
+#         for label in labels:
+#             counts.append(
+#                 db.session.query(QuestionaireAnswer).filter_by(answer=label).filter_by(global_question_id=global_question_id).count()
+#             )
 
-        prepended_labels = [f"{alpha}. {label}" for (label, alpha) in zip(labels, list(string.ascii_uppercase))]
+#         prepended_labels = [f"{alpha}. {label}" for (label, alpha) in zip(labels, list(string.ascii_uppercase))]
 
-        return prepended_labels, counts
+#         return prepended_labels, counts
 
-    except Exception as e:
-        logger.exception(e)
-        return [""], [0]
+#     except Exception as e:
+#         logger.exception(e)
+#         return [""], [0]
 
 
 def db_create_notification(sse_Event: SSE_Event) -> bool:
     try:
-        print(sse_Event)
         notification = Notification(
             event=sse_Event.event,
             message=sse_Event.message,
