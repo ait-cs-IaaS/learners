@@ -35,7 +35,6 @@ def putCache():
 def getCache(global_exercise_id):
 
     if cache := get_cache_by_ids(current_user.id, global_exercise_id):
-        print(cache.form_data)
         return jsonify(form_data=cache.form_data), 200
     else:
         return jsonify(form_data=None), 200
