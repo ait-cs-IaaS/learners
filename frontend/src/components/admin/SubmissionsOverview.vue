@@ -11,7 +11,7 @@
         v-show="loading"
       ></v-progress-circular>
     </h2>
-    <v-card class="pa-5 mb-5">
+    <v-card class="pa-5 my-5">
       <data-table
         class="mt-3"
         :headers="exercises"

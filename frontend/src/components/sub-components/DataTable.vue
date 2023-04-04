@@ -1,5 +1,10 @@
 <template>
-  <EasyDataTable :headers="headers" :items="items" id="submission-table">
+  <EasyDataTable
+    :headers="headers"
+    :rows-per-page="50"
+    :items="items"
+    id="submission-table"
+  >
     <template #loading>
       <loader />
     </template>
@@ -106,35 +111,40 @@ export default {
 
 <style lang="scss">
 .top-header {
-  background-color: rgba(var(--v-theme-primary), 0.5);
+  // background-color: rgba(var(--v-theme-primary), 0.5);
+  background-color: rgba(var(--v-theme-primary), 0.1);
   border-right: 2px solid white;
   padding: 8px;
   white-space: nowrap;
   text-align: center;
   font-weight: normal;
+  max-width: 120px;
 
   & span {
     display: inline-block; // This is what you're missing
-    max-width: 180px;
+    max-width: 90%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    padding-top: 8px;
   }
 }
 
 .sub-header {
-  background-color: rgba(var(--v-theme-primary), 0.1);
+  // background-color: rgba(var(--v-theme-primary), 0.1);
   border-right: 2px solid white;
   padding: 8px;
   text-align: left;
   vertical-align: bottom;
   font-weight: normal;
 
-  span {
+  &:not(:first-child) span {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #cdcdcd;
   }
 }
 

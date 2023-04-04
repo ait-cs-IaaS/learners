@@ -14,7 +14,7 @@
     </h2>
 
     <div>
-      <v-card class="pa-5 mb-5">
+      <v-card class="pa-5 my-5">
         <h3>Choose a predefined Notification</h3>
         <p>
           Click on one of the predefined notifications to use it as message

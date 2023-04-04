@@ -17,7 +17,7 @@
           v-ripple="false"
           variant="plain"
           :class="{
-            admin: tab._type === 'admin',
+            highlight: tab._type === 'admin' || tab._type === 'user',
             active: tab.id === currentView,
           }"
           block

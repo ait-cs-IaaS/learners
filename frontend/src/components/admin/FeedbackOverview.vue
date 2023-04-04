@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <h2 class="mb-3">
+      <h2 class="mb-5">
         Feedback Overview
 
         <v-progress-circular

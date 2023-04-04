@@ -103,7 +103,7 @@ export default {
       let notifications = store.getters.getNotifications;
       console.log("notifications: ", notifications);
       if (notifications) {
-        let index = store.getters.getCurrentNotification;
+        let index = store.getters.getCurrentNotificationIndex;
         console.log(notifications);
         console.log(index);
         console.log(notifications[index]);
