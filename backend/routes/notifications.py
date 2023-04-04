@@ -49,21 +49,3 @@ def getNotifications():
     notifications = convert_to_dict(db_notifications)
 
     return jsonify(notifications=notifications), 200
-
-
-@notifications_api.route("/stream")
-@jwt_required()
-def stream():
-    def eventStream(user_id):
-
-        sse_queue = sse.listen()
-
-        while True:
-            notification = sse_queue.get()
-            if user_id in notification.recipients:
-                print(notification.toJson())
-                msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
-                print(msg)
-                yield msg
-
-    return Response(eventStream(current_user.id), mimetype="text/event-stream")
