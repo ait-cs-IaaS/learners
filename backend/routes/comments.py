@@ -18,7 +18,7 @@ comments_api = Blueprint("comments_api", __name__)
 # Post new comment
 @comments_api.route("/comments", methods=["POST"])
 @jwt_required()
-def run_execution():
+def postComment():
 
     data = request.get_json()
     comment = data.get("comment")
@@ -53,18 +53,13 @@ def getComments():
 @comments_api.route("/comments/<comment_id>", methods=["GET"])
 @admin_required()
 def getCommentById(comment_id):
-
-    comment = get_comment_by_id(comment_id).__dict__
-    comment.pop("_sa_instance_state")
-
-    return jsonify(comment=comment), 200
+    comment = get_comment_by_id(comment_id)
+    return jsonify(comment=convert_to_dict(comment)), 200
 
 
 # Get all user comments based on the user ID
 @comments_api.route("/comments/user/<user_id>", methods=["GET"])
 @admin_required()
 def getUserComments(user_id):
-
-    comments = convert_to_dict(get_comments_by_userid(user_id))
-
-    return jsonify(comments=comments), 200
+    comments = get_comments_by_userid(user_id)
+    return jsonify(comments=convert_to_dict(comments)), 200
