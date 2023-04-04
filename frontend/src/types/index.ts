@@ -28,3 +28,15 @@ export interface INotificationObject {
   message: string;
   positions: Array<string>;
 }
+
+// event: string;
+export interface IQuestionaireObject {
+  id: number;
+  question: string;
+  multiple: boolean;
+  language: string;
+  answers: Array<string>;
+  global_question_id: string;
+  global_questionaire_id: string;
+  page_title: string;
+}
