@@ -38,11 +38,11 @@ def extract_json_content(app, json_file_path, info="") -> list:
 def extract_history(executions):
     return {
         str(i + 1): {
-            "start_time": utc_to_local(execution.execution_timestamp, date=True),
-            "response_time": utc_to_local(execution.response_timestamp, date=False),
-            "completed": bool(execution.completed),
-            "msg": execution.msg,
-            "partial": bool(execution.partial),
+            "start_time": utc_to_local(execution.get("execution_timestamp"), date=True),
+            "response_time": utc_to_local(execution.get("response_timestamp"), date=False),
+            "completed": bool(execution.get("completed")),
+            "msg": execution.get("msg"),
+            "partial": bool(execution.get("partial")),
         }
         for i, execution in enumerate(executions)
     }
