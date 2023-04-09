@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="mb-3">
+    <h2 class="mb-5">
       Questionaire Overview
 
       <v-progress-circular
@@ -13,8 +13,7 @@
       ></v-progress-circular>
     </h2>
 
-    <div>
-      <v-expansion-panels class="pb-3 my-5">
+      <v-expansion-panels>
         <v-expansion-panel
           v-for="questionaire in questionaires"
           :key="questionaire.page_title"
@@ -70,7 +69,6 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-    </div>
 
     <div v-if="Object.keys(questionaires).length === 0" class="no-data">
       No data.
