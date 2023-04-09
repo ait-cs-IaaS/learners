@@ -120,3 +120,17 @@ class TokenBlocklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(36), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
+
+
+class VenjixExecution(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    script = db.Column(db.String(120), nullable=True)
+    execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
+    response_timestamp = db.Column(db.DateTime, nullable=True)
+    response_content = db.Column(db.Text, nullable=True)
+    msg = db.Column(db.String(240), nullable=True)
+    execution_uuid = db.Column(db.String(120), unique=True, nullable=True)
+    completed = db.Column(db.Integer, nullable=False, default=0)
+    partial = db.Column(db.Integer, nullable=False, default=0)
+    connection_failed = db.Column(db.Integer, nullable=False, default=0)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
