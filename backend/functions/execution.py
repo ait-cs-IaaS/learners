@@ -5,15 +5,14 @@ from typing import Tuple
 import requests
 from backend.logger import logger
 from backend.conf.config import cfg
-from backend.conf.db_models import Execution
-from backend.database import db
-from backend.functions.database import db_update_execution
-from backend.functions.helpers import extract_history
+from backend.functions.database import db_get_venjix_execution, db_update_venjix_execution
 
 
 def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, bool]:
     try:
         response = requests.post(
+            # TODO: Remove verify line
+            verify=False,
             url=f"{cfg.venjix.get('url')}/{script}",
             headers=cfg.venjix.get("headers"),
             data=json.dumps(
@@ -26,47 +25,97 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
         )
 
         resp = response.json()
-        connection_failed = False
-        executed = bool(resp["response"] == "script started")
-        msg = resp.get("msg") or None
+        if response.status_code != 200:
+            connected = False
+            executed = False
+            msg = f"{response.status_code}: {resp['response']}"
+        else:
+            connected = True
+            executed = bool(resp["response"] == "script started")
+            msg = resp.get("msg") or None
 
     except Exception as connection_exception:
         logger.exception(connection_exception)
-
-        connection_failed = True
+        connected = False
         executed = False
         msg = "Connection failed"
 
-    db_update_execution(execution_uuid, connection_failed=connection_failed, msg=msg)
-    return not connection_failed, executed
+    db_update_venjix_execution(execution_uuid, connection_failed=(not connected), msg=msg)
+
+    return connected, executed
 
 
-def wait_for_response(execution_uuid: str) -> dict:
+# def wait_for_response(execution_uuid: str) -> dict:
+#     while True:
+#         time.sleep(0.5)
+
+#         try:
+#             execution = Execution.query.filter_by(uuid=execution_uuid).first()
+#             if execution.response_timestamp or execution.connection_failed:
+#                 return execution
+#             db.session.close()
+
+#         except Exception as e:
+#             logger.exception(e)
+#             return None
+
+
+def wait_for_venjix_response(execution_uuid: str) -> dict:
     while True:
         time.sleep(0.5)
 
         try:
-            execution = Execution.query.filter_by(uuid=execution_uuid).first()
-            if execution.response_timestamp or execution.connection_failed:
+            execution = db_get_venjix_execution(execution_uuid)
+            if execution["response_timestamp"] or execution["connection_failed"]:
+
+                if execution["connection_failed"]:
+                    execution["executed"] = False
+                    execution["msg"] = "Connection failed."
+                else:
+                    # Get error msg
+                    error = json.loads(execution["response_content"]).get("stderr")
+                    execution["executed"] = bool(not error)
+                    # Apply error msg to msg if none given
+                    execution["msg"] = execution["msg"] or error
+
+                print(execution)
                 return execution
-            db.session.close()
 
         except Exception as e:
             logger.exception(e)
             return None
 
 
-def update_execution_response(response: dict, last_execution, executions: list) -> dict:
+# def update_execution_response(response: dict, last_execution, executions: list) -> dict:
 
-    if last_execution:
-        response["completed"] = last_execution.completed
-        response["executed"] = int(not last_execution.connection_failed)
-        response["msg"] = last_execution.msg
-        response["response_timestamp"] = last_execution.response_timestamp
-        response["connection_failed"] = last_execution.connection_failed
-        response["partial"] = last_execution.partial
-        executions[0] = last_execution
+#     if last_execution:
+#         response["completed"] = last_execution.completed
+#         response["executed"] = int(not last_execution.connection_failed)
+#         response["msg"] = last_execution.msg
+#         response["response_timestamp"] = last_execution.response_timestamp
+#         response["connection_failed"] = last_execution.connection_failed
+#         response["partial"] = last_execution.partial
+#         executions[0] = last_execution
 
-    response["history"] = extract_history(executions)
+#     response["history"] = extract_history(executions)
 
-    return response
+#     return response
+
+
+# def get_execution_state(execution_uuid):
+#     execution_state = {
+#         "completed": False,
+#         "executed": False,
+#         "msg": "",
+#         "response_timestamp": None,
+#         "connection_failed": True,
+#         "history": None,
+#         "partial": False,
+#         "response_content": "",
+#     }
+
+#     # Update dict
+#     if execution := wait_for_venjix_response(execution_uuid):
+#         execution_state |= execution
+
+#     return execution_state
