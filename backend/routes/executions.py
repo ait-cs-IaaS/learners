@@ -1,5 +1,6 @@
 import os
 import uuid
+from backend.classes.SubmissionResponse import SubmissionResponse
 
 from flask import Blueprint, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required, current_user
@@ -9,19 +10,22 @@ from backend.classes.SSE import sse
 from backend.functions.database import (
     db_create_execution,
     db_create_file,
+    db_create_venjix_execution,
+    db_get_current_submissions,
+    db_get_running_executions_by_name,
     get_all_exercises,
     get_all_users,
     get_completed_state,
-    get_current_executions,
     get_executions_by_user_exercise,
     get_exercise_by_global_exercise_id,
-    # db_create_questionaire_execution,
     get_exercise_groups,
     get_exercises_by_group,
     get_user_by_id,
-    get_user_by_name,
 )
-from backend.functions.execution import call_venjix, update_execution_response, wait_for_response
+from backend.functions.execution import (
+    call_venjix,
+    wait_for_venjix_response,
+)
 from backend.functions.helpers import allowed_file, append_key_to_dict, append_or_update_subexercise, convert_to_dict, sse_create_and_publish
 
 
@@ -55,44 +59,41 @@ def run_execution(exercise_type):
     return jsonify(response)
 
 
-@executions_api.route("/execution/<global_exercise_id>", methods=["GET"])
+# @executions_api.route("/execution/<global_exercise_id>", methods=["GET"])
+# @jwt_required()
+# def get_execution(global_exercise_id):
+
+#     response = {
+#         "completed": False,
+#         "executed": False,
+#         "msg": None,
+#         "response_timestamp": None,
+#         "connection_failed": False,
+#         "history": None,
+#         "partial": False,
+#     }
+#     username = get_jwt_identity()
+
+#     user_id = get_user_by_name(username).id
+#     exercise = get_exercise_by_global_exercise_id(global_exercise_id)
+
+#     if not user_id or not exercise:
+#         return jsonify(response)
+
+#     last_execution, executions = get_current_executions(user_id, exercise.id)
+
+#     if last_execution:
+#         if exercise.exercise_type == "script" and not last_execution.response_timestamp:
+#             last_execution = wait_for_response(last_execution.uuid)
+
+#         response = update_execution_response(response, last_execution, executions)
+
+#     return jsonify(response)
+
+
+@executions_api.route("/progress", methods=["GET"])
 @jwt_required()
-def get_execution(global_exercise_id):
-
-    response = {
-        "completed": False,
-        "executed": False,
-        "msg": None,
-        "response_timestamp": None,
-        "connection_failed": False,
-        "history": None,
-        "partial": False,
-    }
-    username = get_jwt_identity()
-
-    user_id = get_user_by_name(username).id
-    exercise = get_exercise_by_global_exercise_id(global_exercise_id)
-
-    if not user_id or not exercise:
-        return jsonify(response)
-
-    last_execution, executions = get_current_executions(user_id, exercise.id)
-
-    if last_execution:
-        if exercise.exercise_type == "script" and not last_execution.response_timestamp:
-            last_execution = wait_for_response(last_execution.uuid)
-
-        response = update_execution_response(response, last_execution, executions)
-
-    return jsonify(response)
-
-
-@executions_api.route("/execution-state", methods=["GET"])
-@jwt_required()
-def get_execution_state():
-
-    username = get_jwt_identity()
-    user = get_user_by_name(username)
+def getCurrentExerciseState():
 
     parent_names = get_exercise_groups()
     results = {}
@@ -104,95 +105,71 @@ def get_execution_state():
             parent = parent_name or subexercise.page_title
             results = append_key_to_dict(results, parent, {"total": 0, "done": 0, "exercises": []})
 
-            done = int(any(state[0] for state in get_completed_state(user.id, subexercise.id)))
+            done = int(any(state[0] for state in get_completed_state(current_user.id, subexercise.id)))
             exerciseobj = {"title": subexercise.page_title, "total": 1, "done": done}
             results[parent] = append_or_update_subexercise(results[parent], exerciseobj)
 
     return jsonify(success_list=results)
 
 
-@executions_api.route("/upload", methods=["POST"])
-@jwt_required(locations="headers")
-def upload_file():
-
-    response = {
-        "completed": False,
-        "executed": False,
-        "msg": None,
-        "file": None,
-    }
-
-    if "file" not in request.files:
-        response["msg"] = "file missing"
-        return jsonify(response)
-
-    file = request.files["file"]
-
-    if file.filename == "":
-        response["msg"] = "no file selected"
-        return jsonify(response)
-
-    username = get_jwt_identity()
-
-    if file:
-        filename = f"{username}_{secure_filename(file.filename)}"
-        if not allowed_file(filename):
-            response["msg"] = "file type not allowed"
-            return jsonify(response)
-        try:
-            file.save(os.path.join(cfg.upload_folder, filename))
-            filehash = db_create_file(filename, get_jwt_identity())
-            response["completed"] = True
-            response["executed"] = True
-            response["msg"] = "file sucessfully uploaded"
-            response["file"] = filehash
-
-        except Exception as e:
-            response["msg"] = "server error"
-
-    return jsonify(response)
-
-
-@executions_api.route("/upload/<name>")
+@executions_api.route("/uploads", methods=["POST"])
 @jwt_required()
-def download_file(name):
+def uploadFile():
+
+    # Create an object of SubmissionResponse class
+    response = SubmissionResponse()
+
+    # Check if 'file' is in the request.files dictionary, else return error message
+    if "file" not in request.files:
+        response.msg = "File missing"
+        return jsonify(response.__dict__)
+
+    # If filename is empty, return error message
+    file = request.files["file"]
+    if file.filename == "":
+        response.msg = "No file selected"
+        return jsonify(response.__dict__)
+
+    # Generate a new file name and check if the file type is allowed, else return error message
+    filename = f"{current_user.name}_{secure_filename(file.filename)}"
+    if not allowed_file(filename):
+        response.msg = "File type not allowed"
+        return jsonify(response.__dict__)
+
+    try:
+        # Save the file to the upload folder and create a filehash for it in the database
+        file.save(os.path.join(cfg.upload_folder, filename))
+        filehash = db_create_file(filename, current_user.id)
+
+        # Update the response object with success status and other details
+        response.completed = True
+        response.executed = True
+        response.msg = "File successfully uploaded"
+        response.filename = filename
+
+    # Catch any server errors and return error message
+    except Exception as e:
+        response.msg = "Server error"
+
+    # Return the JSON representation of the response object
+    return jsonify(response.__dict__)
+
+
+@executions_api.route("/uploads/<name>")
+@jwt_required()
+def downloadFile(name):
     return send_from_directory(cfg.upload_folder, name)
-
-
-# @executions_api.route("/questionaire/<global_questionaire_id>", methods=["POST"])
-# @jwt_required(locations="headers")
-# def submit_questionaire(global_questionaire_id):
-
-#     username = get_jwt_identity()
-#     response = {"executed": True, "completed": False}
-
-#     answers = request.get_json()
-
-#     if db_create_questionaire_execution(global_questionaire_id, answers, username):
-#         response["completed"] = True
-#     else:
-#         if get_user_by_name(username).role == "participant":
-#             response["msg"] = "Database error"
-#         else:
-#             response["msg"] = "User not permitted"
-
-#     return jsonify(response)
-
-
-# NEW
 
 
 @executions_api.route("/submissions", methods=["GET"])
 @admin_required()
-def get_all_submissions():
+def getAllSubmissions():
 
-    users = get_all_users()
-    exercises = get_all_exercises()
     submissions = []
 
-    for user in users:
+    for user in get_all_users():
         executions = {"user_id": user.id, "username": user.name}
-        for exercise in exercises:
+        for exercise in get_all_exercises():
             completed_state = [state[0] for state in get_completed_state(user.id, exercise.id)]
             execution_ids = [
                 execution.get("execution_uuid") for execution in convert_to_dict(get_executions_by_user_exercise(user.id, exercise.id))
@@ -206,6 +183,36 @@ def get_all_submissions():
     return jsonify(submissions=submissions)
 
 
+@executions_api.route("/submissions/form/<global_exercise_id>", methods=["POST"])
+@jwt_required()
+def postFormExercise(global_exercise_id):
+
+    response = SubmissionResponse()
+
+    data = request.get_json()
+    if db_create_execution("form", global_exercise_id, data, current_user.id, None):
+        response.executed = True
+        response.completed = True
+
+    sse_create_and_publish(event="newSubmission", user=current_user, exercise=get_exercise_by_global_exercise_id(global_exercise_id))
+
+    return jsonify(response.__dict__)
+
+
+@executions_api.route("/submissions/<global_exercise_id>", methods=["GET"])
+@jwt_required()
+def getExerciseSubmissions(global_exercise_id):
+
+    response = None
+
+    if executions := db_get_current_submissions(current_user.id, global_exercise_id):
+        response = SubmissionResponse()
+        response.update(convert_to_dict(executions))
+        response = response.__dict__
+
+    return jsonify(response)
+
+
 @executions_api.route("/submissions/<user_id>/<global_exercise_id>", methods=["GET"])
 @only_self_or_admin()
 def get_user_exercise_submissions(user_id, global_exercise_id):
@@ -214,3 +221,44 @@ def get_user_exercise_submissions(user_id, global_exercise_id):
     db_submissions = get_executions_by_user_exercise(user_id, exercise.id)
 
     return jsonify(exercise_name=exercise.exercise_name, user_name=get_user_by_id(user_id).name, submissions=convert_to_dict(db_submissions))
+
+
+@executions_api.route("/executions/<script_name>", methods=["POST"])
+@jwt_required_any_location()
+def runExecution(script_name):
+
+    execution_uuid = f"{str(current_user.name)}_{uuid.uuid4().int & (1 << 64) - 1}"
+    response = SubmissionResponse(uuid=execution_uuid)
+
+    if db_create_venjix_execution(execution_uuid, current_user.id, script_name):
+        response.connected, response.executed = call_venjix(current_user.name, script_name, execution_uuid)
+
+    return jsonify(response.__dict__)
+
+
+@executions_api.route("/executions/<execution_uuid>", methods=["GET"])
+@jwt_required()
+def getExecutionState(execution_uuid):
+
+    response = SubmissionResponse()
+    venjix_response = wait_for_venjix_response(execution_uuid)
+    response.update(venjix_response)
+    response = response.__dict__
+
+    return jsonify(response)
+
+
+@executions_api.route("/executions/active/<script_name>", methods=["GET"])
+@jwt_required()
+def getActiveExecutionsState(script_name):
+
+    response = None
+
+    if running_execution := db_get_running_executions_by_name(current_user.id, script_name):
+        response = SubmissionResponse()
+        execution_uuid = running_execution[0].get("execution_uuid")
+        venjix_response = wait_for_venjix_response(execution_uuid)
+        response.update(venjix_response)
+        response = response.__dict__
+
+    return jsonify(response)
