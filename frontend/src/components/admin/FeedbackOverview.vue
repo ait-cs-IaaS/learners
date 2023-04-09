@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div>
       <h2 class="mb-5">
         Feedback Overview
 
@@ -35,7 +34,6 @@
       <div v-if="Object.keys(commentsDict).length === 0" class="no-data">
         No data.
       </div>
-    </div>
   </div>
 </template>
 
