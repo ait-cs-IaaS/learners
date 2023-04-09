@@ -21,6 +21,7 @@ from backend.conf.db_models import (
     # QuestionaireAnswer,
     Usergroup,
     UsergroupAssociation,
+    VenjixExecution,
 )
 from backend.database import db
 from backend.functions.helpers import convert_to_dict, extract_json_content
@@ -140,19 +141,87 @@ def db_update_execution(
         logger.exception(e)
 
 
-def db_create_execution(exercise_type: str, data: dict, username: str, execution_uuid: str) -> bool:
+def db_create_venjix_execution(execution_uuid: str, user_id: int, script_name: str) -> bool:
+    try:
+        execution = VenjixExecution(
+            script=script_name,
+            execution_uuid=execution_uuid,
+            user_id=user_id,
+        )
 
-    global_exercise_id = data.get("name")
-    script = data.get("script")
-    form_data = json.dumps(data.get("form"), indent=4, sort_keys=False)
+        db.session.add(execution)
+        db.session.commit()
+        print("successfully created")
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+
+
+def db_update_venjix_execution(
+    execution_uuid: str,
+    connection_failed: bool = False,
+    response_timestamp: str = None,
+    response_content: str = None,
+    completed: bool = False,
+    msg: str = None,
+    partial: bool = False,
+) -> bool:
+    try:
+        execution = VenjixExecution.query.filter_by(execution_uuid=execution_uuid).first()
+        for key, value in list(locals().items())[:-1]:
+            print(key, value)
+            if value:
+                setattr(execution, key, value)
+        db.session.commit()
+        return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+def db_get_running_executions_by_name(user_id: int, script: str) -> dict:
+    try:
+        running_executions = (
+            VenjixExecution.query.filter_by(user_id=user_id)
+            .filter_by(script=script)
+            .filter_by(connection_failed=False)
+            .filter_by(response_timestamp=None)
+            .order_by(VenjixExecution.execution_timestamp.desc())
+            .all()
+        )
+        return convert_to_dict(running_executions)
+
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def db_get_venjix_execution(execution_uuid: str) -> dict:
+    try:
+        execution = generic_getter(VenjixExecution, "execution_uuid", execution_uuid)
+        return convert_to_dict(execution)
+
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict, user_id: int, execution_uuid: str) -> bool:
+
+    # global_exercise_id = data.get("name")
+    # script = data.get("script")
+    print(data)
+    form_data = json.dumps(data, indent=4, sort_keys=False)
+    print(form_data)
 
     try:
-        exercise_id = Exercise.query.filter_by(global_exercise_id=global_exercise_id).first().id
-        user_id = User.query.filter_by(name=username).first().id
+        exercise_id = get_exercise_by_global_exercise_id(global_exercise_id).id
 
         execution = Execution(
             exercise_type=exercise_type,
-            script=script,
+            script="script",
             form_data=form_data,
             execution_uuid=execution_uuid,
             user_id=user_id,
@@ -216,6 +285,22 @@ def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
         last_execution = executions.order_by(Execution.response_timestamp.desc(), Execution.execution_timestamp.desc()).first()
         executions = executions.order_by(Execution.execution_timestamp.desc()).all()
         return last_execution, executions
+    except Execution as e:
+        logger.exception(e)
+        return None, None
+
+
+def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
+    try:
+        exercise = get_exercise_by_global_exercise_id(global_exercise_id)
+        submissions = (
+            db.session.query(Execution)
+            .filter_by(user_id=user_id)
+            .filter_by(exercise_id=exercise.id)
+            .order_by(Execution.response_timestamp.desc(), Execution.execution_timestamp.desc())
+            .all()
+        )
+        return submissions
     except Execution as e:
         logger.exception(e)
         return None, None
@@ -389,9 +474,8 @@ def get_completed_state(user_id: int, exercise_id: int) -> dict:
         return None
 
 
-def db_create_file(filename: str, username: str) -> str:
+def db_create_file(filename: str, user_id: int) -> str:
     try:
-        user_id = User.query.filter_by(name=username).first().id
         filename_hash = hashlib.md5(filename.encode("utf-8")).hexdigest()
         file = Attachment(filename=filename, filename_hash=filename_hash, user_id=user_id)
         db.session.add(file)
