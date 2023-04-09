@@ -15,8 +15,11 @@ database:
   db_uri: "sqlite:///data.db"
 
 # venjix:
-#   auth_secret: "53CR3T"
-#   url: "http://localhost:5001"
+#   auth_secret: "c0dbc3ca-da8f-5dec-bd5d-d751d8b5efb8"
+#   url: "https://10.17.2.240/"
+venjix:
+  auth_secret: "53CR3T"
+  url: "http://localhost:5001/"
 
 statics:
   directory: "static"
@@ -34,8 +37,12 @@ tabs:
     exercises:
     presentations:
   staticsites:
-    test:
-      url: "http://localhost:5000/statics/hugo/participant/en/documentation"
+    mitre:
+      url: "https://www.google.com"
+      icon: mitre
+    drawio:
+      url: "https://app.diagrams.net/"
+      icon: drawio
 
 serve_documentation: True
 serve_exercises: True
@@ -55,8 +62,8 @@ serve_presentations: True
 #     title: "std site"
 #     icon: "icon_doc"
 
-# callback:
-#   endpoint: "http://localhost:5000/callback"
+callback:
+  endpoint: "http://localhost:5000/callback"
 
 novnc:
   server: "https://novnc.demo.cyberrange.rocks"
