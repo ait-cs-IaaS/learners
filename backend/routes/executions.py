@@ -155,7 +155,7 @@ def uploadFile():
     return jsonify(response.__dict__)
 
 
-@executions_api.route("/uploads/<name>")
+@executions_api.route("/uploads/<name>", methods=["GET"])
 @jwt_required()
 def downloadFile(name):
     return send_from_directory(cfg.upload_folder, name)
