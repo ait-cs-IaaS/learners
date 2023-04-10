@@ -82,6 +82,7 @@ export default {
   },
   methods: {
     initSSE() {
+      // TODO: change localhost
       this.evtSource = new EventSource("http://localhost:5000/stream", {
         withCredentials: true,
       });
@@ -121,14 +122,8 @@ export default {
 
       this.evtSource.addEventListener("newQuestionaire", (event) => {
         this.questionaireClosed = false;
-        console.log("NEW QUESTIONAIRE");
-        console.log(event);
-        console.log(event.data);
-        console.log(JSON.parse(event.data));
-        console.log(JSON.parse(event.data)?.question);
         const newQuestionaire = extractQuestionaires(event.data);
         newQuestionaire.event = "newQuestionaire";
-        console.log(newQuestionaire);
         // Store actions
         store.dispatch("appendToQuestionaires", newQuestionaire);
         store.dispatch("setCurrentQuestionaireToLast");
@@ -140,10 +135,13 @@ export default {
       };
     },
     closeSSE() {
-      console.log(this.evtSource);
       this.evtSource.close();
-      console.log("closed");
-      console.log(this.evtSource);
+    },
+    setDrawIO(event) {
+      // Set url of iframe
+      store.dispatch("setDrawioData", event.data.message);
+      // switch view
+      store.dispatch("setCurrentView", "drawio");
     },
   },
   mounted() {
@@ -154,10 +152,16 @@ export default {
 
     // Get full list of questionaires from server
     store.dispatch("getQuestionairesFromServer");
+
+    // Allow call to change drawio url
+    window.addEventListener('message', this.setDrawIO)
   },
   beforeUnmount() {
     this.closeSSE();
   },
+  beforeDestroy () {
+    window.removeEventListener('message', this.setDrawIO)
+  }
 };
 </script>
 
