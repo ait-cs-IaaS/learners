@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, current_user, jwt_required
 from backend.classes.Tab import Tab
 from backend.conf.config import cfg
@@ -27,6 +27,7 @@ def getLoginInfo():
 def getSidebar():
 
     landingpage = cfg.landingpage
+    base_url = request.url_root
 
     if not current_user:
         return jsonify(tabs=None, landingpage=landingpage, logo=cfg.logo)
@@ -40,10 +41,10 @@ def getSidebar():
         landingpage = "admin"
 
     for tab_id, tab_details in cfg.tabs.get("standard").items():
-        tabs.append(Tab(id=tab_id, _type="standard", **tab_details).__dict__)
+        tabs.append(Tab(id=tab_id, _type="standard", base_url=base_url, **tab_details).__dict__)
 
     for tab_id, tab_details in cfg.tabs.get("staticsites").items():
-        tabs.append(Tab(id=tab_id, _type="staticsite", **tab_details).__dict__)
+        tabs.append(Tab(id=tab_id, _type="staticsite", base_url=base_url, **tab_details).__dict__)
 
     if vnc_clients := cfg.users.get(current_user.name).get("vnc_clients"):
 
@@ -71,7 +72,7 @@ def getSidebar():
                 )
 
             tab_index = (index + 1) if multiple else 0
-            tabs.append(Tab(id=key, _type="client", index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
+            tabs.append(Tab(id=key, _type="client", base_url=base_url, index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
 
     return jsonify(tabs=tabs, landingpage=landingpage, logo=cfg.logo)
 

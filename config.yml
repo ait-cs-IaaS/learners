@@ -38,11 +38,12 @@ tabs:
     presentations:
   staticsites:
     mitre:
-      url: "https://www.google.com"
+      url: "https://mitre-attack.github.io/attack-navigator/"
       icon: mitre
     drawio:
       url: "https://app.diagrams.net/"
       icon: drawio
+      proxy: true
 
 serve_documentation: True
 serve_exercises: True

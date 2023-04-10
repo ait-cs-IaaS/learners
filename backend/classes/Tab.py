@@ -8,19 +8,25 @@ class Tab:
         self,
         id: string,
         _type: string,
+        base_url: string = "",
         user_role: string = "participant",
         language: string = "en",
         icon: string = None,
         tooltip: string = None,
         url: string = None,
         index: numbers = 0,
+        proxy: bool = False,
     ):
         self.id = id
         self._type = _type
         self.icon = icon or defaultIcon(id, _type)
         self.tooltip = tooltip if tooltip else id
-        self.url = url if url else defaultUrl(id, _type, user_role, language)
         self.index = index
+
+        if proxy:
+            self.url = f"{base_url}/proxy/{url}"
+        else:
+            self.url = url if url else defaultUrl(id, _type, user_role, language, base_url)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(id={self.id}, icon={self.icon}, tooltip={self.tooltip}, _type={self._type}, url={self.url})"
@@ -29,9 +35,9 @@ class Tab:
         return {"id": self.id}
 
 
-def defaultUrl(id: string, _type: string, user_role: string, language: string) -> string:
+def defaultUrl(id: string, _type: string, user_role: string, language: string, base_url: string) -> string:
     if _type == "standard":
-        return f"http://localhost:5000/statics/hugo/{user_role}/{language}/{id}"
+        return f"{base_url}/statics/hugo/{user_role}/{language}/{id}"
 
 
 def defaultIcon(id: string, _type: string) -> string:
@@ -44,9 +50,9 @@ def defaultIcon(id: string, _type: string) -> string:
             return "presentation-chart-line"
     elif _type == "staticsite":
         if id == "mitre":
-            return "mdi-alpha-m-box-outline"
+            return "mitre"
         elif id == "drawio":
-            return "mdi-graph-outline"
+            return "drawio"
         else:
             return "globe-alt"
     elif _type == "admin":

@@ -92,6 +92,7 @@ config_schema = Map(
                         {
                             Optional("tooltip"): Str(),
                             Optional("icon"): Str(),
+                            Optional("proxy", default=False): Bool(),
                             "url": Str(),
                         }
                     ),
