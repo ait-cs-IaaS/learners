@@ -97,4 +97,8 @@ export default {
 
   SET_QUESTIONAIRES: (state: { questionaires: any }, payload: any) =>
     (state.questionaires = payload),
+
+  // DrawIO
+  SET_DRAWIO_DATA: (state: { drawioEncodedData: string }, data: string) =>
+  (state.drawioEncodedData = data),
 };

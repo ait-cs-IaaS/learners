@@ -28,4 +28,7 @@ export default {
     if (state.questionaires) return state.questionaires.length;
     else return 0;
   },
+
+  // DrawIO
+  getDrawioData: (state) => state.drawioEncodedData,
 };

@@ -57,9 +57,14 @@ export default {
     },
     iframeSrc() {
       const jwt = store.getters.getJwt;
-      return this.tab._type !== "client" && jwt
+      let src = this.tab._type !== "client" && this.tab.id !== "drawio" && jwt
         ? `${this.tab.url}?jwt=${jwt}`
         : this.tab.url;
+      if (this.tab.id === "drawio") {
+        const encoded_data = store.getters.getDrawioData;
+        if (encoded_data) src += `${encoded_data}`
+      }
+      return src
     },
   },
   methods: {

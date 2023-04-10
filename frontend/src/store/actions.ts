@@ -119,4 +119,8 @@ export default {
 
   unsetAdminForceReload: ({ commit }: { commit: Commit }, tab: string) =>
     commit("SET_ADMIN_FORCE_RELOAD", { tab: tab, state: false }),
+
+  // DrawIO
+  setDrawioData: ({ commit }: { commit: Commit }, data: string) =>
+    commit("SET_DRAWIO_DATA", data),
 };

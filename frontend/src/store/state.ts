@@ -25,4 +25,7 @@ export default {
     feedback: false,
     questionaire: false,
   },
+
+  // DrawIO
+  drawioEncodedData: ""
 };
