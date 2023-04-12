@@ -30,12 +30,6 @@ questionaire_json: "static/hugo/questionaires.json"
 questionaires_questions_json: "static/hugo/questionaires_questions.json"
 
 tabs:
-  standard:
-    documentation:
-      tooltip: "testtooltip"
-      # icon: "cloud-arrow-down"
-    exercises:
-    presentations:
   staticsites:
     mitre:
       url: "https://mitre-attack.github.io/attack-navigator/"

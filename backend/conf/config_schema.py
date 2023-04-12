@@ -74,7 +74,7 @@ config_schema = Map(
         Optional("tabs"): EmptyDict()
         | Map(
             {
-                Optional("standard"): MapPattern(
+                Optional("standard", default={"documentation": {}, "exercises": {}, "presentations": {}}): MapPattern(
                     Str(),
                     EmptyDict()
                     | Map(
