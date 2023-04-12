@@ -82,8 +82,7 @@ export default {
   },
   methods: {
     initSSE() {
-      // TODO: change localhost
-      this.evtSource = new EventSource("http://localhost:5000/stream", {
+      this.evtSource = new EventSource(`${import.meta.env.VITE_BACKEND}/stream`, {
         withCredentials: true,
       });
 

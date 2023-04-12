@@ -18,6 +18,9 @@ import { store } from "@/store";
 
 import "./axios.ts";
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 // Import Data Table
 import Vue3EasyDataTable from "vue3-easy-data-table";
 import "vue3-easy-data-table/dist/style.css";

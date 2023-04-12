@@ -1,8 +1,7 @@
 import axios from "axios";
 import { store } from "@/store";
 
-// TODO: Change localhost
-axios.defaults.baseURL = process.env.VUE_APP_API || "http://localhost:5000/";
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND;
 
 let token = store.getters.getJwt;
 if (token) axios.defaults.headers.common["Authorization"] = "Bearer " + token;
