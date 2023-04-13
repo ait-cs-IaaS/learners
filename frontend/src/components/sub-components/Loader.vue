@@ -1,13 +1,13 @@
 <template>
-  <div :style="style" class="align-self-center">
-    <h5 class="text-center">{{ text }}</h5>
-    <v-progress-linear
-      class="mt-3 mb-3"
-      color="primary"
+  <div :style="style" class="preloader-container">
+    <v-progress-circular
+      class="my-3 mx-auto"
+      :color="spinnerColor"
       indeterminate
-      rounded
-      height="6"
-    ></v-progress-linear>
+      width="2"
+    ></v-progress-circular>
+
+    <span class="text-center" v-html="displayedText"></span>
   </div>
 </template>
 
@@ -15,7 +15,7 @@
 export default {
   name: "Loader",
   props: {
-    text: {
+    loadingTxt: {
       type: String,
       require: false,
       default: "Requesting data ...",
@@ -25,11 +25,63 @@ export default {
       require: false,
       default: "100%",
     },
+    timeout: {
+      type: Number,
+      require: false,
+      default: "10",
+    },
+    errorTxt: {
+      type: String,
+      require: false,
+      default: "Loading takes unusually long ... ",
+    },
+  },
+  data() {
+    return {
+      spinnerColor: "primary",
+      displayError: false,
+    };
   },
   computed: {
     style() {
       return "width: " + this.width;
     },
+    displayedText() {
+      if (this.displayError) return this.errorTxt;
+      else return this.loadingTxt;
+    },
+  },
+  methods: {
+    showError() {
+      if (this.errorTxt) {
+        this.displayError = true;
+        this.spinnerColor = "info";
+      }
+    },
+  },
+  mounted() {
+    console.log("show loader");
+    setTimeout(() => {
+      // this.$emit("timeout");
+      this.showError();
+    }, this.timeout * 1000);
   },
 };
 </script>
+
+<style lang="scss">
+.preloader-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10%;
+  margin-left: auto;
+  margin-right: auto;
+
+  span {
+    font-size: 90%;
+    br {
+      margin-bottom: 10px;
+    }
+  }
+}
+</style>
