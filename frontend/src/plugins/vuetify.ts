@@ -16,6 +16,7 @@ export default createVuetify({
           secondary: "#5CBBF6",
           success: "#70ae70",
           warning: "#c12f2f",
+          info: "#dbb469",
         },
       },
     },
