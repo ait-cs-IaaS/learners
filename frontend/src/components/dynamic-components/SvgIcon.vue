@@ -4,6 +4,7 @@
       'sidebar-hero-icon': sidebar,
       'content-hero-icon': !sidebar,
       'notification-hero-icon': notification,
+      'inline': inline,
       clickable: clickable,
     }"
     class="hero-icon"
@@ -32,6 +33,11 @@ export default {
       default: false,
     },
     notification: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    inline: {
       type: Boolean,
       required: false,
       default: false,
@@ -68,5 +74,11 @@ export default {
   svg {
     color: white;
   }
+}
+
+.inline {
+  float: left;
+  margin-right: 0.8rem;
+  align-items: end;
 }
 </style>
