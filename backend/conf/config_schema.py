@@ -8,6 +8,9 @@ config_schema = Map(
                 Optional("theme"): EmptyDict()
                 | Map(
                     {
+                        Optional("primary", default="#666666"): Str(),
+                        Optional("secondary", default="#666666"): Str(),
+                        Optional("success", default="#666666"): Str(),
                         Optional("primary_color", default="#666666"): Str(),
                         Optional("sidebar_background_color", default="#666666"): Str(),
                         Optional("menu_active_color", default="#ffffff"): Str(),

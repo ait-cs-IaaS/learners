@@ -36,7 +36,6 @@ def insert_initial_usergroups(*args, **kwargs):
             usergroups.extend(userDetails.get("groups") or [])
 
         for group in usergroups:
-
             db_create_or_update(Usergroup, ["name"], {"name": group})
             usergroup = Usergroup.query.filter_by(name=group).first()
 
@@ -65,7 +64,6 @@ def insert_exercises(app, *args, **kwargs):
 def insert_questionaires(app, *args, **kwargs):
     questionaires = extract_json_content(app, cfg.questionaire_json)
     for questionaire in questionaires:
-
         new_questionaire = {
             "global_questionaire_id": questionaire["global_questionaire_id"],
             "page_title": questionaire["page_title"],
@@ -87,7 +85,7 @@ def insert_questionaires(app, *args, **kwargs):
                     "question": question["question"],
                     "answers": json.dumps(question["answers"]),
                     "language": language,
-                    "multiple": question["multiple"],
+                    "multiple": question.get("multiple") or False,
                     "global_questionaire_id": questionaire["global_questionaire_id"],
                 }
 
@@ -209,7 +207,6 @@ def db_get_venjix_execution(execution_uuid: str) -> dict:
 
 
 def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict, user_id: int, execution_uuid: str) -> bool:
-
     # global_exercise_id = data.get("name")
     # script = data.get("script")
     print(data)
@@ -264,7 +261,6 @@ def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict,
 
 
 def db_create_comment(comment: str, page: str, user_id: int) -> bool:
-
     try:
         new_comment = {
             "user_id": user_id,
@@ -525,7 +521,6 @@ def get_grouped_questionaires() -> list:
         grouped_questionaires = []
 
         for questionaire in questionaires:
-
             # extract questions
             questions = []
             for question in questionaire.questions:
@@ -578,9 +573,7 @@ def db_activate_questioniare_question(global_question_id) -> bool:
 
 
 def db_create_questionaire_answer(global_question_id: str, answers: str, user_id: int) -> bool:
-
     try:
-
         if isinstance(answers, int):
             answers = [answers]
 
@@ -596,7 +589,6 @@ def db_create_questionaire_answer(global_question_id: str, answers: str, user_id
 
 
 def get_completion_percentage(exercise_id):
-
     users = get_all_users()
 
     try:

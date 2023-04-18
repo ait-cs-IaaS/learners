@@ -11,21 +11,26 @@ setup_api = Blueprint("setup_api", __name__)
 
 @setup_api.route("/setup/login", methods=["GET"])
 def getLoginInfo():
-
     # TODO: get from config file
     return jsonify(
         headline="Welcome to the",
         headlineHighlight="CyberRange",
         welcomeText="This is the entry point to the virtual environment of the simulation.<br>Please log in with your assigned credentials:",
         landingpage=cfg.landingpage,
+    )
+
+
+@setup_api.route("/setup/styles", methods=["GET"])
+def getStyles():
+    return jsonify(
         logo=cfg.logo,
+        theme=cfg.theme,
     )
 
 
 @setup_api.route("/setup/tabs", methods=["GET"])
 @jwt_required(optional=True)
 def getSidebar():
-
     landingpage = cfg.landingpage
     base_url = request.url_root
 
@@ -34,7 +39,7 @@ def getSidebar():
 
     tabs = []
 
-    tabs.append(Tab(id="user", _type="user").__dict__)
+    # tabs.append(Tab(id="user", _type="user").__dict__)
 
     if current_user.admin:
         tabs.append(Tab(id="admin", _type="admin").__dict__)
@@ -47,11 +52,9 @@ def getSidebar():
         tabs.append(Tab(id=tab_id, _type="staticsite", base_url=base_url, **tab_details).__dict__)
 
     if vnc_clients := cfg.users.get(current_user.name).get("vnc_clients"):
-
         multiple = len(vnc_clients) > 1
 
         for index, (key, value) in enumerate(vnc_clients.items()):
-
             # Set landingpage to first client if "novnc" is set as landingpage
             if landingpage == "novnc" and index == 0:
                 landingpage = key
@@ -74,7 +77,7 @@ def getSidebar():
             tab_index = (index + 1) if multiple else 0
             tabs.append(Tab(id=key, _type="client", base_url=base_url, index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__)
 
-    return jsonify(tabs=tabs, landingpage=landingpage, logo=cfg.logo)
+    return jsonify(tabs=tabs, landingpage=landingpage)
 
 
 @setup_api.route("/setup/notifications", methods=["GET"])
