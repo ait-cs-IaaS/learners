@@ -19,7 +19,6 @@
     <div class="fullscreen-center" v-else>
       <div class="resume-info">
         <h3>
-          <SvgIcon name="arrow-uturn-left" inline />
           Resume VNC Client <i>{{ tab.id }}</i> here
         </h3>
         <p>
@@ -29,7 +28,7 @@
         <v-btn
           class="mt-5 px-3 resume-btn"
           variant="flat"
-          color="primary"
+          color="secondary"
           v-ripple="false"
           @click="resumeHere"
         >
@@ -155,7 +154,7 @@ export default {
   h3,
   h4,
   h5 {
-    color: rgb(var(--v-theme-primary));
+    color: rgb(var(--v-theme-secondary));
     margin-bottom: 0.8rem;
   }
 }

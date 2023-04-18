@@ -19,6 +19,8 @@
           <v-item-group
             v-model="selectedAnswers"
             :multiple="currentQuestionaire?.multiple"
+            style="width: 100%;"
+            class="pr-3"
           >
             <v-col
               v-for="answer in currentQuestionaire?.answers"
@@ -28,7 +30,7 @@
             >
               <v-item v-slot="{ isSelected, toggle }">
                 <v-card
-                  :color="isSelected ? 'primary' : ''"
+                  :theme="isSelected ? 'dark' : ''"
                   class="d-flex align-center px-3 py-2"
                   dark
                   @click="toggle"
@@ -44,10 +46,11 @@
           </v-item-group>
         </v-row>
         <v-row>
-          <v-col cols="12" class="py-2 d-flex justify-end">
+          <v-col cols="12" class="mt-5 py-2 d-flex justify-start">
             <v-btn
               :disabled="selectedAnswers === undefined"
-              color="success"
+              color="gray"
+              theme="dark"
               size="large"
               type="submit"
               variant="elevated"
@@ -117,7 +120,7 @@ export default {
 <style lang="scss">
 .questionaire-container {
   position: absolute !important;
-  background-color: #f6f6f6;
+  background-color: rgb(var(--v-theme-secondary));
   display: block;
   z-index: 99 !important;
   top: 0px !important;
@@ -129,13 +132,18 @@ export default {
   overflow-x: hidden;
   overflow-y: auto;
   border-left: 3px solid white;
+  color: white !important;
+
+  & h1,h2,h3,h4,h5 {
+    color: white;
+  }
 
   &.animating {
     animation: fade-in 600ms ease;
   }
 
   &.submission {
-    background-color: rgba(75, 138, 102, 0.9);
+    background-color: rgba(218, 239, 228, 0.9);
   }
 }
 

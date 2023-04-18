@@ -5,6 +5,7 @@ export default {
   getError: (state) => state.error,
   getTabs: (state) => state.tabs,
   getCurrentView: (state) => state.currentView || "",
+  getTheme: (state) => state.theme,
 
   // Admin View
   getAdminForceReload: (state) => (tab) => {

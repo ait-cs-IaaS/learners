@@ -25,9 +25,27 @@ export default {
       .get("setup/tabs")
       .then((response) => {
         commit("SET_TABS", response.data);
-        commit("SET_LOGO", response.data.logo);
       })
       .catch((error) => commit("SET_TABS", []));
+  },
+
+  // Styles
+  setTheme: ({ commit }: { commit: Commit }, theme: any) =>
+    commit("SET_THEME", theme),
+
+  async getStylesFromServer({ commit }) {
+    await axios
+      .get("setup/styles")
+      .then((response) => {
+        commit("SET_LOGO", response.data.logo);
+        commit("SET_THEME", response.data.theme);
+      })
+      .catch((error) =>
+        commit(
+          "SET_LOGO",
+          '<svg viewBox="0 0 343.71 136.32" style="enable-background:new 0 0 200 200;" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><polygon points="343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4" style="fill: #fff;"/><rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/><polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/></svg>'
+        )
+      );
   },
 
   resetTabs: ({ commit }: { commit: Commit }) => commit("SET_TABS", []),

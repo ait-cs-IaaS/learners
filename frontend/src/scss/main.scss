@@ -18,7 +18,7 @@ h6 {
 
 h1,
 h2 {
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-secondary));
 }
 
 [role="link"]:hover {
@@ -172,7 +172,7 @@ button.v-btn.resume-btn span {
   }
   &:hover {
     [class*="v-col-"]:not(.action-col):not(.process) {
-      color: rgb(var(--v-theme-primary)) !important;
+      color: rgb(var(--v-theme-secondary)) !important;
     }
     // :not(.action-col svg) {
     // .action-col {

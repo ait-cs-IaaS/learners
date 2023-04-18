@@ -124,3 +124,18 @@ export const httpErrorHandler = (error) => {
   console.log(error.message);
   // store.dispatch("setError", "Unknown error");
 };
+
+export const setStyles = async (root) => {
+  // Get styles from server
+  const response = await axios.get("setup/styles");
+  store.dispatch("setLogo", response.data.logo);
+  store.dispatch("setTheme", response.data.theme);
+
+  const colors = response?.data.theme;
+  for (const colorName in colors) {
+    root.$vuetify.theme.themes.light.colors[colorName] = colors[colorName];
+  }
+
+  const styles = store.getters.getTheme;
+  console.log(styles);
+};

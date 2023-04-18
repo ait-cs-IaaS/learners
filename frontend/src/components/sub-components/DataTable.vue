@@ -111,8 +111,8 @@ export default {
 
 <style lang="scss">
 .top-header {
-  // background-color: rgba(var(--v-theme-primary), 0.5);
-  background-color: rgba(var(--v-theme-primary), 0.1);
+  // background-color: rgba(var(--v-theme-secondary), 0.5);
+  background-color: rgba(var(--v-theme-secondary), 0.1);
   border-right: 2px solid white;
   padding: 8px;
   white-space: nowrap;
@@ -131,7 +131,7 @@ export default {
 }
 
 .sub-header {
-  // background-color: rgba(var(--v-theme-primary), 0.1);
+  // background-color: rgba(var(--v-theme-secondary), 0.1);
   border-right: 2px solid white;
   padding: 8px;
   text-align: left;

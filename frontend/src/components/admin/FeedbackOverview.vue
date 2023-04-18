@@ -141,14 +141,14 @@ export default {
 .list-hover-container {
   display: flex;
   position: absolute;
-  background-color: rgba(var(--v-theme-primary), 0);
+  background-color: rgba(var(--v-theme-secondary), 0);
   width: 100%;
   height: 100%;
   transition: all 150ms ease;
   border-radius: 4px;
 
   &:hover {
-    background-color: rgba(var(--v-theme-primary), 0.1);
+    background-color: rgba(var(--v-theme-secondary), 0.1);
   }
 
   button.v-btn {

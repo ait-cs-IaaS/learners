@@ -15,7 +15,7 @@
       v-for="(exerciseGroup, exerciseGroupName, index) in exerciseGroups"
       class="mb-8"
     >
-      <h3 class="text-primary">
+      <h3 class="text-secondary">
         {{ exerciseGroupName }}
       </h3>
 

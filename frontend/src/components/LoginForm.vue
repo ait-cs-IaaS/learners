@@ -75,6 +75,7 @@ import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
 import axios from "axios";
 import Error from "@/components/sub-components/Error.vue";
+import { setStyles } from "@/helpers";
 
 export default {
   name: "LoginForm",
@@ -118,13 +119,22 @@ export default {
     },
   },
   async beforeMount() {
+    setStyles(this);
+
     const response = await axios.get("setup/login");
     console.log(response);
     this.headline = response?.data.headline || "Welcome to";
     this.headlineHighlight = response?.data.headlineHighlight || "Learners";
     this.welcomeText = response?.data.welcomeText || "";
-    store.dispatch("setLogo", response?.data.logo);
     store.dispatch("resetTabs");
+
+    // const styleResponse = await axios.get("setup/styles");
+    // console.log(this.$vuetify.theme.themes.light);
+    // for (const key in styleResponse?.data.theme) {
+    //   this.$vuetify.theme.themes.light.colors[key] =
+    //     styleResponse?.data.theme[key];
+    // }
+    // store.dispatch("setLogo", styleResponse?.data.logo);
     // store.dispatch("setCurrentView", response?.data.landingpage);
   },
 };

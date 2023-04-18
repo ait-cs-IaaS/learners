@@ -6,6 +6,7 @@ export default {
   currentView: "",
   tabs: new Array<ITabObject>(),
   error: "",
+  theme: new Array(),
 
   // Notifications
   notifications: new Array<INotificationObject>(),
@@ -27,5 +28,5 @@ export default {
   },
 
   // DrawIO
-  drawioEncodedData: ""
+  drawioEncodedData: "",
 };

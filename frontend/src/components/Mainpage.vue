@@ -27,7 +27,11 @@ import Questionaire from "@/components/sub-components/Questionaire.vue";
 import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
-import { extractNotifications, extractQuestionaires } from "@/helpers";
+import {
+  extractNotifications,
+  extractQuestionaires,
+  setStyles,
+} from "@/helpers";
 
 export default {
   name: "Mainpage",
@@ -82,9 +86,12 @@ export default {
   },
   methods: {
     initSSE() {
-      this.evtSource = new EventSource(`${import.meta.env.VITE_BACKEND}/stream`, {
-        withCredentials: true,
-      });
+      this.evtSource = new EventSource(
+        `${import.meta.env.VITE_BACKEND}/stream`,
+        {
+          withCredentials: true,
+        }
+      );
 
       this.evtSource.onopen = function () {
         console.log("Connected to SSE source.");
@@ -143,6 +150,9 @@ export default {
       store.dispatch("setCurrentView", "drawio");
     },
   },
+  async beforeMount() {
+    setStyles(this);
+  },
   mounted() {
     this.initSSE();
 
@@ -153,14 +163,14 @@ export default {
     store.dispatch("getQuestionairesFromServer");
 
     // Allow call to change drawio url
-    window.addEventListener('message', this.setDrawIO)
+    window.addEventListener("message", this.setDrawIO);
   },
   beforeUnmount() {
     this.closeSSE();
   },
-  beforeDestroy () {
-    window.removeEventListener('message', this.setDrawIO)
-  }
+  beforeDestroy() {
+    window.removeEventListener("message", this.setDrawIO);
+  },
 };
 </script>
 

@@ -14,6 +14,8 @@ export default {
     state.tabs = genTabs;
     state.currentView = genCurrentView;
   },
+  SET_THEME: (state: { theme: any }, theme: any) => (state.theme = theme),
+
   SET_CURRENT_VIEW: (state: { currentView: string }, currentView: string) =>
     (state.currentView = currentView),
 
@@ -100,5 +102,5 @@ export default {
 
   // DrawIO
   SET_DRAWIO_DATA: (state: { drawioEncodedData: string }, data: string) =>
-  (state.drawioEncodedData = data),
+    (state.drawioEncodedData = data),
 };

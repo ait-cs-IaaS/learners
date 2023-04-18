@@ -141,7 +141,7 @@ export default {
   display: flex;
   h2 {
     font-size: 1.2rem;
-    color: rgb(var(--v-theme-primary));
+    color: rgb(var(--v-theme-secondary));
   }
   .success-checkmark {
     display: inline-flex;
@@ -166,7 +166,7 @@ export default {
   padding: 10px;
   border-radius: 4px;
   box-shadow: 1px 1px 4px #c1c1c1;
-  border-left: 5px solid rgb(var(--v-theme-primary));
+  border-left: 5px solid rgb(var(--v-theme-secondary));
   &.missing {
     border-left: 5px solid #9e9e9e;
     background-color: #ececec;

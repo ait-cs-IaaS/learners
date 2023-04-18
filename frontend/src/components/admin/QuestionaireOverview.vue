@@ -165,14 +165,14 @@ export default {
   & li {
     padding-left: 10px;
     &::marker {
-      color: rgba(var(--v-theme-primary), 1);
+      color: rgba(var(--v-theme-secondary), 1);
     }
   }
 }
 
 .question-id {
   font-weight: bold;
-  color: rgba(var(--v-theme-primary), 1);
+  color: rgba(var(--v-theme-secondary), 1);
   padding-right: 15px;
   height: 100%;
   float: left;
@@ -192,7 +192,7 @@ export default {
   }
 
   &:hover {
-    background-color: rgba(var(--v-theme-primary), 0.05);
+    background-color: rgba(var(--v-theme-secondary), 0.05);
   }
 }
 
@@ -240,14 +240,14 @@ export default {
 .list-hover-container {
   display: flex;
   position: absolute;
-  background-color: rgba(var(--v-theme-primary), 0);
+  background-color: rgba(var(--v-theme-secondary), 0);
   width: 100%;
   height: 100%;
   transition: all 150ms ease;
   border-radius: 4px;
 
   &:hover {
-    background-color: rgba(var(--v-theme-primary), 0.1);
+    background-color: rgba(var(--v-theme-secondary), 0.1);
   }
 
   button.v-btn {

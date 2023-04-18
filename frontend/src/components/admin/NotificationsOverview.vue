@@ -46,7 +46,7 @@
                       class="list-hover-container align-center justify-center"
                     >
                       <v-btn
-                        color="primary"
+                        color="secondary"
                         @click="message = notification.msg"
                       >
                         use
@@ -109,7 +109,7 @@
                           <v-list-item-action>
                             <v-checkbox
                               :modelValue="isActive"
-                              color="primary"
+                              color="secondary"
                             ></v-checkbox>
                           </v-list-item-action>
                         </template>
@@ -346,14 +346,14 @@ export default {
 .list-hover-container {
   display: flex;
   position: absolute;
-  background-color: rgba(var(--v-theme-primary), 0);
+  background-color: rgba(var(--v-theme-secondary), 0);
   width: 100%;
   height: 100%;
   transition: all 150ms ease;
   border-radius: 4px;
 
   &:hover {
-    background-color: rgba(var(--v-theme-primary), 0.1);
+    background-color: rgba(var(--v-theme-secondary), 0.1);
   }
 
   button.v-btn {
