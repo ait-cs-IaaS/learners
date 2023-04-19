@@ -18,7 +18,8 @@ def main():
 
         from flask_cors import CORS
 
-        CORS(app)
+        cors = CORS()
+        cors.init_app(app)
 
     import backend.routes as routes
 
