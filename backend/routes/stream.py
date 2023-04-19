@@ -21,4 +21,7 @@ def stream():
                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
                 yield msg
 
-    return Response(eventStream(current_user.id), mimetype="text/event-stream")
+    resp = Response(eventStream(current_user.id), mimetype="text/event-stream")
+    resp.headers.add("Access-Control-Allow-Origin", "*")
+
+    return resp
