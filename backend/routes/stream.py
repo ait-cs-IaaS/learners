@@ -10,17 +10,33 @@ stream_api = Blueprint("stream_api", __name__)
 
 
 @stream_api.route("/stream")
-@jwt_required()
-@cross_origin(supports_credentials=True, origins="https://demo.cyberrange.rocks/")
+# @jwt_required()
 def stream():
-    def eventStream(user_id):
+    def eventStream():
 
         sse_queue = sse.listen()
 
         while True:
             notification = sse_queue.get()
-            if user_id in notification.recipients:
+            if 1 in notification.recipients:
                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
                 yield msg
 
-    return Response(eventStream(current_user.id), mimetype="text/event-stream")
+    return Response(eventStream(1), mimetype="text/event-stream")
+
+
+# @stream_api.route("/stream")
+# @jwt_required()
+# @cross_origin(supports_credentials=True, origins="https://demo.cyberrange.rocks/")
+# def stream():
+#     def eventStream(user_id):
+
+#         sse_queue = sse.listen()
+
+#         while True:
+#             notification = sse_queue.get()
+#             if user_id in notification.recipients:
+#                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
+#                 yield msg
+
+#     return Response(eventStream(current_user.id), mimetype="text/event-stream")
