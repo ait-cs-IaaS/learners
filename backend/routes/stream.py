@@ -1,6 +1,7 @@
 from backend.classes.SSE import sse
 
 from flask import Blueprint, Response
+from flask_cors import CORS, cross_origin
 from flask_jwt_extended import jwt_required, current_user
 
 from backend.logger import logger
@@ -10,6 +11,7 @@ stream_api = Blueprint("stream_api", __name__)
 
 @stream_api.route("/stream")
 @jwt_required()
+@cross_origin(supports_credentials=True, origins="https://demo.cyberrange.rocks/")
 def stream():
     def eventStream(user_id):
 
