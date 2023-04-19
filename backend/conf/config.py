@@ -103,4 +103,4 @@ def config_app(app):
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = cfg.jwt_access_token_expires
     app.config["JWT_TOKEN_LOCATION"] = ["query_string", "headers", "cookies"]
 
-    app.config["CORS_SUPPORTS_CREDENTIALS"] = True
+    # app.config["CORS_SUPPORTS_CREDENTIALS"] = True
