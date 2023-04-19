@@ -16,10 +16,9 @@ def main():
 
         init_jwt(app)
 
-        from flask_cors import CORS
+        # from flask_cors import CORS
 
-        cors = CORS()
-        cors.init_app(app)
+        # CORS(app)
 
     import backend.routes as routes
 
