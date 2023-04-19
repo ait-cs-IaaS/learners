@@ -88,9 +88,9 @@ export default {
     initSSE() {
       this.evtSource = new EventSource(
         `${import.meta.env.VITE_BACKEND}/stream`,
-        {
-          withCredentials: true,
-        }
+        // {
+        //   withCredentials: true,
+        // }
       );
 
       this.evtSource.onopen = function () {

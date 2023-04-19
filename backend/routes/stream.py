@@ -9,9 +9,9 @@ from backend.logger import logger
 stream_api = Blueprint("stream_api", __name__)
 
 
+# @cross_origin(supports_credentials=True, origins=["https://demo.cyberrange.rocks/"])
 @stream_api.route("/stream")
 @jwt_required()
-@cross_origin(supports_credentials=True, origins=["https://demo.cyberrange.rocks/"])
 def stream():
     def eventStream(user_id):
 
