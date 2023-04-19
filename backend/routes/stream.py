@@ -11,7 +11,7 @@ stream_api = Blueprint("stream_api", __name__)
 
 @stream_api.route("/stream")
 @jwt_required()
-@cross_origin(supports_credentials=True, origins="https://demo.cyberrange.rocks/")
+@cross_origin(supports_credentials=True, origins=["https://demo.cyberrange.rocks/"])
 def stream():
     def eventStream(user_id):
 
