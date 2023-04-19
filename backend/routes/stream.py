@@ -12,13 +12,13 @@ stream_api = Blueprint("stream_api", __name__)
 @stream_api.route("/stream")
 # @jwt_required()
 def stream():
-    def eventStream():
+    def eventStream(user_id):
 
         sse_queue = sse.listen()
 
         while True:
             notification = sse_queue.get()
-            if 1 in notification.recipients:
+            if user_id in notification.recipients:
                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
                 yield msg
 
