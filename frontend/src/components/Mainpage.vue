@@ -86,11 +86,10 @@ export default {
   },
   methods: {
     initSSE() {
+
+      const jwt = store.getters.getJwt;
       this.evtSource = new EventSource(
-        `${import.meta.env.VITE_BACKEND}/stream`,
-        // {
-        //   withCredentials: true,
-        // }
+        `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`,
       );
 
       this.evtSource.onopen = function () {

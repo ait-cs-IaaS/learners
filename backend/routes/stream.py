@@ -1,7 +1,6 @@
 from backend.classes.SSE import sse
 
 from flask import Blueprint, Response
-from flask_cors import CORS, cross_origin
 from flask_jwt_extended import jwt_required, current_user
 
 from backend.logger import logger
@@ -9,9 +8,8 @@ from backend.logger import logger
 stream_api = Blueprint("stream_api", __name__)
 
 
-# @cross_origin(supports_credentials=True, origins=["https://demo.cyberrange.rocks/"])
-# @jwt_required()
 @stream_api.route("/stream")
+@jwt_required()
 def stream():
     def eventStream(user_id):
 
@@ -23,4 +21,4 @@ def stream():
                 msg = f"event: {notification.event}\ndata:{ notification.toJson() }\n\n"
                 yield msg
 
-    return Response(eventStream(1), mimetype="text/event-stream")
+    return Response(eventStream(current_user.id), mimetype="text/event-stream")
