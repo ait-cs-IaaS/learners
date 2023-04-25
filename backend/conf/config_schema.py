@@ -35,7 +35,7 @@ config_schema = Map(
                 Optional("logo"): Str(),
                 Optional("landingpage", default="documentation"): Str(),
                 Optional("language_code", default="en"): Str(),
-                Optional("upload_folder", default="/tmp/uploads"): Str(),
+                Optional("upload_folder", default="backend/static/uploads"): Str(),
                 Optional("upload_extensions", default=["txt", "pdf", "png", "jpg", "jpeg", "gif", "json", "svg"]): Seq(Str()),
             }
         ),

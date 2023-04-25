@@ -39,7 +39,6 @@ executions_api = Blueprint("executions_api", __name__)
 @executions_api.route("/execution/<exercise_type>", methods=["POST"])
 @jwt_required_any_location()
 def run_execution(exercise_type):
-
     username = get_jwt_identity()
     execution_uuid = f"{str(username)}_{uuid.uuid4().int & (1 << 64) - 1}"
 
@@ -94,7 +93,6 @@ def run_execution(exercise_type):
 @executions_api.route("/progress", methods=["GET"])
 @jwt_required()
 def getCurrentExerciseState():
-
     parent_names = get_exercise_groups()
     results = {}
 
@@ -115,7 +113,6 @@ def getCurrentExerciseState():
 @executions_api.route("/uploads", methods=["POST"])
 @jwt_required()
 def uploadFile():
-
     # Create an object of SubmissionResponse class
     response = SubmissionResponse()
 
@@ -138,7 +135,7 @@ def uploadFile():
 
     try:
         # Save the file to the upload folder and create a filehash for it in the database
-        file.save(os.path.join(cfg.upload_folder, filename))
+        file.save(os.path.join(os.getcwd(), cfg.upload_folder, filename))
         filehash = db_create_file(filename, current_user.id)
 
         # Update the response object with success status and other details
@@ -149,22 +146,22 @@ def uploadFile():
 
     # Catch any server errors and return error message
     except Exception as e:
+        logger.exception(f"ERROR: {e}")
         response.msg = "Server error"
 
     # Return the JSON representation of the response object
     return jsonify(response.__dict__)
 
 
-@executions_api.route("/uploads/<name>", methods=["GET"])
+@executions_api.route("/uploads/<filename>", methods=["GET"])
 @jwt_required()
-def downloadFile(name):
-    return send_from_directory(cfg.upload_folder, name)
+def downloadFile(filename):
+    return send_from_directory(os.path.join(os.getcwd(), cfg.upload_folder), filename)
 
 
 @executions_api.route("/submissions", methods=["GET"])
 @admin_required()
 def getAllSubmissions():
-
     submissions = []
 
     for user in get_all_users():
@@ -186,7 +183,6 @@ def getAllSubmissions():
 @executions_api.route("/submissions/form/<global_exercise_id>", methods=["POST"])
 @jwt_required()
 def postFormExercise(global_exercise_id):
-
     response = SubmissionResponse()
 
     data = request.get_json()
@@ -202,7 +198,6 @@ def postFormExercise(global_exercise_id):
 @executions_api.route("/submissions/<global_exercise_id>", methods=["GET"])
 @jwt_required()
 def getExerciseSubmissions(global_exercise_id):
-
     response = None
 
     if executions := db_get_current_submissions(current_user.id, global_exercise_id):
@@ -216,7 +211,6 @@ def getExerciseSubmissions(global_exercise_id):
 @executions_api.route("/submissions/<user_id>/<global_exercise_id>", methods=["GET"])
 @only_self_or_admin()
 def get_user_exercise_submissions(user_id, global_exercise_id):
-
     exercise = get_exercise_by_global_exercise_id(global_exercise_id)
     db_submissions = get_executions_by_user_exercise(user_id, exercise.id)
 
@@ -226,7 +220,6 @@ def get_user_exercise_submissions(user_id, global_exercise_id):
 @executions_api.route("/executions/<script_name>", methods=["POST"])
 @jwt_required_any_location()
 def runExecution(script_name):
-
     execution_uuid = f"{str(current_user.name)}_{uuid.uuid4().int & (1 << 64) - 1}"
     response = SubmissionResponse(uuid=execution_uuid)
 
@@ -239,7 +232,6 @@ def runExecution(script_name):
 @executions_api.route("/executions/<execution_uuid>", methods=["GET"])
 @jwt_required()
 def getExecutionState(execution_uuid):
-
     response = SubmissionResponse()
     venjix_response = wait_for_venjix_response(execution_uuid)
     response.update(venjix_response)
@@ -251,7 +243,6 @@ def getExecutionState(execution_uuid):
 @executions_api.route("/executions/active/<script_name>", methods=["GET"])
 @jwt_required()
 def getActiveExecutionsState(script_name):
-
     response = None
 
     if running_execution := db_get_running_executions_by_name(current_user.id, script_name):

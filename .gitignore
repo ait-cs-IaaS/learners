@@ -5,6 +5,7 @@ backend/data.db
 develop_config.yml
 backend/static/gen
 backend/static/hugo
+backend/static/uploads/*
 backend/static/documentation
 backend/static/exercises
 learners_data/*.db
