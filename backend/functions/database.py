@@ -149,7 +149,6 @@ def db_create_venjix_execution(execution_uuid: str, user_id: int, script_name: s
 
         db.session.add(execution)
         db.session.commit()
-        print("successfully created")
         return True
 
     except Exception as e:

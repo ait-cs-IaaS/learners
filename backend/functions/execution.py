@@ -67,7 +67,6 @@ def wait_for_venjix_response(execution_uuid: str) -> dict:
         try:
             execution = db_get_venjix_execution(execution_uuid)
             if execution["response_timestamp"] or execution["connection_failed"]:
-
                 if execution["connection_failed"]:
                     execution["executed"] = False
                     execution["msg"] = "Connection failed."
@@ -78,7 +77,6 @@ def wait_for_venjix_response(execution_uuid: str) -> dict:
                     # Apply error msg to msg if none given
                     execution["msg"] = execution["msg"] or error
 
-                print(execution)
                 return execution
 
         except Exception as e:
