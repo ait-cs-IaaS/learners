@@ -77,7 +77,7 @@
               <img
                 v-if="filetypes.some((s) => input.endsWith(s))"
                 :src="`${backend}/uploads/${input}`"
-                alt="{{input}}"
+                :alt="input"
                 class="file-preview details-card-input"
               />
               <span v-else class="d-block mb-3 details-card-input">
