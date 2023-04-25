@@ -44,21 +44,64 @@
           </v-row>
         </v-container>
         <!-- Submission's fields -->
-        <div
-          v-for="(input, label) in extractFormData(submission)"
-          :key="label"
-          class="details-card-row"
-          :class="{
-            missing: String(input).length < 1,
-          }"
-        >
-          <div class="details-card-label">
-            {{ unescape(label) }}
+        <template v-for="item in JSON.parse(submission.form_data)">
+          <div
+            v-for="(input, label) in item"
+            :key="label"
+            class="details-card-row"
+            :class="{
+              missing: String(input).length < 1,
+            }"
+          >
+            <div v-if="String(label) == 'drawio-input'">
+              <div class="details-card-label">
+                {{ unescape(label) }}
+              </div>
+              <iframe
+                class="drawio-preview"
+                style="width: 100%; height: 35vw"
+                :src="`https://viewer.diagrams.net/${input}`"
+                frameborder="0"
+              ></iframe>
+              <a
+                class="open-in-new-tab-link"
+                :href="`https://app.diagrams.net/${input}`"
+                target="_blank"
+              >
+                <SvgIcon name="arrow-top-right-on-square" inline />
+                open in new tab
+              </a>
+            </div>
+            <div v-else-if="String(label) == 'attachment'">
+              <div class="details-card-label">Uploaded file</div>
+              <img
+                v-if="filetypes.some((s) => input.endsWith(s))"
+                :src="`${backend}/uploads/${input}`"
+                alt="{{input}}"
+                class="file-preview details-card-input"
+              />
+              <span v-else class="d-block mb-3 details-card-input">
+                {{ input }}
+              </span>
+              <a
+                class="open-in-new-tab-link"
+                :href="`${backend}/uploads/${input}`"
+                target="_blank"
+              >
+                <SvgIcon name="arrow-top-right-on-square" inline />
+                download file
+              </a>
+            </div>
+            <div v-else>
+              <div class="details-card-label">
+                {{ unescape(label) }}
+              </div>
+              <div class="details-card-input">
+                {{ input }}
+              </div>
+            </div>
           </div>
-          <div class="details-card-input">
-            {{ input }}
-          </div>
-        </div>
+        </template>
       </div>
     </v-card-text>
   </v-card>
@@ -67,6 +110,7 @@
 <script lang="ts">
 import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
 import FailIcon from "@/components/sub-components/FailIcon.vue";
+import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import axios from "axios";
 
@@ -76,6 +120,7 @@ export default {
     SuccessIcon,
     FailIcon,
     Loader,
+    SvgIcon,
   },
   props: {
     userId: { type: Number, require: true },
@@ -87,15 +132,17 @@ export default {
       userName: "",
       submissions: <any>[],
       loading: false,
+      filetypes: ["png", "jpg", "jpeg", "gif", "json", "svg"],
     };
+  },
+  computed: {
+    backend() {
+      return import.meta.env.VITE_BACKEND;
+    },
   },
   methods: {
     unescape(_string) {
       return _string.replaceAll("_", " ");
-    },
-    extractFormData(submission) {
-      const form_data = JSON.parse(submission.form_data);
-      return Object.values(form_data)[0];
     },
   },
   async beforeMount() {
@@ -183,5 +230,27 @@ export default {
   font-size: 0.95rem;
   display: block;
   padding: 4px 10px;
+}
+
+.open-in-new-tab-link {
+  border: 1px solid rgb(var(--v-theme-secondary));
+  border-radius: 4px;
+  margin: 10px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  color: rgb(var(--v-theme-secondary));
+  &:hover {
+    border: 2px solid rgb(var(--v-theme-secondary));
+    margin: 8px;
+    margin-top: -1px !important;
+    margin-bottom: 9px;
+  }
+}
+.file-preview {
+  width: 100%;
+  border-radius: 4px;
 }
 </style>
