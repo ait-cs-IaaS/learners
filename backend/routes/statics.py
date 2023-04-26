@@ -18,7 +18,7 @@ def after_request_func(response):
 @statics_api.route("/statics", methods=["GET"])
 @statics_api.route("/statics/", methods=["GET"])
 @statics_api.route("/statics/<path:path>", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def serve_statics(path=""):
 
     # Load static defaults
