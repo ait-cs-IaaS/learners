@@ -11,7 +11,7 @@ statics_api = Blueprint("statics_api", __name__)
 @statics_api.after_app_request
 def after_request_func(response):
     if jwt := request.args.get("jwt"):
-        response.set_cookie("jwt_cookie", jwt, samesite="None")
+        response.set_cookie("jwt_cookie", jwt, samesite="None", secure=True)
     return response
 
 
