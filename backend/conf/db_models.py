@@ -101,7 +101,7 @@ class QuestionaireQuestion(db.Model):
     global_question_id = db.Column(db.String(120), primary_key=True)
     id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(), nullable=False)
-    answers = db.Column(db.String(), nullable=False)
+    answer_options = db.Column(db.String(), nullable=False)
     language = db.Column(db.String(), nullable=False, primary_key=True)
     multiple = db.Column(db.Integer, nullable=False, default=1)
     active = db.Column(db.Integer, nullable=False, default=0)
