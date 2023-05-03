@@ -1,39 +1,40 @@
 <template>
   <div>
-      <h2 class="mb-5">
-        Feedback Overview
+    <h2 class="mb-5">
+      Feedback Overview
 
-        <v-progress-circular
-          class="mx-2 mb-1"
-          color="grey"
-          indeterminate
-          :width="3"
-          :size="18"
-          v-show="loading"
-        ></v-progress-circular>
-      </h2>
+      <v-progress-circular
+        class="mx-2 mb-1"
+        color="grey"
+        indeterminate
+        :width="3"
+        :size="18"
+        v-show="loading"
+      ></v-progress-circular>
+    </h2>
 
-      <template v-for="(comments, page) in commentsDict">
-        <div>
-          <h3 v-html="page" class="my-4"></h3>
-          <div
-            v-for="comment in comments"
-            :key="comment"
-            class="details-card-row"
-          >
-            <div class="details-card-label">
-              User: {{ unescape(comment.user) }}
-            </div>
-            <div class="details-card-input">
-              {{ comment.comment }}
-            </div>
+    <template v-for="(comments, page) in commentsDict">
+      <div>
+        <h3 v-html="page" class="my-4"></h3>
+        <div
+          v-for="comment in comments"
+          :key="typeof comment === 'object' ? comment.user : ''"
+          class="details-card-row"
+        >
+          <div class="details-card-label">
+            User:
+            {{ typeof comment === "object" ? unescape(comment.user) : "" }}
+          </div>
+          <div class="details-card-input">
+            {{ typeof comment === "object" ? comment.comment : "" }}
           </div>
         </div>
-      </template>
-
-      <div v-if="Object.keys(commentsDict).length === 0" class="no-data">
-        No data.
       </div>
+    </template>
+
+    <div v-if="Object.keys(commentsDict).length === 0" class="no-data">
+      No data.
+    </div>
   </div>
 </template>
 
@@ -43,6 +44,16 @@ import axios from "axios";
 import Loader from "@/components/sub-components/Loader.vue";
 import { store } from "@/store";
 
+interface Comment {
+  user: string;
+  comment: string;
+}
+
+interface CommentsDict {
+  comments: Comment[];
+  page: string;
+}
+
 export default {
   name: "FeedbackOverview",
   components: {
@@ -50,7 +61,7 @@ export default {
   },
   data() {
     return {
-      commentsDict: <any>{},
+      commentsDict: {} as CommentsDict,
       loading: false,
     };
   },
@@ -68,7 +79,6 @@ export default {
     },
     async getDataFromServer() {
       this.loading = true;
-      store.dispatch("unsetAdminForceReload", "feedback");
       axios
         .get("comments")
         .then((res) => {
@@ -76,6 +86,7 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+          store.dispatch("unsetAdminForceReload", "feedback");
         });
     },
   },

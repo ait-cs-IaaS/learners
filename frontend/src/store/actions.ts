@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Commit } from "vuex";
 import { extractNotifications, extractQuestionaires } from "@/helpers";
-import { INotificationObject, IQuestionaireObject } from "@/types";
+import { INotificationObject, IQuestionaireQuestionObject } from "@/types";
 
 export default {
   // Setup/General Actions
@@ -94,7 +94,7 @@ export default {
   // Questionaires
   appendToQuestionaires: (
     { commit }: { commit: Commit },
-    payload: IQuestionaireObject
+    payload: IQuestionaireQuestionObject
   ) => commit("APPEND_TO_QUESTIONAIRES", payload),
 
   setCurrentQuestionaireToLast: ({ commit }: { commit: Commit }) =>
@@ -110,13 +110,6 @@ export default {
 
   async getQuestionairesFromServer({ commit }) {
     await axios.get("questionaires/questions").then((response) => {
-      console.log(
-        "------------------------------------------------------------"
-      );
-      console.log(response);
-      console.log(response.data);
-      console.log(response.data.questions);
-      console.log(extractQuestionaires(response.data.questions));
       commit(
         "SET_QUESTIONAIRES",
         extractQuestionaires(response.data.questions)

@@ -1,4 +1,8 @@
-import { ITabObject, INotificationObject, IQuestionaireObject } from "@/types";
+import {
+  ITabObject,
+  INotificationObject,
+  IQuestionaireQuestionObject,
+} from "@/types";
 
 export default {
   logo: "",
@@ -14,7 +18,7 @@ export default {
   showNotifications: true,
 
   // Questionaires
-  questionaires: new Array<IQuestionaireObject>(),
+  questionaires: new Array<IQuestionaireQuestionObject>(),
   currentQuestionaireIndex: 0,
   showQuestionaires: true,
 

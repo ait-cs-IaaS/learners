@@ -119,20 +119,18 @@ export default {
             if (!this.submissions.includes(submission, 0))
               _submissions.push(submission);
           });
-          console.log(this.submissions);
           this.submissions = _submissions;
-          store.dispatch("unsetAdminForceReload", "submissions");
         })
-        .finally(() => (this.loading = false));
+        .finally(() => {
+          this.loading = false;
+          store.dispatch("unsetAdminForceReload", "submissions");
+        });
     },
   },
   watch: {
     forceReload: {
       handler(new_state, old_state) {
-        console.log("init states", new_state, old_state);
         if (new_state === true || old_state === undefined) {
-          console.log("Submission RELOAD!!! -------------------");
-          console.log("Submission states", new_state, old_state);
           this.getDataFromServer();
         }
       },

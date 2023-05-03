@@ -32,7 +32,7 @@ export default {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  display: block;
+  display: inline-block;
   stroke-width: 4;
   stroke: #fff;
   stroke-miterlimit: 10;

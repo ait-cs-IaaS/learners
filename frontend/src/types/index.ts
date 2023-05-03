@@ -30,7 +30,7 @@ export interface INotificationObject {
 }
 
 // event: string;
-export interface IQuestionaireObject {
+export interface IQuestionaireQuestionObject {
   id: number;
   question: string;
   multiple: boolean;

@@ -101,19 +101,14 @@ export default {
   computed: {
     currentNotifications() {
       let notifications = store.getters.getNotifications;
-      console.log("notifications: ", notifications);
       if (notifications) {
         let index = store.getters.getCurrentNotificationIndex;
-        console.log(notifications);
-        console.log(index);
-        console.log(notifications[index]);
         this.triggerAnimation();
         const currentNotification = notifications[index];
         if (
           currentNotification?.event == "newSubmission" ||
           currentNotification?.event == "newComment"
         ) {
-          console.log("autohide");
           setTimeout(() => {
             this.$emit("hide");
           }, 5000);

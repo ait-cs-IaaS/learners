@@ -26,6 +26,19 @@ export default {
 </script>
 
 <style>
+.success-checkmark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  stroke-width: 4;
+  stroke: #fff;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #4e792c;
+  animation: success_fill 0.4s ease-in-out 0.4s forwards,
+    scale 0.3s ease-in-out 0.9s both;
+}
+
 .success-checkmark-circle {
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
@@ -34,18 +47,6 @@ export default {
   stroke: #4e792c;
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-.success-checkmark {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: block;
-  stroke-width: 4;
-  stroke: #fff;
-  stroke-miterlimit: 10;
-  box-shadow: inset 0px 0px 0px #4e792c;
-  animation: success_fill 0.4s ease-in-out 0.4s forwards,
-    scale 0.3s ease-in-out 0.9s both;
 }
 .success-checkmark-check {
   transform-origin: 50% 50%;

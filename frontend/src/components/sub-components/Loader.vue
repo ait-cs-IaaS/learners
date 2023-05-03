@@ -60,7 +60,6 @@ export default {
     },
   },
   mounted() {
-    console.log("show loader");
     setTimeout(() => {
       // this.$emit("timeout");
       this.showError();

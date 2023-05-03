@@ -38,7 +38,7 @@
       v-for="header in headers"
       v-slot:[getSlotName(header.value)]="data"
     >
-      <div :key="header.value" :data="data">
+      <div :key="header.value" :data="data" class="content-col">
         <success-icon
           class="clickable"
           v-if="data[header.value].completed === 1"

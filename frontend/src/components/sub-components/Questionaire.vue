@@ -19,7 +19,7 @@
           <v-item-group
             v-model="selectedAnswers"
             :multiple="currentQuestionaire?.multiple"
-            style="width: 100%;"
+            style="width: 100%"
             class="pr-3"
           >
             <v-col
@@ -67,7 +67,7 @@
 <script lang="ts">
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
-import { IQuestionaireObject } from "@/types";
+import { IQuestionaireQuestionObject } from "@/types";
 import axios from "axios";
 import { PropType } from "vue";
 
@@ -84,7 +84,7 @@ export default {
   },
   props: {
     currentQuestionaire: {
-      type: Object as PropType<IQuestionaireObject>,
+      type: Object as PropType<IQuestionaireQuestionObject>,
       require: true,
     },
   },
@@ -96,10 +96,16 @@ export default {
   methods: {
     async submitHandler() {
       if (this.selectedAnswers === undefined) return;
-      const response = await axios.post(`questionaires/questions/${this.currentQuestionaire?.global_question_id}`, {
-        answers: this.selectedAnswers,
-      });
-      store.dispatch("removeQuestionaire", this.currentQuestionaire?.global_question_id);
+      const response = await axios.post(
+        `questionaires/questions/${this.currentQuestionaire?.global_question_id}`,
+        {
+          answers: this.selectedAnswers,
+        }
+      );
+      store.dispatch(
+        "removeQuestionaire",
+        this.currentQuestionaire?.global_question_id
+      );
     },
     triggerAnimation() {
       this.contentChanging = true;
@@ -134,7 +140,11 @@ export default {
   border-left: 3px solid white;
   color: white !important;
 
-  & h1,h2,h3,h4,h5 {
+  & h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     color: white;
   }
 

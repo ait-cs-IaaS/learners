@@ -166,6 +166,11 @@ import axios from "axios";
 import Loader from "@/components/sub-components/Loader.vue";
 import { store } from "@/store";
 
+interface Notification {
+  title: string;
+  msg: string;
+}
+
 export default {
   name: "NotificationsOverview",
   components: {
@@ -173,7 +178,7 @@ export default {
   },
   data() {
     return {
-      initialNotifications: <any>[],
+      initialNotifications: [] as Array<Notification>,
       // Loader conditions
       notificationLoading: false,
       usersLoading: false,
@@ -224,13 +229,13 @@ export default {
     },
     async getDataFromServer() {
       this.notificationLoading = true;
-      store.dispatch("unsetAdminForceReload", "notifications");
       axios
         .get("setup/notifications")
         .then((res) => {
           this.initialNotifications = res.data.initialNotifications;
         })
         .finally(() => {
+          store.dispatch("unsetAdminForceReload", "notifications");
           this.notificationLoading = false;
         });
 

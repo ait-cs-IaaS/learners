@@ -122,20 +122,10 @@ export default {
     setStyles(this);
 
     const response = await axios.get("setup/login");
-    console.log(response);
     this.headline = response?.data.headline || "Welcome to";
     this.headlineHighlight = response?.data.headlineHighlight || "Learners";
     this.welcomeText = response?.data.welcomeText || "";
     store.dispatch("resetTabs");
-
-    // const styleResponse = await axios.get("setup/styles");
-    // console.log(this.$vuetify.theme.themes.light);
-    // for (const key in styleResponse?.data.theme) {
-    //   this.$vuetify.theme.themes.light.colors[key] =
-    //     styleResponse?.data.theme[key];
-    // }
-    // store.dispatch("setLogo", styleResponse?.data.logo);
-    // store.dispatch("setCurrentView", response?.data.landingpage);
   },
 };
 </script>

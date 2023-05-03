@@ -1,5 +1,5 @@
 import { generateTabs } from "@/helpers";
-import { INotificationObject, IQuestionaireObject } from "@/types";
+import { INotificationObject, IQuestionaireQuestionObject } from "@/types";
 
 export default {
   SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
@@ -65,7 +65,7 @@ export default {
   ) => (state.adminForceReload[newState.tab] = newState.state),
   APPEND_TO_QUESTIONAIRES: (
     state: { questionaires: any; showQuestionaires: boolean },
-    payload: IQuestionaireObject
+    payload: IQuestionaireQuestionObject
   ) => {
     state.questionaires.push(payload);
     if (state.questionaires.length) state.showQuestionaires = true;
