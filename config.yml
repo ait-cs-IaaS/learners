@@ -6,6 +6,11 @@ learners:
       <rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/>
       <polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/>
     </svg>
+  theme:
+    primary: "#666666"
+    secondary: "#009899"
+    success: "#009899"
+  upload_folder: /tmp/uploads
 
 jwt:
   jwt_secret_key: "53CR3T"
@@ -64,22 +69,22 @@ novnc:
   server: "https://novnc.demo.cyberrange.rocks"
 
 users:
-  test:
-    password: test
-    # role: instructor
-    groups:
-      - csirts
-      - test
-    vnc_clients:
-      engineer01:
-        password: mozart.rocks
-        target: dosivax_csirt_client_1
-        tooltip: Client1
-        username: csirt1
-      csirt2:
-        password: mozart.rocks
-        target: dosivax_csirt_client_2
-        username: csirt2
+  # test:
+  #   password: test
+  #   # role: instructor
+  #   groups:
+  #     - csirts
+  #     - test
+  #   vnc_clients:
+  #     csirt1_it:
+  #       password: mozart.rocks
+  #       target: defaultcomp_csirt_client_1
+  #       tooltip: Client
+  #       username: csirt1_it
+  #     csirt2:
+  #       password: mozart.rocks
+  #       target: dosivax_csirt_client_2
+  #       username: csirt2
   #      soc_client:
   #        target: placeholder_1
   #        tooltip: "SOC client"
@@ -90,8 +95,34 @@ users:
   #        tooltip: "PPS client"
   #        username: csirt3
   #        password: placeholder
-  ben:
-    password: ben
+  test:
+    password: test
+  user_2:
+    password: user_2
+  user_3:
+    password: user_3
+  user_4:
+    password: user_4
+  user_5:
+    password: user_5
+  user_6:
+    password: user_6
+  user_7:
+    password: user_7
+  user_8:
+    password: user_8
+  user_9:
+    password: user_9
+  user_10:
+    password: user_10
+  user_11:
+    password: user_11
+  user_12:
+    password: user_12
+  user_13:
+    password: user_13
+  user_14:
+    password: user_14
     # vnc_clients:
     #   soc_client:
     #     target: placeholder_2
