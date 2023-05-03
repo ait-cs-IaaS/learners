@@ -7,9 +7,12 @@ from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_activate_questioniare_question,
     db_create_questionaire_answer,
-    get_all_questionaires_sorted,
+    db_get_questionaire_question_answers_by_user,
     get_all_userids,
     get_grouped_questionaires,
+    get_questionaire_question_by_global_question_id,
+    get_questionaire_results_by_global_question_id,
+    get_users_by_role,
 )
 
 from backend.functions.helpers import convert_to_dict, sse_create_and_publish
@@ -28,7 +31,6 @@ def getQuestionaires():
 @questionaires_api.route("/questionaires/questions", methods=["GET"])
 @jwt_required()
 def getQuestions():
-
     grouped_questionaires = get_grouped_questionaires()
 
     active_questions = []
@@ -39,7 +41,10 @@ def getQuestions():
             question["global_questionaire_id"] = questionaire.get("global_questionaire_id")
             question["page_title"] = questionaire.get("page_title")
             if question.get("active"):
-                active_questions.append(question)
+                # Check if user has already answerd the questionaire
+                answers = db_get_questionaire_question_answers_by_user(question["global_question_id"], current_user.id)
+                if not len(answers):
+                    active_questions.append(question)
 
     return jsonify(questions=active_questions), 200
 
@@ -48,7 +53,6 @@ def getQuestions():
 @questionaires_api.route("/questionaires/questions/<global_question_id>", methods=["PUT"])
 @admin_required()
 def activateQuestion(global_question_id):
-
     if question := db_activate_questioniare_question(global_question_id=global_question_id):
         user_list = get_all_userids()
 
@@ -70,50 +74,29 @@ def activateQuestion(global_question_id):
 @questionaires_api.route("/questionaires/questions/<global_question_id>", methods=["POST"])
 @jwt_required()
 def submitQuestion(global_question_id):
-
     data = request.get_json()
     answers = data.get("answers")
 
     if db_create_questionaire_answer(global_question_id=global_question_id, answers=answers, user_id=current_user.id):
+        # Send SSE event
+        newQuestionaire = SSE_Event(
+            event="newQuestionaireSubmission",
+            question=global_question_id,
+            recipients=[admin_user.id for admin_user in get_users_by_role("admin")],
+        )
+
+        # Notify Users
+        sse.publish(newQuestionaire)
+
         return jsonify(success=True), 200
 
     return jsonify(success=False), 500
 
-    # grouped_questionaires = get_grouped_questionaires()
 
-    # active_questions = []
+@questionaires_api.route("/questionaires/questions/<global_question_id>", methods=["GET"])
+@admin_required()
+def getQuestionaireResults(global_question_id):
+    labels, results = get_questionaire_results_by_global_question_id(global_question_id)
+    question = get_questionaire_question_by_global_question_id(global_question_id).question
 
-    # # Filter for active questions
-    # for questionaire in grouped_questionaires:
-    #     for question in questionaire.get("questions"):
-    #         question["global_questionaire_id"] = questionaire.get("global_questionaire_id")
-    #         question["page_title"] = questionaire.get("page_title")
-    #         if question.get("active"):
-    #             active_questions.append(question)
-
-    # return jsonify(success=True), 200
-
-
-# @questionaires_api.route("/questionaires/<global_questionaire_id>", methods=["GET"])
-# @jwt_required()
-# def getQuestionairesById(global_questionaire_id):
-
-#     grouped_questionaires = {}
-#     sorted_questionaires = convert_to_dict(get_all_questionaires_sorted())
-#     print(sorted_questionaires)
-#     print(global_questionaire_id)
-
-#     # example = [{"id": 1, "question": "testquestion", "multiple": True, "answers": ["answer 1", "answer 2"]}]
-
-#     return jsonify(questionaires=sorted_questionaires), 200
-
-#     # for questionaire in sorted_questionaires:
-#     #     setattr(questionaire, "completion_percentage", get_questionaire_completion_percentage(questionaire.global_questionaire_id))
-
-#     #     if not grouped_questionaires.get(questionaire.parent_page_title):
-#     #         grouped_questionaires[questionaire.parent_page_title] = [questionaire]
-#     #     else:
-#     #         grouped_questionaires[questionaire.parent_page_title].append(questionaire)
-
-#     # cfg.template = build_urls(config=cfg, role=get_jwt().get("role"), user_id=get_jwt_identity())
-#     # return render_template("questionaires_overview.html", questionaires=grouped_questionaires, **cfg.template)
+    return jsonify(question=question, labels=labels, results=results), 200
