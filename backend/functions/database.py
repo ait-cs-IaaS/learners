@@ -83,7 +83,7 @@ def insert_questionaires(app, *args, **kwargs):
                     "global_question_id": question["global_question_id"],
                     "id": question["id"],
                     "question": question["question"],
-                    "answers": json.dumps(question["answers"]),
+                    "answer_options": json.dumps(question["answers"]),
                     "language": language,
                     "multiple": question.get("multiple") or False,
                     "global_questionaire_id": questionaire["global_questionaire_id"],
@@ -167,7 +167,6 @@ def db_update_venjix_execution(
     try:
         execution = VenjixExecution.query.filter_by(execution_uuid=execution_uuid).first()
         for key, value in list(locals().items())[:-1]:
-            print(key, value)
             if value:
                 setattr(execution, key, value)
         db.session.commit()
@@ -206,11 +205,7 @@ def db_get_venjix_execution(execution_uuid: str) -> dict:
 
 
 def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict, user_id: int, execution_uuid: str) -> bool:
-    # global_exercise_id = data.get("name")
-    # script = data.get("script")
-    print(data)
     form_data = json.dumps(data, indent=4, sort_keys=False)
-    print(form_data)
 
     try:
         exercise_id = get_exercise_by_global_exercise_id(global_exercise_id).id
@@ -313,6 +308,10 @@ def get_questionaire_by_global_questionaire_id(global_questionaire_id: str) -> d
     return generic_getter(Questionaire, "global_questionaire_id", global_questionaire_id)
 
 
+def get_questionaire_question_by_global_question_id(global_question_id: str) -> dict:
+    return generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
+
+
 def get_all_questionaires_questions(global_questionaire_id: str) -> dict:
     try:
         return (
@@ -324,6 +323,20 @@ def get_all_questionaires_questions(global_questionaire_id: str) -> dict:
     except Exception as e:
         logger.exception(e)
         return None
+
+
+def get_questionaire_results_by_global_question_id(global_question_id: str) -> dict:
+    questionaire_question = generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
+    questionaire_answers = generic_getter(QuestionaireAnswer, "global_question_id", global_question_id, all=True)
+
+    labels = json.loads(questionaire_question.answer_options)
+    results = [0] * len(labels)
+
+    for questionaire_answer in questionaire_answers:
+        for answer in json.loads(questionaire_answer.answers):
+            results[answer] += 1
+
+    return labels, results
 
 
 def get_exercise_by_id(id: int) -> dict:
@@ -410,11 +423,16 @@ def get_exercises_by_group(parent_page_title: str) -> list:
         return None
 
 
-def generic_getter(db_model, filter_key: str = None, filter_value: str = None, all: bool = False) -> dict:
+def generic_getter(db_model, filter_keys: list = [], filter_value: list = [], all: bool = False) -> dict:
     try:
+        if not isinstance(filter_keys, list):
+            filter_keys = [filter_keys]
+            filter_value = [filter_value]
+
         session = db.session.query(db_model)
-        if filter_key and filter_value:
-            kwargs = {filter_key: filter_value}
+
+        for idx, filter_key in enumerate(filter_keys):
+            kwargs = {filter_key.strip(): filter_value[idx]}
             session = session.filter_by(**kwargs)
         return session.all() if all else session.first()
     except Exception as e:
@@ -527,7 +545,7 @@ def get_grouped_questionaires() -> list:
                     {
                         "id": question.id,
                         "question": question.question,
-                        "answers": question.answers,
+                        "answer_options": question.answer_options,
                         "language": question.language,
                         "active": question.active,
                         "global_question_id": question.global_question_id,
@@ -585,6 +603,11 @@ def db_create_questionaire_answer(global_question_id: str, answers: str, user_id
     except Exception as e:
         logger.exception(e)
         return False
+
+
+def db_get_questionaire_question_answers_by_user(global_question_id: str, user_id: int) -> list:
+    answers = generic_getter(QuestionaireAnswer, ["global_question_id", "user_id"], [global_question_id, user_id], all=True)
+    return answers
 
 
 def get_completion_percentage(exercise_id):
