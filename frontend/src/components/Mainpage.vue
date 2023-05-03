@@ -86,10 +86,9 @@ export default {
   },
   methods: {
     initSSE() {
-
       const jwt = store.getters.getJwt;
       this.evtSource = new EventSource(
-        `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`,
+        `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`
       );
 
       this.evtSource.onopen = function () {
@@ -132,6 +131,10 @@ export default {
         // Store actions
         store.dispatch("appendToQuestionaires", newQuestionaire);
         store.dispatch("setCurrentQuestionaireToLast");
+        store.dispatch("setAdminForceReload", "questionaire");
+      });
+
+      this.evtSource.addEventListener("newQuestionaireSubmission", (event) => {
         store.dispatch("setAdminForceReload", "questionaire");
       });
 
