@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
 import { generateColorScale } from "@/helpers";
