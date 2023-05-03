@@ -11,7 +11,7 @@ statics_api = Blueprint("statics_api", __name__)
 @statics_api.after_app_request
 def after_request_func(response):
     if jwt := request.args.get("jwt"):
-        response.set_cookie("jwt_cookie", jwt, samesite="None", secure=True)
+        response.set_cookie("jwt_cookie", value=jwt, max_age=None, expires=None, path="/", domain=None, secure=None, httponly=False)
     return response
 
 
@@ -20,7 +20,6 @@ def after_request_func(response):
 @statics_api.route("/statics/<path:path>", methods=["GET"])
 # @jwt_required()
 def serve_statics(path=""):
-
     # Load static defaults
     static_root = cfg.static_base_url  # Directory holding the static sites
 
@@ -38,9 +37,6 @@ def serve_statics(path=""):
 
 @statics_api.route("/proxy/<path:path>", methods=["GET", "POST"])
 def proxy(path):
-
-    # TODO: Allow relative requests (maybe stream data?)
-
     if request.method == "GET":
         resp = requests.get(path)
         excluded_headers = [
