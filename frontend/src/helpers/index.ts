@@ -2,7 +2,7 @@ import { store } from "@/store";
 import {
   INotificationObject,
   ITabObject,
-  IQuestionaireObject,
+  IQuestionaireQuestionObject,
 } from "@/types/index";
 import axios from "axios";
 
@@ -60,11 +60,11 @@ export const extractQuestionaires = (responseData) => {
   if (Array.isArray(responseData)) {
     newQuestionaires = (responseData || []).map((newQuestionaire) => {
       // event: `${newQuestionaire?.event}`,
-      return <IQuestionaireObject>{
+      return <IQuestionaireQuestionObject>{
         id: newQuestionaire?.id,
         question: newQuestionaire?.question,
         multiple: newQuestionaire?.multiple,
-        answers: JSON.parse(newQuestionaire?.answers),
+        answers: JSON.parse(newQuestionaire?.answer_options),
         language: newQuestionaire?.language,
         global_question_id: newQuestionaire?.global_question_id,
         global_questionaire_id: newQuestionaire?.global_questionaire_id,
@@ -72,13 +72,11 @@ export const extractQuestionaires = (responseData) => {
       };
     });
   } else {
-    // JSON.parse(event.data)?.question
-    // event: `${JSON.parse(responseData)?.event}`,
-    newQuestionaires = <IQuestionaireObject>{
+    newQuestionaires = <IQuestionaireQuestionObject>{
       id: (JSON.parse(responseData)?.question).id,
       question: (JSON.parse(responseData)?.question).question,
       multiple: (JSON.parse(responseData)?.question).multiple,
-      answers: JSON.parse((JSON.parse(responseData)?.question).answers),
+      answers: JSON.parse((JSON.parse(responseData)?.question).answer_options),
       language: (JSON.parse(responseData)?.question).language,
       global_question_id:
         (JSON.parse(responseData)?.question).global_question_id,
@@ -121,7 +119,7 @@ export const httpErrorHandler = (error) => {
     }
   }
   //Something happened in setting up the request and triggered an Error
-  console.log(error.message);
+  console.error(error.message);
   // store.dispatch("setError", "Unknown error");
 };
 
@@ -137,5 +135,50 @@ export const setStyles = async (root) => {
   }
 
   const styles = store.getters.getTheme;
-  console.log(styles);
 };
+
+export const generateColorScale = (steps: number): string[] => {
+  const styles = store.getters.getTheme;
+  const startColor = styles.secondary;
+  const endColor = "#e8e8e8";
+
+  // Parse the starting and ending colors
+  const start = hexToRgb(startColor);
+  const end = hexToRgb(endColor);
+
+  // Calculate the step sizes for each color channel
+  const stepSize = {
+    red: (end.red - start.red) / (steps - 1),
+    green: (end.green - start.green) / (steps - 1),
+    blue: (end.blue - start.blue) / (steps - 1),
+  };
+
+  // Generate the color scale
+  const colors: string[] = [];
+  for (let i = 0; i < steps; i++) {
+    const red = Math.round(start.red + stepSize.red * i);
+    const green = Math.round(start.green + stepSize.green * i);
+    const blue = Math.round(start.blue + stepSize.blue * i);
+    colors.push(rgbToHex(red, green, blue));
+  }
+
+  return colors;
+};
+
+// Helper functions to convert between hex and RGB colors
+function hexToRgb(hex: string): { red: number; green: number; blue: number } {
+  const r = parseInt(hex.substring(1, 3), 16);
+  const g = parseInt(hex.substring(3, 5), 16);
+  const b = parseInt(hex.substring(5, 7), 16);
+  return { red: r, green: g, blue: b };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const hex = [r, g, b]
+    .map((c) => {
+      const hex = c.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    })
+    .join("");
+  return "#" + hex;
+}

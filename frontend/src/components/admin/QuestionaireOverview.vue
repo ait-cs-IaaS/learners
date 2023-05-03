@@ -13,89 +13,117 @@
       ></v-progress-circular>
     </h2>
 
-      <v-expansion-panels>
-        <v-expansion-panel
-          v-for="questionaire in questionaires"
-          :key="questionaire.page_title"
-        >
-          <v-expansion-panel-title>
-            {{ questionaire.page_title }}
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-container class="px-0">
-              <v-row
-                v-for="question in extractRows(questionaire.questions)"
-                :key="question"
-                class="questionaire-row"
-              >
-                <v-col cols="4">
-                  <span class="question-id">
-                    {{ question.id }}
-                  </span>
-                  <span>
-                    {{ question.question }}
-                  </span>
-                </v-col>
-                <v-col cols="6">
-                  <ol class="answers">
-                    <li v-for="answer in JSON.parse(question.answers)">
-                      {{ answer }}
-                    </li>
-                  </ol>
-                </v-col>
-                <v-col cols="1">
-                  {{ question.language }}
-                </v-col>
-                <v-col cols="1" class="d-flex justify-end">
-                  <v-btn
-                    v-if="!question.active"
-                    @click="activateQuestion(question.global_question_id)"
-                    color="success"
-                  >
-                    send
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    @click="viewQuestion(question.global_question_id)"
-                    color="success"
-                    variant="outlined"
-                  >
-                    <SvgIcon name="eye" class="mr-2" />
-                    view
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+    <v-expansion-panels>
+      <v-expansion-panel
+        v-for="questionaire in questionaires"
+        :key="questionaire.page_title"
+      >
+        <v-expansion-panel-title>
+          <span v-html="questionaire.page_title"></span>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <v-container class="px-0">
+            <v-row
+              v-for="question in extractRows(questionaire.questions)"
+              :key="question.id"
+              class="questionaire-row"
+            >
+              <v-col cols="4">
+                <span class="question-id">
+                  {{ question.id }}
+                </span>
+                <span v-html="question.question"> </span>
+              </v-col>
+              <v-col cols="6">
+                <ol class="answers">
+                  <li v-for="answer in JSON.parse(question.answer_options)">
+                    {{ answer }}
+                  </li>
+                </ol>
+              </v-col>
+              <v-col cols="1">
+                {{ question.language }}
+              </v-col>
+              <v-col cols="1" class="d-flex justify-end">
+                <v-btn
+                  v-if="!question.active"
+                  @click="activateQuestion(question.global_question_id)"
+                  color="success"
+                >
+                  send
+                </v-btn>
+                <v-btn
+                  v-else
+                  @click="viewQuestion(question.global_question_id)"
+                  color="success"
+                  variant="outlined"
+                >
+                  <SvgIcon name="eye" class="mr-2" />
+                  view
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
     <div v-if="Object.keys(questionaires).length === 0" class="no-data">
       No data.
     </div>
+
+    <!-- Dialog -->
+    <v-dialog v-model="dialog" width="60%">
+      <v-btn
+        icon
+        rounded
+        size="x-small"
+        class="ml-auto"
+        color="white"
+        variant="text"
+        @click="dialog = false"
+        ><SvgIcon name="x-mark" clickable
+      /></v-btn>
+      <questionaire-card :questionaireId="selectedQuestionaire" />
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
+interface Question {
+  id: number;
+  global_question_id: string;
+  question: string;
+  answer_options: string;
+  language: string;
+  active: boolean;
+  options: string[];
+}
+
 import axios from "axios";
 
+import QuestionaireCard from "@/components/admin/QuestionaireCard.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
+import { IQuestionaireQuestionObject } from "@/types";
 
 export default {
   name: "QuestionaireOverview",
   components: {
+    QuestionaireCard,
     Loader,
     SvgIcon,
   },
   data() {
     return {
-      questionaires: <any>[],
+      questionaires: [] as any[],
       // Loader conditions
       questionaireLoading: false,
       // Form
       form: false,
+      dialog: false,
+      selectedQuestionaire: "",
     };
   },
   props: {
@@ -111,7 +139,7 @@ export default {
   },
   methods: {
     extractRows(questions) {
-      let updatedRows = <any>[];
+      let updatedRows = [] as Question[];
       questions.forEach((question) => {
         let found_index = updatedRows.findIndex(
           (q) => q.global_question_id === question.global_question_id
@@ -129,11 +157,11 @@ export default {
       await axios.put(`questionaires/questions/${global_question_id}`);
     },
     async viewQuestion(global_question_id) {
-      console.log("not implemented yet.");
+      this.selectedQuestionaire = global_question_id;
+      this.dialog = true;
     },
     async getDataFromServer() {
       this.questionaireLoading = true;
-      store.dispatch("unsetAdminForceReload", "questionaire");
       axios
         .get("questionaires")
         .then((res) => {
@@ -141,6 +169,7 @@ export default {
         })
         .finally(() => {
           this.questionaireLoading = false;
+          store.dispatch("unsetAdminForceReload", "questionaire");
         });
     },
   },

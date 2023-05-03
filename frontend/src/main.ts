@@ -26,6 +26,10 @@ const app = createApp(App);
 registerPlugins(app);
 app.component("EasyDataTable", Vue3EasyDataTable);
 app.use(store);
+
+import VueApexCharts from "vue3-apexcharts";
+app.use(VueApexCharts);
+
 app.mount("#app");
 
 console.debug("mounted store", store);

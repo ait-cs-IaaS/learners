@@ -174,10 +174,6 @@ button.v-btn.resume-btn span {
     [class*="v-col-"]:not(.action-col):not(.process) {
       color: rgb(var(--v-theme-secondary)) !important;
     }
-    // :not(.action-col svg) {
-    // .action-col {
-    //   color: red;
-    // }
   }
 }
 
@@ -195,6 +191,26 @@ button.v-btn.resume-btn span {
 
 .admin-tabs-container {
   background-color: #e8e8e8;
+}
+
+.details-card-title {
+  padding: 10px 24px;
+  span {
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 5px;
+  }
+  h1 {
+    font-size: 1.6rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+}
+
+.details-card-text {
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 @media (min-width: 2560px) {
