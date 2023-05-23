@@ -14,14 +14,14 @@
 
     <frame-pager v-for="tab in filteredTabs" :key="tab.id" :tab="tab" />
     <admin-area v-if="admin" />
-    <user-area />
+    <!-- <user-area /> -->
   </div>
 </template>
 
 <script lang="ts">
 import FramePager from "@/components/general/FramePager.vue";
 import AdminArea from "@/components/admin/AdminArea.vue";
-import UserArea from "@/components/user/UserArea.vue";
+// import UserArea from "@/components/user/UserArea.vue";
 import Notification from "@/components/sub-components/Notification.vue";
 import Questionaire from "@/components/sub-components/Questionaire.vue";
 import { ITabObject } from "@/types";
@@ -33,12 +33,12 @@ import {
   setStyles,
 } from "@/helpers";
 
+// TODO: Add UserArea
 export default {
   name: "Mainpage",
   components: {
     FramePager,
     AdminArea,
-    UserArea,
     Notification,
     Questionaire,
   },
