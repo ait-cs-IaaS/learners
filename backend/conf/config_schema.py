@@ -74,12 +74,13 @@ config_schema = Map(
                 }
             ),
         ),
-        Optional("tabs"): EmptyDict()
-        | Map(
+        Optional("tabs", default={"standard": {"documentation": True, "exercises": False, "presentations": False}, "staticsites": {}}): Map(
             {
-                Optional("standard", default={"documentation": {}, "exercises": {}, "presentations": {}}): MapPattern(
+                Optional("standard"): EmptyDict()
+                | MapPattern(
                     Str(),
-                    EmptyDict()
+                    Bool()
+                    | EmptyDict()
                     | Map(
                         {
                             Optional("tooltip"): Str(),
@@ -88,7 +89,8 @@ config_schema = Map(
                         }
                     ),
                 ),
-                Optional("staticsites"): MapPattern(
+                Optional("staticsites", default={}): EmptyDict()
+                | MapPattern(
                     Str(),
                     EmptyDict()
                     | Map(
@@ -124,23 +126,8 @@ config_schema = Map(
                 Optional("serve_mode", default="role"): Str(),
             }
         ),
-        Optional("staticsites"): EmptyList()
-        | Seq(
-            Map(
-                {
-                    Optional("url", default=""): Str(),
-                    Optional("id", default=""): Str(),
-                    Optional("title", default=""): Str(),
-                    Optional("icon", default="web"): Str(),
-                }
-            )
-        ),
-        Optional("serve_documentation", default=True): Bool(),
-        Optional("serve_presentations", default=False): Bool(),
-        Optional("serve_exercises", default=True): Bool(),
         Optional("exercise_json", default="static/hugo/exercises.json"): Str(),
         Optional("questionaire_json", default="static/hugo/questionaires.json"): Str(),
-        Optional("questionaires_questions_json", default="static/hugo/questionaires_questions.json"): Str(),
         Optional("init_notifications"): EmptyList()
         | Seq(
             Map(

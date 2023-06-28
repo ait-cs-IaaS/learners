@@ -49,30 +49,28 @@ class Configuration:
         self.language_code = learners_config.get("learners").get("language_code")
         self.static_base_url = learners_config.get("statics").get("directory")
         self.serve_mode = learners_config.get("statics").get("serve_mode")
-        self.serve_documentation = learners_config.get("serve_documentation")
-        self.serve_presentations = learners_config.get("serve_presentations")
-        self.serve_exercises = learners_config.get("serve_exercises")
         self.exercise_json = learners_config.get("exercise_json")
         self.questionaire_json = learners_config.get("questionaire_json")
-        self.questionaires_questions_json = learners_config.get("questionaires_questions_json")
-        self.staticsites = learners_config.get("staticsites") or []
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
         self.init_notifications = learners_config.get("init_notifications") or []
-        self.tabs = learners_config.get("tabs")
+
+        self.tabs = learners_config.get("tabs") or {}
+        # Remove falsified keys
+        self.tabs["standard"] = {
+            key: {} if isinstance(value, bool) else value for key, value in (self.tabs.get("standard").items() or {}) if value is not False
+        }
 
         self.template = {
             "theme": self.theme,
             "logo": self.logo,
             "landingpage": self.landingpage,
             "chat": False,
-            "staticsites": self.staticsites,
             "init_notifications": self.init_notifications,
         }
 
 
 def build_config(app):
-
     global cfg
     cfg = Configuration()
 
@@ -90,7 +88,6 @@ def build_config(app):
 
 
 def config_app(app):
-
     Environment(app).register(get_bundle())
 
     app.config["JSON_SORT_KEYS"] = False

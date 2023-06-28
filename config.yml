@@ -1,143 +1,138 @@
 learners:
-  landingpage: "documentation"
-  logo: |
-    <svg viewBox="0 0 343.71 136.32" style="enable-background:new 0 0 200 200;" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4" style="fill: #fff;"/>
-      <rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/>
-      <polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/>
-    </svg>
-  theme:
-    primary: "#666666"
-    secondary: "#009899"
-    success: "#009899"
-  upload_folder: /tmp/uploads
+    landingpage: 'documentation'
+    logo: |
+        <svg viewBox="0 0 343.71 136.32" style="enable-background:new 0 0 200 200;" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4" style="fill: #fff;"/>
+          <rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/>
+          <polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/>
+        </svg>
+    theme:
+        primary: '#666666'
+        secondary: '#009899'
+        success: '#009899'
+    upload_folder: /tmp/uploads
 
 jwt:
-  jwt_secret_key: "53CR3T"
+    jwt_secret_key: '53CR3T'
 #   jwt_for_vnc_access: False
 
 database:
-  db_uri: "sqlite:///data.db"
+    db_uri: 'sqlite:///data.db'
 
-# venjix:
-#   auth_secret: "c0dbc3ca-da8f-5dec-bd5d-d751d8b5efb8"
-#   url: "https://10.17.2.240/"
 venjix:
-  auth_secret: "53CR3T"
-  url: "http://localhost:5001/"
+    auth_secret: '53CR3T'
+    url: 'http://localhost:5001/'
 
 statics:
-  directory: "static"
-  serve_mode: "role"
+    directory: 'static'
+    serve_mode: 'role'
 
-exercise_json: "static/hugo/exercises.json"
-questionaire_json: "static/hugo/questionaires.json"
-questionaires_questions_json: "static/hugo/questionaires_questions.json"
+exercise_json: 'static/hugo/exercises.json'
+questionaire_json: 'static/hugo/questionaires.json'
 
 tabs:
-  staticsites:
-    mitre:
-      url: "https://mitre-attack.github.io/attack-navigator/"
-      icon: mitre
-    drawio:
-      url: "https://app.diagrams.net/"
-      icon: drawio
-      proxy: true
-
-serve_documentation: True
-serve_exercises: True
-serve_presentations: True
-
-# staticsites:
-#   - url: "/statics/staticsite"
-#     id: "mitre"
-#     title: "test site"
-#     icon: "icon_mitre"
-#   - url: "/statics/staticsite"
-#     id: "drawio"
-#     title: "draw io site"
-#     icon: "icon_drawio"
-#   - url: "/statics/staticsite"
-#     id: "testsite"
-#     title: "std site"
-#     icon: "icon_doc"
+    standard:
+        documentation:
+            tooltip: 'custom tooltip'
+        exercises: true
+        presentations: false
+    staticsites:
+        mitre:
+            url: 'https://mitre-attack.github.io/attack-navigator/'
+            icon: mitre
+        drawio:
+            url: 'https://app.diagrams.net/'
+            icon: drawio
+            proxy: true
 
 callback:
-  endpoint: "http://localhost:5000/callback"
+    endpoint: 'http://localhost:5000/callback'
 
 novnc:
-  server: "https://novnc.demo.cyberrange.rocks"
+    server: 'https://novnc.demo.cyberrange.rocks'
 
 users:
-  # test:
-  #   password: test
-  #   # role: instructor
-  #   groups:
-  #     - csirts
-  #     - test
-  #   vnc_clients:
-  #     csirt1_it:
-  #       password: mozart.rocks
-  #       target: defaultcomp_csirt_client_1
-  #       tooltip: Client
-  #       username: csirt1_it
-  #     csirt2:
-  #       password: mozart.rocks
-  #       target: dosivax_csirt_client_2
-  #       username: csirt2
-  #      soc_client:
-  #        target: placeholder_1
-  #        tooltip: "SOC client"
-  #        username: csirt1
-  #        password: placeholder
-  #      pps_client:
-  #        target: placeholder_3
-  #        tooltip: "PPS client"
-  #        username: csirt3
-  #        password: placeholder
-  test:
-    password: test
-  user_2:
-    password: user_2
-  user_3:
-    password: user_3
-  user_4:
-    password: user_4
-  user_5:
-    password: user_5
-  user_6:
-    password: user_6
-  user_7:
-    password: user_7
-  user_8:
-    password: user_8
-  user_9:
-    password: user_9
-  user_10:
-    password: user_10
-  user_11:
-    password: user_11
-  user_12:
-    password: user_12
-  user_13:
-    password: user_13
-  user_14:
-    password: user_14
-    # vnc_clients:
-    #   soc_client:
-    #     target: placeholder_2
-    #     tooltip: "SOC client"
-    #     username: csirt2
-    #     password: placeholder
-  admin:
-    password: admin
-    admin: True
-    role: admin
-    groups:
-      - csirts
+    # test:
+    #   password: test
+    #   # role: instructor
+    #   groups:
+    #     - csirts
+    #     - test
+    #   vnc_clients:
+    #     csirt1_it:
+    #       password: mozart.rocks
+    #       target: defaultcomp_csirt_client_1
+    #       tooltip: Client
+    #       username: csirt1_it
+    #     csirt2:
+    #       password: mozart.rocks
+    #       target: dosivax_csirt_client_2
+    #       username: csirt2
+    #      soc_client:
+    #        target: placeholder_1
+    #        tooltip: "SOC client"
+    #        username: csirt1
+    #        password: placeholder
+    #      pps_client:
+    #        target: placeholder_3
+    #        tooltip: "PPS client"
+    #        username: csirt3
+    #        password: placeholder
+    test:
+        password: test
+    user_2:
+        password: user_2
+    user_3:
+        password: user_3
+    user_4:
+        password: user_4
+    user_5:
+        password: user_5
+    user_6:
+        password: user_6
+    user_7:
+        password: user_7
+    user_8:
+        password: user_8
+    user_9:
+        password: user_9
+    user_10:
+        password: user_10
+    user_11:
+        password: user_11
+    user_12:
+        password: user_12
+    user_13:
+        password: user_13
+    user_14:
+        password: user_14
+        # vnc_clients:
+        #   soc_client:
+        #     target: placeholder_2
+        #     tooltip: "SOC client"
+        #     username: csirt2
+        #     password: placeholder
+    admin:
+        password: admin
+        admin: True
+        role: admin
+        groups:
+            - csirts
 
 init_notifications:
-  - title: Game Start
-    msg: <h1>Game Start</h1> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-  - title: "Hint #1"
-    msg: "<strong>Hint:</strong><br> Monitor you DMZ zone. Try using the following query: <br> <code>destination.address : 10.0.0.0/24</code>"
+    - title: Game Start
+      msg:
+          <h1>Game Start</h1> Lorem ipsum dolor sit amet, consetetur sadipscing
+          elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore
+          magna aliquyam erat, sed diam voluptua. At vero eos et accusam et
+          justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
+          takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit
+          amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+          invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+          At vero eos et accusam et justo duo dolores et ea rebum. Stet clita
+          kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
+          amet.
+    - title: 'Hint #1'
+      msg:
+          '<strong>Hint:</strong><br> Monitor you DMZ zone. Try using the
+          following query: <br> <code>destination.address : 10.0.0.0/24</code>'
