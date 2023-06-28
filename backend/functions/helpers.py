@@ -55,11 +55,10 @@ def append_key_to_dict(dictobj: dict, parent: str, baseobj: dict = None) -> dict
 
 
 def append_or_update_subexercise(parent_exercise: dict, child_exercise: dict) -> dict:
-
     parent_exercise["total"] += child_exercise.get("total")
     parent_exercise["done"] += child_exercise.get("done")
 
-    for (i, element) in enumerate(parent_exercise.get("exercises")):
+    for i, element in enumerate(parent_exercise.get("exercises")):
         if element.get("title") == child_exercise.get("title"):
             parent_exercise["exercises"][i]["total"] += child_exercise.get("total")
             parent_exercise["exercises"][i]["done"] += child_exercise.get("done")
@@ -90,21 +89,7 @@ def replace_attachhment_with_url(formData):
     return formData
 
 
-def build_urls(config, role, user_id=None):
-    discriminator = role if config.serve_mode == "role" else user_id
-
-    config.template["url_documentation"] = (
-        f"statics/hugo/{discriminator}/{config.language_code}/documentation/" if (config.serve_documentation) else ""
-    )
-    config.template["url_exercises"] = f"statics/hugo/{discriminator}/{config.language_code}/exercises/" if (config.serve_exercises) else ""
-    config.template["url_presentations"] = (
-        f"statics/hugo/{discriminator}/{config.language_code}/presentations/" if (config.serve_presentations) else ""
-    )
-    return config.template
-
-
 def sse_create_and_publish(event: str = "newNotification", message: str = "", user=None, page=None, exercise=None) -> bool:
-
     # Import
     from backend.classes.SSE import SSE_Event, sse
     from backend.functions.database import db_create_notification, get_users_by_role
