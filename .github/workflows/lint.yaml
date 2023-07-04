@@ -18,9 +18,9 @@ jobs:
             - uses: actions/checkout@v3
             - name: Install dependencies
               run: |
-                  apt update -y
-                  apt install python3-venv -y
-                  apt purge python3-blinker -y
+                  sudo apt update -y
+                  sudo apt install python3-venv -y
+                  sudo apt purge python3-blinker -y
                   curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
                   python /tmp/get-pip.py
                   python -m pip install --upgrade pip setuptools wheel
