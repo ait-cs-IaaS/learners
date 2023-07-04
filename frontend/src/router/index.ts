@@ -6,6 +6,7 @@ import { httpErrorHandler } from "@/helpers";
 import Default from "@/layouts/default/Default.vue";
 import Mainpage from "@/views/Mainpage.vue";
 import Login from "@/views/Login.vue";
+import Logout from "@/views/Logout.vue";
 
 const routes = [
   {
@@ -27,6 +28,17 @@ const routes = [
         path: "",
         name: "Login",
         component: Login,
+      },
+    ],
+  },
+  {
+    path: "/logout",
+    component: Default,
+    children: [
+      {
+        path: "",
+        name: "Logout",
+        component: Logout,
       },
     ],
   },

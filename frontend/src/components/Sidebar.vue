@@ -3,7 +3,7 @@
     <!-- eslint-disable vue/no-v-html -->
     <v-tooltip :text="authTooltip" transition="slide-x-transition">
       <template #activator="{ props }">
-        <router-link to="/login" custom v-slot="{ navigate }">
+        <router-link to="/logout" custom v-slot="{ navigate }">
           <div
             role="link"
             class="px-2 py-5 my-3"
@@ -12,6 +12,15 @@
             v-bind="props"
           ></div>
         </router-link>
+        <!-- <router-link to="/login" custom v-slot="{ navigate }">
+          <div
+            role="link"
+            class="px-2 py-5 my-3"
+            @click="navigate"
+            v-html="logoSvg"
+            v-bind="props"
+          ></div>
+        </router-link> -->
       </template>
     </v-tooltip>
     <!--eslint-enable-->
@@ -116,8 +125,9 @@ export default {
       });
 
       if (activeTab) {
+        const activeIFrame = document.getElementById(activeTab.id);
+
         if (activeTab._type === "client") {
-          const activeIFrame = document.getElementById(activeTab.id);
           if (activeIFrame) {
             activeIFrame.setAttribute("src", "");
           }
@@ -126,7 +136,14 @@ export default {
             opened: true,
           });
         }
-        let newTab = window.open(activeTab.url, "_blank");
+
+        let url = activeIFrame?.getAttribute("src") || activeTab.url;
+        const splitArray = url.split("/proxy/");
+        if (splitArray.length > 1) {
+          url = splitArray[1];
+        }
+
+        let newTab = window.open(url, "_blank");
         if (newTab) newTab.name = `${activeTab.id}_tab`;
       }
     },

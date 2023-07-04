@@ -42,10 +42,15 @@ h2 {
 h1.main-title {
   font-size: 5rem;
   line-height: 1;
+  max-width: 45%;
 
   span {
     display: block;
   }
+}
+
+.welcomeText {
+  max-width: 45%;
 }
 
 .v-badge__badge,
