@@ -1,2 +1,1 @@
-graft learners/static
-graft learners/templates
+graft backend/static

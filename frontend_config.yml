@@ -1,0 +1,27 @@
+headline: "Welcome to the"
+headlineHighlight: "CyberRange"
+welcomeText: "This is the entry point to the virtual environment of the simulation.<br>Please log in with your assigned credentials:"
+
+primary: "#666666"
+
+logo: |
+  <svg viewBox="0 0 343.71 136.32" style="enable-background:new 0 0 200 200;" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4" style="fill: #fff;"/>
+    <rect x="184.69" width="43.37" height="136.32" style="fill: #fff;"/>
+    <polygon points="133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32" style="fill: #fff;"/>
+  </svg>
+
+# Tabs
+default_tabs:
+  - id: documentation
+  - id: exercises
+  - id: presentations
+
+client_tabs:
+  - id: csirt1_client
+    target: dosivax_csirt_client_1
+  - id: csirt2_client
+    target: dosivax_csirt_client_2
+
+staticsites_tabs:
+  - id: mitre
