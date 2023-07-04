@@ -3,9 +3,7 @@ import json
 import os
 from datetime import timedelta
 
-from flask_assets import Environment
 from backend.logger import logger
-from backend.assets import get_bundle
 from strictyaml import YAMLError, load
 
 cfg = None
@@ -28,10 +26,11 @@ class Configuration:
         except EnvironmentError as enverr:
             logger.exception(enverr)
             raise
+
         self.jwt_secret_key = learners_config.get("jwt").get("jwt_secret_key")
         self.jwt_access_token_expires = timedelta(minutes=learners_config.get("jwt").get("jwt_access_token_duration"))
-
         self.jwt_for_vnc_access = learners_config.get("jwt").get("jwt_for_vnc_access")
+
         self.db_uri = learners_config.get("database").get("db_uri")
         self.novnc = {"server": learners_config.get("novnc").get("server")}
         self.users = json.loads(json.dumps(learners_config.get("users")).replace("DEFAULT-VNC-SERVER", self.novnc.get("server")))
@@ -44,11 +43,17 @@ class Configuration:
 
         self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
         self.theme = learners_config.get("learners").get("theme")
+
         self.logo = learners_config.get("learners").get("logo")
+        self.headline = learners_config.get("learners").get("headline")
+        self.welcomeText = learners_config.get("learners").get("welcomeText")
+
         self.landingpage = learners_config.get("learners").get("landingpage")
         self.language_code = learners_config.get("learners").get("language_code")
+
         self.static_base_url = learners_config.get("statics").get("directory")
         self.serve_mode = learners_config.get("statics").get("serve_mode")
+
         self.exercise_json = learners_config.get("exercise_json")
         self.questionaire_json = learners_config.get("questionaire_json")
         self.upload_folder = learners_config.get("learners").get("upload_folder")
@@ -88,8 +93,6 @@ def build_config(app):
 
 
 def config_app(app):
-    Environment(app).register(get_bundle())
-
     app.config["JSON_SORT_KEYS"] = False
     app.config["SQLALCHEMY_DATABASE_URI"] = cfg.db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

@@ -5,7 +5,7 @@ import string
 from typing import Tuple
 from backend.classes.SSE import SSE_Event
 
-from backend.logger import logger, EXERCISE_INFO
+from backend.logger import logger
 from backend.conf.config import cfg
 from backend.conf.db_models import (
     Attachment,
@@ -18,7 +18,6 @@ from backend.conf.db_models import (
     Comment,
     Questionaire,
     QuestionaireQuestion,
-    # QuestionaireAnswer,
     Usergroup,
     UsergroupAssociation,
     VenjixExecution,
@@ -27,9 +26,9 @@ from backend.database import db
 from backend.functions.helpers import convert_to_dict, extract_json_content
 
 
-def insert_initial_usergroups(*args, **kwargs):
+def db_insert_initial_usergroups(*args, **kwargs):
     for username, userDetails in cfg.users.items():
-        db_user = get_user_by_name(username)
+        db_user = db_get_user_by_name(username)
         usergroups = ["all"]
 
         if "groups" in userDetails:
@@ -49,19 +48,19 @@ def insert_initial_usergroups(*args, **kwargs):
     db.session.commit()
 
 
-def insert_initial_users(*args, **kwargs):
+def db_insert_initial_users(*args, **kwargs):
     for user_name, userDetails in cfg.users.items():
         user = {"name": user_name, "role": userDetails.get("role"), "admin": userDetails.get("admin")}
         db_create_or_update(User, ["name"], user)
 
 
-def insert_exercises(app, *args, **kwargs):
-    exercises = extract_json_content(app, cfg.exercise_json, EXERCISE_INFO)
+def db_insert_exercises(app, *args, **kwargs):
+    exercises = extract_json_content(app, cfg.exercise_json)
     for exercise in exercises:
         db_create_or_update(Exercise, ["global_exercise_id"], exercise)
 
 
-def insert_questionaires(app, *args, **kwargs):
+def db_insert_questionaires(app, *args, **kwargs):
     questionaires = extract_json_content(app, cfg.questionaire_json)
     for questionaire in questionaires:
         new_questionaire = {
@@ -123,20 +122,6 @@ def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict =
         logger.exception(e)
         return False
     return True
-
-
-def db_update_execution(
-    execution_uuid: str, connection_failed=None, response_timestamp=None, response_content=None, completed=None, msg=None, partial=None
-) -> None:
-    try:
-        execution = Execution.query.filter_by(execution_uuid=execution_uuid).first()
-        for key, value in list(locals().items())[:-1]:
-            if value:
-                setattr(execution, key, value)
-        db.session.commit()
-
-    except Exception as e:
-        logger.exception(e)
 
 
 def db_create_venjix_execution(execution_uuid: str, user_id: int, script_name: str) -> bool:
@@ -208,7 +193,7 @@ def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict,
     form_data = json.dumps(data, indent=4, sort_keys=False)
 
     try:
-        exercise_id = get_exercise_by_global_exercise_id(global_exercise_id).id
+        exercise_id = db_get_exercise_by_global_exercise_id(global_exercise_id).id
 
         execution = Execution(
             exercise_type=exercise_type,
@@ -232,28 +217,6 @@ def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict,
         return False
 
 
-# def db_create_questionaire_execution(global_questionaire_id: str, answers: dict, username: str) -> bool:
-
-#     try:
-#         user = get_user_by_name(username)
-#         if user.role != "participant":
-#             return False
-
-#         for global_question_id, answer in answers.items():
-#             new_answer = {
-#                 "user_id": user.id,
-#                 "answer": answer,
-#                 "global_question_id": global_question_id,
-#                 "global_questionaire_id": global_questionaire_id,
-#             }
-#             db_create_or_update(QuestionaireAnswer, ["user_id", "global_question_id"], new_answer)
-#         return True
-
-#     except Exception as e:
-#         logger.exception(e)
-#         return False
-
-
 def db_create_comment(comment: str, page: str, user_id: int) -> bool:
     try:
         new_comment = {
@@ -269,20 +232,9 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
         return False
 
 
-def get_current_executions(user_id: int, exercise_id: int) -> Tuple[dict, dict]:
-    try:
-        executions = db.session.query(Execution).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id)
-        last_execution = executions.order_by(Execution.response_timestamp.desc(), Execution.execution_timestamp.desc()).first()
-        executions = executions.order_by(Execution.execution_timestamp.desc()).all()
-        return last_execution, executions
-    except Execution as e:
-        logger.exception(e)
-        return None, None
-
-
 def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
     try:
-        exercise = get_exercise_by_global_exercise_id(global_exercise_id)
+        exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
         submissions = (
             db.session.query(Execution)
             .filter_by(user_id=user_id)
@@ -296,23 +248,23 @@ def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tupl
         return None, None
 
 
-def get_exercise_by_name(exercise_name: str) -> dict:
+def db_get_exercise_by_name(exercise_name: str) -> dict:
     return generic_getter(Exercise, "exercise_name", exercise_name)
 
 
-def get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
+def db_get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
     return generic_getter(Exercise, "global_exercise_id", global_exercise_id)
 
 
-def get_questionaire_by_global_questionaire_id(global_questionaire_id: str) -> dict:
+def db_get_questionaire_by_global_questionaire_id(global_questionaire_id: str) -> dict:
     return generic_getter(Questionaire, "global_questionaire_id", global_questionaire_id)
 
 
-def get_questionaire_question_by_global_question_id(global_question_id: str) -> dict:
+def db_get_questionaire_question_by_global_question_id(global_question_id: str) -> dict:
     return generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
 
 
-def get_all_questionaires_questions(global_questionaire_id: str) -> dict:
+def db_get_all_questionaires_questions(global_questionaire_id: str) -> dict:
     try:
         return (
             db.session.query(QuestionaireQuestion)
@@ -325,7 +277,7 @@ def get_all_questionaires_questions(global_questionaire_id: str) -> dict:
         return None
 
 
-def get_questionaire_results_by_global_question_id(global_question_id: str) -> dict:
+def db_get_questionaire_results_by_global_question_id(global_question_id: str) -> dict:
     questionaire_question = generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
     questionaire_answers = generic_getter(QuestionaireAnswer, "global_question_id", global_question_id, all=True)
 
@@ -339,47 +291,47 @@ def get_questionaire_results_by_global_question_id(global_question_id: str) -> d
     return labels, results
 
 
-def get_exercise_by_id(id: int) -> dict:
+def db_get_exercise_by_id(id: int) -> dict:
     return generic_getter(Exercise, "id", id)
 
 
-def get_user_by_name(name: str) -> dict:
+def db_get_user_by_name(name: str) -> dict:
     return generic_getter(User, "name", name)
 
 
-def get_user_by_id(id: int) -> dict:
+def db_get_user_by_id(id: int) -> dict:
     return generic_getter(User, "id", id)
 
 
-def get_users_by_role(role: str) -> list:
+def db_get_users_by_role(role: str) -> list:
     return generic_getter(User, "role", role, all=True)
 
 
-def get_all_users() -> list:
+def db_get_all_users() -> list:
     return generic_getter(User, "role", "participant", all=True)
 
 
-def get_all_userids() -> list:
+def db_get_all_userids() -> list:
     return [id[0] for id in db.session.query(User).with_entities(User.id).all()]
 
 
-def get_all_exercises() -> list:
+def db_get_all_exercises() -> list:
     return generic_getter(Exercise, all=True)
 
 
-def get_all_comments() -> list:
+def db_get_all_comments() -> list:
     return generic_getter(Comment, all=True)
 
 
-def get_comment_by_id(id: int) -> dict:
+def db_get_comment_by_id(id: int) -> dict:
     return generic_getter(Comment, "id", id)
 
 
-def get_comments_by_userid(id: int) -> dict:
+def db_get_comments_by_userid(id: int) -> dict:
     return generic_getter(Comment, "user_id", id, all=True)
 
 
-def get_exercise_groups() -> list:
+def db_get_exercise_groups() -> list:
     try:
         session = db.session.query(Exercise.parent_page_title).group_by(Exercise.parent_page_title).all()
         return [groupname for groupname, in session]
@@ -388,7 +340,7 @@ def get_exercise_groups() -> list:
         return None
 
 
-def get_all_usergroups() -> list:
+def db_get_all_usergroups() -> list:
     try:
         usergroups = {}
         session = db.session.query(Usergroup).all()
@@ -402,7 +354,7 @@ def get_all_usergroups() -> list:
         return None
 
 
-def get_usergroup_by_name(groupname: str) -> list:
+def db_get_usergroup_by_name(groupname: str) -> list:
     try:
         usergroup = []
         session = db.session.query(Usergroup).filter_by(name=groupname).first()
@@ -414,7 +366,7 @@ def get_usergroup_by_name(groupname: str) -> list:
         return None
 
 
-def get_exercises_by_group(parent_page_title: str) -> list:
+def db_get_exercises_by_group(parent_page_title: str) -> list:
     try:
         session = db.session.query(Exercise).filter_by(parent_page_title=parent_page_title)
         return session.all()
@@ -440,25 +392,17 @@ def generic_getter(db_model, filter_keys: list = [], filter_value: list = [], al
         return None
 
 
-def convert_usernames_to_ids(usernames: list = []) -> list:
-    all_users = generic_getter(User, all=True)
-    user_ids = []
-    for user in all_users:
-        if user.name in usernames:
-            user_ids.append(user.id)
+def db_convert_usernames_to_ids(usernames: list = []) -> list:
+    user_ids = [user.id for user in generic_getter(User, all=True) if user.name in usernames]
     return user_ids
 
 
-def convert_ids_to_usernames(user_ids: list = []) -> list:
-    all_users = generic_getter(User, all=True)
-    usernames = []
-    for user in all_users:
-        if user.id in user_ids:
-            usernames.append(user.name)
+def db_convert_ids_to_usernames(user_ids: list = []) -> list:
+    usernames = [user.name for user in generic_getter(User, all=True) if user.id in user_ids]
     return usernames
 
 
-def get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
+def db_get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
     try:
         return (
             db.session.query(Execution)
@@ -472,7 +416,7 @@ def get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
         return None
 
 
-def get_completed_state(user_id: int, exercise_id: int) -> dict:
+def db_get_completed_state(user_id: int, exercise_id: int) -> dict:
     try:
         return (
             db.session.query(User)
@@ -500,7 +444,7 @@ def db_create_file(filename: str, user_id: int) -> str:
         return None
 
 
-def get_filename_from_hash(filename_hash):
+def db_get_filename_from_hash(filename_hash):
     try:
         return db.session.query(Attachment).filter_by(filename_hash=filename_hash).first().filename
     except Exception as e:
@@ -508,7 +452,7 @@ def get_filename_from_hash(filename_hash):
         return None
 
 
-def get_cache_by_ids(user_id: int, global_exercise_id: str) -> dict:
+def db_get_cache_by_ids(user_id: int, global_exercise_id: str) -> dict:
     try:
         return db.session.query(Cache).filter_by(user_id=user_id).filter_by(global_exercise_id=global_exercise_id).first()
     except Exception as e:
@@ -516,7 +460,7 @@ def get_cache_by_ids(user_id: int, global_exercise_id: str) -> dict:
         return None
 
 
-def get_all_exercises_sorted() -> list:
+def db_get_all_exercises_sorted() -> list:
     try:
         return db.session.query(Exercise).order_by(Exercise.order_weight.asc()).all()
     except Exception as e:
@@ -524,7 +468,7 @@ def get_all_exercises_sorted() -> list:
         return None
 
 
-def get_all_questionaires_sorted() -> list:
+def db_get_all_questionaires_sorted() -> list:
     try:
         return db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
     except Exception as e:
@@ -532,7 +476,7 @@ def get_all_questionaires_sorted() -> list:
         return None
 
 
-def get_grouped_questionaires() -> list:
+def db_get_grouped_questionaires() -> list:
     try:
         questionaires = db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
         grouped_questionaires = []
@@ -610,8 +554,8 @@ def db_get_questionaire_question_answers_by_user(global_question_id: str, user_i
     return answers
 
 
-def get_completion_percentage(exercise_id):
-    users = get_all_users()
+def db_get_completion_percentage(exercise_id):
+    users = db_get_all_users()
 
     try:
         executions = (
@@ -627,61 +571,6 @@ def get_completion_percentage(exercise_id):
     except Exception as e:
         logger.exception(e)
         return 0
-
-
-# def get_questionaire_completion_percentage(global_questionaire_id):
-
-#     users = get_all_users()
-
-#     try:
-#         answers = (
-#             db.session.query(QuestionaireAnswer).filter_by(global_questionaire_id=global_questionaire_id).join(User).group_by(User.id).all()
-#         )
-#         return len(answers) / len(users) * 100
-
-#     except Exception as e:
-#         logger.exception(e)
-#         return 0
-
-
-def get_results_of_single_exercise(global_exercise_id):
-    try:
-        return (
-            db.session.query(Execution)
-            .join(Exercise)
-            .filter_by(global_exercise_id=global_exercise_id)
-            .join(User)
-            .order_by(Execution.completed.desc(), Execution.execution_timestamp.desc())
-            .group_by(User.id)
-            .with_entities(
-                User.name, Execution.id, Execution.user_id, Execution.execution_timestamp, Execution.completed, Exercise.global_exercise_id
-            )
-            .all()
-        )
-
-    except Exception as e:
-        logger.exception(e)
-        return 0
-
-
-# def get_question_counts(global_question_id):
-#     try:
-#         options = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first().options
-#         labels = [option.strip() for option in (options).split(";")]
-#         counts = []
-
-#         for label in labels:
-#             counts.append(
-#                 db.session.query(QuestionaireAnswer).filter_by(answer=label).filter_by(global_question_id=global_question_id).count()
-#             )
-
-#         prepended_labels = [f"{alpha}. {label}" for (label, alpha) in zip(labels, list(string.ascii_uppercase))]
-
-#         return prepended_labels, counts
-
-#     except Exception as e:
-#         logger.exception(e)
-#         return [""], [0]
 
 
 def db_create_notification(sse_Event: SSE_Event) -> bool:
@@ -702,7 +591,7 @@ def db_create_notification(sse_Event: SSE_Event) -> bool:
         return False
 
 
-def get_last_notification() -> dict:
+def db_get_last_notification() -> dict:
     try:
         # allow to execute from within sse context
         from backend import app
@@ -717,7 +606,7 @@ def get_last_notification() -> dict:
         return False
 
 
-def get_notification_by_id(notification_id: int) -> dict:
+def db_get_notification_by_id(notification_id: int) -> dict:
     try:
         # allow to execute from within sse context
         from backend import app
@@ -733,7 +622,7 @@ def get_notification_by_id(notification_id: int) -> dict:
         return False
 
 
-def get_all_notifications() -> dict:
+def db_get_all_notifications() -> dict:
     try:
         session = db.session.query(Notification)
         notifications = session.all()
@@ -745,7 +634,7 @@ def get_all_notifications() -> dict:
         return False
 
 
-def get_notifications_by_user(user_id: int) -> dict:
+def db_get_notifications_by_user(user_id: int) -> dict:
     try:
         session = db.session.query(Notification).all()
 

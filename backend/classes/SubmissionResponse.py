@@ -27,18 +27,7 @@ class SubmissionResponse:
         self.filename = filename
         self.uuid = uuid
 
-    # def __repr__(self) -> str:
-    #     return f"{type(self).__name__}(completed={self.completed}, icon={self.icon}, tooltip={self.tooltip}, _type={self._type}, url={self.url})"
-
-    # def toJson(self):
-    #     return {"id": self.id}
-
-    # def defaultUrl(id: string, _type: string, user_role: string, language: string) -> string:
-    #     if _type == "standard":
-    #         return f"http://localhost:5000/statics/hugo/{user_role}/{language}/{id}"
-
     def update(self, executions) -> dict:
-
         if not len(executions):
             return
 

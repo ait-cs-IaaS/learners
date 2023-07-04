@@ -1,4 +1,4 @@
-from strictyaml import Any, Bool, EmptyDict, EmptyList, EmptyNone, Int, Map, MapPattern, Optional, Seq, Str
+from strictyaml import Bool, EmptyDict, EmptyList, Int, Map, MapPattern, Optional, Seq, Str
 
 config_schema = Map(
     {
@@ -33,6 +33,11 @@ config_schema = Map(
                     }
                 ),
                 Optional("logo"): Str(),
+                Optional("headline", default="Welcome to the CyberRange"): Str(),
+                Optional(
+                    "welcomeText",
+                    default="Please log in with your assigned credentials:",
+                ): Str(),
                 Optional("landingpage", default="documentation"): Str(),
                 Optional("language_code", default="en"): Str(),
                 Optional("upload_folder", default="backend/static/uploads"): Str(),
@@ -48,7 +53,7 @@ config_schema = Map(
         ),
         "database": Map(
             {
-                "db_uri": Str(),
+                Optional("db_uri", default="sqlite:///data.db"): Str(),
             }
         ),
         "users": MapPattern(

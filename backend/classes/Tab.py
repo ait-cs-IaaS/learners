@@ -1,4 +1,3 @@
-import json
 import numbers
 import string
 
@@ -28,9 +27,6 @@ class Tab:
         else:
             self.url = url if url else defaultUrl(id, _type, user_role, language, base_url)
 
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}(id={self.id}, icon={self.icon}, tooltip={self.tooltip}, _type={self._type}, url={self.url})"
-
     def toJson(self):
         return {"id": self.id}
 
@@ -38,28 +34,22 @@ class Tab:
 def defaultUrl(id: string, _type: string, user_role: string, language: string, base_url: string) -> string:
     if _type == "standard":
         return f"{base_url}/statics/hugo/{user_role}/{language}/{id}"
+    return ""
 
 
 def defaultIcon(id: string, _type: string) -> string:
-    if _type == "standard":
-        if id == "documentation":
-            return "clipboard-document-list"
-        elif id == "exercises":
-            return "play-circle"
-        elif id == "presentations":
-            return "presentation-chart-line"
-    elif _type == "staticsite":
-        if id == "mitre":
-            return "mitre"
-        elif id == "drawio":
-            return "drawio"
+    icon_map = {
+        "standard": {"documentation": "clipboard-document-list", "exercises": "play-circle", "presentations": "presentation-chart-line"},
+        "staticsite": {"mitre": "mitre", "drawio": "drawio"},
+        "admin": "bookmark",
+        "user": "user",
+        "client": "tv",
+    }
+
+    if _type in icon_map:
+        if isinstance(icon_map[_type], dict):
+            return icon_map[_type].get(id, "globe-alt")
         else:
-            return "globe-alt"
-    elif _type == "admin":
-        return "bookmark"
-    elif _type == "user":
-        return "user"
-    elif _type == "client":
-        return "tv"
+            return icon_map[_type]
     else:
         return "beaker"

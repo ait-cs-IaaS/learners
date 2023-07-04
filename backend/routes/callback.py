@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from flask import Blueprint, json, jsonify, request
-from backend.functions.database import db_update_execution, db_update_venjix_execution
+from backend.functions.database import db_update_venjix_execution
 from backend.logger import logger
 
 callback_api = Blueprint("callback_api", __name__)

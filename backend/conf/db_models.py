@@ -1,4 +1,3 @@
-# sourcery skip: avoid-builtin-shadow
 from backend.database import db
 from sqlalchemy import func
 

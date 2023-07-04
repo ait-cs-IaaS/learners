@@ -3,8 +3,6 @@ from backend.classes.SSE import sse
 from flask import Blueprint, Response
 from flask_jwt_extended import jwt_required, current_user
 
-from backend.logger import logger
-
 stream_api = Blueprint("stream_api", __name__)
 
 

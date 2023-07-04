@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_create_or_update,
-    get_cache_by_ids,
+    db_get_cache_by_ids,
 )
 
 
@@ -15,7 +15,6 @@ cache_api = Blueprint("cache_api", __name__)
 @cache_api.route("/cache", methods=["PUT"])
 @jwt_required()
 def putCache():
-
     data = request.get_json()
 
     new_cache_entry = {
@@ -33,8 +32,7 @@ def putCache():
 @cache_api.route("/cache/<global_exercise_id>", methods=["GET"])
 @jwt_required()
 def getCache(global_exercise_id):
-
-    if cache := get_cache_by_ids(current_user.id, global_exercise_id):
+    if cache := db_get_cache_by_ids(current_user.id, global_exercise_id):
         return jsonify(form_data=cache.form_data), 200
     else:
         return jsonify(form_data=None), 200

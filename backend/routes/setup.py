@@ -4,18 +4,14 @@ from backend.classes.Tab import Tab
 from backend.conf.config import cfg
 from backend.jwt_manager import admin_required
 
-from backend.logger import logger
-
 setup_api = Blueprint("setup_api", __name__)
 
 
 @setup_api.route("/setup/login", methods=["GET"])
 def getLoginInfo():
-    # TODO: get from config file
     return jsonify(
-        headline="Welcome to the",
-        headlineHighlight="CyberRange",
-        welcomeText="This is the entry point to the virtual environment of the simulation.<br>Please log in with your assigned credentials:",
+        headline=cfg.headline,
+        welcomeText=cfg.welcomeText,
         landingpage=cfg.landingpage,
     )
 
@@ -69,9 +65,7 @@ def getSidebar():
                 auth_url = f"{value.get('server')}?auth={vnc_auth_token}"
             else:
                 auth_url = (
-                    f"{value.get('server')}?"
-                    + f"username={value.get('username')}&password={value.get('password')}&"
-                    + f"target={value.get('target')}"
+                    f"{value.get('server')}?username={value.get('username')}&password={value.get('password')}&target={value.get('target')}"
                 )
 
             tab_index = (index + 1) if multiple else 0

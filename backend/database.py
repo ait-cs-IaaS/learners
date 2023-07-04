@@ -9,16 +9,16 @@ db = SQLAlchemy()
 def build_db(app):
     global db
 
-    from backend.conf.db_models import Execution, Exercise, TokenBlocklist, User
-    from backend.functions.database import insert_exercises, insert_initial_users, insert_questionaires, insert_initial_usergroups
+    from backend.conf.db_models import Exercise
+    from backend.functions.database import db_insert_exercises, db_insert_initial_users, db_insert_questionaires, db_insert_initial_usergroups
 
     db.init_app(app)
     db.create_all()
 
-    insert_initial_users()
-    insert_initial_usergroups()
-    insert_exercises(app)
-    insert_questionaires(app)
+    db_insert_initial_users()
+    db_insert_initial_usergroups()
+    db_insert_exercises(app)
+    db_insert_questionaires(app)
 
     try:
         loaded_exercises = db.session.query(Exercise).all()

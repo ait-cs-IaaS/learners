@@ -28,19 +28,14 @@ def postLoginData():
     return jsonify(authenticated=True, jwt=jwt), 200
 
 
-# TODO: implement logout
-@authentication_api.route("/logout")
+@authentication_api.route("/logout", methods=["POST"])
 @jwt_required()
-def modify_token():
+def logout():
     jti = get_jwt()["jti"]
     now = datetime.now(timezone.utc)
     db.session.add(TokenBlocklist(jti=jti, created_at=now))
     db.session.commit()
-    success_msg = "Successfully logged out."
-    cfg.template["authenticated"] = False
-    cfg.template["vnc_clients"] = None
-    cfg.template["admin"] = None
-    return render_template("login.html", **cfg.template, success_msg=success_msg)
+    return jsonify(logged_in=False), 200
 
 
 @authentication_api.route("/authentication", methods=["GET"])
