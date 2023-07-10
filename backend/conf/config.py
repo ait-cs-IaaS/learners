@@ -34,6 +34,7 @@ class Configuration:
         self.db_uri = learners_config.get("database").get("db_uri")
         self.novnc = {"server": learners_config.get("novnc").get("server")}
         self.users = json.loads(json.dumps(learners_config.get("users")).replace("DEFAULT-VNC-SERVER", self.novnc.get("server")))
+        [user.update({"admin": True}) for user in self.users.values() if user["role"] in ["admin", "instructor"]]
 
         self.venjix = {
             "auth_secret": learners_config.get("venjix").get("auth_secret"),

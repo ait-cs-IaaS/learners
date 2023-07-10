@@ -307,6 +307,10 @@ def db_get_users_by_role(role: str) -> list:
     return generic_getter(User, "role", role, all=True)
 
 
+def db_get_admin_users() -> list:
+    return generic_getter(User, "admin", True, all=True)
+
+
 def db_get_all_users() -> list:
     return generic_getter(User, "role", "participant", all=True)
 
