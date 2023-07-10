@@ -92,16 +92,16 @@ def replace_attachhment_with_url(formData):
 def sse_create_and_publish(event: str = "newNotification", message: str = "", user=None, page=None, exercise=None) -> bool:
     # Import
     from backend.classes.SSE import SSE_Event, sse
-    from backend.functions.database import db_create_notification, db_get_users_by_role
+    from backend.functions.database import db_create_notification, db_get_admin_users
 
     # Conditional publishing
     if event == "newSubmission":
         message = f"<h4>New submission</h4>User: {user.name}<br>Exercise: {exercise.exercise_name}"
-        recipients = [admin_user.id for admin_user in db_get_users_by_role("admin")]
+        recipients = [admin_user.id for admin_user in db_get_admin_users()]
 
     if event == "newComment":
         message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page}"
-        recipients = [admin_user.id for admin_user in db_get_users_by_role("admin")]
+        recipients = [admin_user.id for admin_user in db_get_admin_users()]
 
     new_event = SSE_Event(
         event=event,
