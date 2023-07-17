@@ -2,6 +2,7 @@ import contextlib
 import json
 import os
 from datetime import timedelta
+import string
 
 from backend.logger import logger
 from strictyaml import YAMLError, load
@@ -63,17 +64,7 @@ class Configuration:
 
         self.tabs = learners_config.get("tabs") or {}
         # Remove falsified keys
-        self.tabs["standard"] = {
-            key: {} if isinstance(value, bool) else value for key, value in (self.tabs.get("standard").items() or {}) if value is not False
-        }
-
-        self.template = {
-            "theme": self.theme,
-            "logo": self.logo,
-            "landingpage": self.landingpage,
-            "chat": False,
-            "init_notifications": self.init_notifications,
-        }
+        self.tabs = {key: {} if isinstance(value, bool) else value for key, value in (self.tabs.items() or {}) if value is not False}
 
 
 def build_config(app):

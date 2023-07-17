@@ -24,26 +24,35 @@ venjix:
     url: 'http://localhost:5001/'
 
 statics:
-    directory: 'static'
     serve_mode: 'role'
 
-exercise_json: 'static/hugo/exercises.json'
-questionaire_json: 'static/hugo/questionaires.json'
-
 tabs:
-    standard:
-        documentation:
-            tooltip: 'custom tooltip'
-        exercises: true
-        presentations: false
-    staticsites:
-        mitre:
-            url: 'https://mitre-attack.github.io/attack-navigator/'
-            icon: mitre
-        drawio:
-            url: 'https://app.diagrams.net/'
-            icon: drawio
-            proxy: true
+    documentation:
+        tooltip: 'custom tooltip'
+    exercises: true
+    presentations: true
+    mitre:
+        url: 'https://mitre-attack.github.io/attack-navigator/'
+        icon: mitre
+    drawio:
+        url: 'https://app.diagrams.net/'
+        icon: drawio
+        proxy: true
+
+# tabs:
+#     standard:
+#         documentation:
+#             tooltip: 'custom tooltip'
+#         exercises: true
+#         presentations: false
+#     staticsites:
+#         mitre:
+#             url: 'https://mitre-attack.github.io/attack-navigator/'
+#             icon: mitre
+#         drawio:
+#             url: 'https://app.diagrams.net/'
+#             icon: drawio
+#             proxy: true
 
 callback:
     endpoint: 'http://localhost:5000/callback'

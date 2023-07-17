@@ -40,7 +40,7 @@ config_schema = Map(
                 ): Str(),
                 Optional("landingpage", default="documentation"): Str(),
                 Optional("language_code", default="en"): Str(),
-                Optional("upload_folder", default="backend/static/uploads"): Str(),
+                Optional("upload_folder", default="backend/statics/uploads"): Str(),
                 Optional("upload_extensions", default=["txt", "pdf", "png", "jpg", "jpeg", "gif", "json", "svg"]): Seq(Str()),
             }
         ),
@@ -79,35 +79,18 @@ config_schema = Map(
                 }
             ),
         ),
-        Optional("tabs", default={"standard": {"documentation": True, "exercises": False, "presentations": False}, "staticsites": {}}): Map(
-            {
-                Optional("standard"): EmptyDict()
-                | MapPattern(
-                    Str(),
-                    Bool()
-                    | EmptyDict()
-                    | Map(
-                        {
-                            Optional("tooltip"): Str(),
-                            Optional("icon"): Str(),
-                            Optional("url"): Str(),
-                        }
-                    ),
-                ),
-                Optional("staticsites", default={}): EmptyDict()
-                | MapPattern(
-                    Str(),
-                    EmptyDict()
-                    | Map(
-                        {
-                            Optional("tooltip"): Str(),
-                            Optional("icon"): Str(),
-                            Optional("proxy", default=False): Bool(),
-                            "url": Str(),
-                        }
-                    ),
-                ),
-            }
+        Optional("tabs", default={"documentation": True, "exercises": False, "presentations": False}): MapPattern(
+            Str(),
+            Bool()
+            | EmptyDict()
+            | Map(
+                {
+                    Optional("tooltip"): Str(),
+                    Optional("icon"): Str(),
+                    Optional("url"): Str(),
+                    Optional("proxy"): Bool(),
+                }
+            ),
         ),
         Optional("venjix", default={"auth_secret": "", "url": ""}): Map(
             {
@@ -125,14 +108,14 @@ config_schema = Map(
                 Optional("server", default=""): Str(),
             }
         ),
-        Optional("statics", default={"directory": "static", "serve_mode": "role"}): Map(
+        Optional("statics", default={"directory": "statics", "serve_mode": "role"}): Map(
             {
-                Optional("directory", default="static"): Str(),
+                Optional("directory", default="statics"): Str(),
                 Optional("serve_mode", default="role"): Str(),
             }
         ),
-        Optional("exercise_json", default="static/hugo/exercises.json"): Str(),
-        Optional("questionaire_json", default="static/hugo/questionaires.json"): Str(),
+        Optional("exercise_json", default="statics/hugo/exercises.json"): Str(),
+        Optional("questionaire_json", default="statics/hugo/questionaires.json"): Str(),
         Optional("init_notifications"): EmptyList()
         | Seq(
             Map(
