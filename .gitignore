@@ -3,11 +3,11 @@
 .envrc
 backend/data.db
 develop_config.yml
-backend/static/gen
-backend/static/hugo
-backend/static/uploads/*
-backend/static/documentation
-backend/static/exercises
+backend/statics/gen
+backend/statics/hugo
+backend/statics/uploads/*
+backend/statics/documentation
+backend/statics/exercises
 rendered_hugo_content/
 frontend/node_modules/
 frontend/node_modules/
