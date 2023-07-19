@@ -6,6 +6,7 @@ class Tab:
     def __init__(
         self,
         name: string,
+        _type: string = "",
         base_url: string = "",
         user_role: string = "participant",
         language: string = "en",
@@ -16,7 +17,7 @@ class Tab:
         proxy: bool = False,
     ):
         self.id = name
-        self.icon = icon or defaultIcon(name)
+        self.icon = icon or defaultIcon(_type or name)
         self.tooltip = tooltip if tooltip else name
         self.index = index
 

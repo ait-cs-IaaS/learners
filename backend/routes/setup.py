@@ -67,7 +67,7 @@ def getSidebar():
 
             tab_index = (index + 1) if multiple else 0
             tabs.append(
-                Tab(name=key, _type="client", base_url=base_url, index=tab_index, tooltip=value.get("tooltip"), url=auth_url).__dict__
+                Tab(name=key, base_url=base_url, index=tab_index, tooltip=value.get("tooltip"), url=auth_url, _type="client").__dict__
             )
 
     return jsonify(tabs=tabs, landingpage=landingpage)
