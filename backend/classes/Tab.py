@@ -50,4 +50,4 @@ def defaultIcon(name: string) -> string:
     if name in icon_map:
         return icon_map[name]
     else:
-        return "beaker"
+        return "document-text"
