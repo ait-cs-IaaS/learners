@@ -2,10 +2,17 @@ from strictyaml import Bool, EmptyDict, EmptyList, Int, Map, MapPattern, Optiona
 
 config_schema = Map(
     {
-        Optional("learners"): EmptyDict()
+        Optional("learners", default={"landingpage": "documentation"}): EmptyDict()
         | Map(
             {
-                Optional("theme"): EmptyDict()
+                Optional(
+                    "theme",
+                    default={
+                        "primary": "#666666",
+                        "secondary": "#009899",
+                        "success": "#009899",
+                    },
+                ): EmptyDict()
                 | Map(
                     {
                         Optional("primary", default="#666666"): Str(),
@@ -32,7 +39,10 @@ config_schema = Map(
                         Optional("nav_width", default="60px"): Str(),
                     }
                 ),
-                Optional("logo"): Str(),
+                Optional(
+                    "logo",
+                    default="<svg viewBox='0 0 343.71 136.32' style='enable-background:new 0 0 200 200;' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><polygon points='343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4' style='fill: #fff;'/><rect x='184.69' width='43.37' height='136.32' style='fill: #fff;'/><polygon points='133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32' style='fill: #fff;'/></svg>",
+                ): Str(),
                 Optional("headline", default="Welcome to the CyberRange"): Str(),
                 Optional(
                     "welcomeText",
@@ -44,14 +54,14 @@ config_schema = Map(
                 Optional("upload_extensions", default=["txt", "pdf", "png", "jpg", "jpeg", "gif", "json", "svg"]): Seq(Str()),
             }
         ),
-        "jwt": Map(
+        Optional("jwt", default={"jwt_secret_key": "3668da1b-cef1-5085-ae20-443409c9cc73"},): Map(
             {
-                "jwt_secret_key": Str(),
+                Optional("jwt_secret_key", default="3668da1b-cef1-5085-ae20-443409c9cc73"): Str(),
                 Optional("jwt_access_token_duration", default=720): Int(),
                 Optional("jwt_for_vnc_access", default=True): Bool(),
             }
         ),
-        "database": Map(
+        Optional("database", default={"db_uri": "sqlite:///data.db"}): Map(
             {
                 Optional("db_uri", default="sqlite:///data.db"): Str(),
             }
