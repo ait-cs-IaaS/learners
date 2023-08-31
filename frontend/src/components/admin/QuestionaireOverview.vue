@@ -213,7 +213,7 @@ export default {
 
 .questionaire-row {
   transition: all 100ms ease;
-  padding: 16px 6px;
+  padding: 16px 24px 16px 16px;
   cursor: pointer;
 
   &:not(:last-child) {

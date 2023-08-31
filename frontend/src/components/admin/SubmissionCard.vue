@@ -45,62 +45,65 @@
         </v-container>
         <!-- Submission's fields -->
         <template v-for="item in JSON.parse(submission.form_data)">
-          <div
-            v-for="(input, label) in item"
-            :key="label"
-            class="details-card-row"
-            :class="{
-              missing: String(input).length < 1,
-            }"
-          >
-            <div v-if="String(label) == 'drawio-input'">
-              <div class="details-card-label">
-                {{ unescape(label) }}
+          <template v-for="(input, label) in item" :key="label">
+            <hr v-if="input === '--divider--'" class="divider" />
+
+            <div
+              v-else
+              class="details-card-row"
+              :class="{
+                missing: String(input).length < 1,
+              }"
+            >
+              <div v-if="String(label) == 'drawio-input'">
+                <div class="details-card-label">
+                  {{ unescape(label) }}
+                </div>
+                <iframe
+                  class="drawio-preview"
+                  style="width: 100%; height: 35vw"
+                  :src="`https://viewer.diagrams.net/${input}`"
+                  frameborder="0"
+                ></iframe>
+                <a
+                  class="open-in-new-tab-link"
+                  :href="`https://app.diagrams.net/${input}`"
+                  target="_blank"
+                >
+                  <SvgIcon name="arrow-top-right-on-square" inline />
+                  open in new tab
+                </a>
               </div>
-              <iframe
-                class="drawio-preview"
-                style="width: 100%; height: 35vw"
-                :src="`https://viewer.diagrams.net/${input}`"
-                frameborder="0"
-              ></iframe>
-              <a
-                class="open-in-new-tab-link"
-                :href="`https://app.diagrams.net/${input}`"
-                target="_blank"
-              >
-                <SvgIcon name="arrow-top-right-on-square" inline />
-                open in new tab
-              </a>
-            </div>
-            <div v-else-if="String(label) == 'attachment'">
-              <div class="details-card-label">Uploaded file</div>
-              <img
-                v-if="filetypes.some((s) => input.endsWith(s))"
-                :src="`${backend}/uploads/${input}`"
-                :alt="input"
-                class="file-preview details-card-input"
-              />
-              <span v-else class="d-block mb-3 details-card-input">
-                {{ input }}
-              </span>
-              <a
-                class="open-in-new-tab-link"
-                :href="`${backend}/uploads/${input}`"
-                target="_blank"
-              >
-                <SvgIcon name="arrow-top-right-on-square" inline />
-                download file
-              </a>
-            </div>
-            <div v-else>
-              <div class="details-card-label">
-                {{ unescape(label) }}
+              <div v-else-if="String(label) == 'attachment'">
+                <div class="details-card-label">Uploaded file</div>
+                <img
+                  v-if="filetypes.some((s) => input.endsWith(s))"
+                  :src="`${backend}/uploads/${input}`"
+                  :alt="input"
+                  class="file-preview details-card-input"
+                />
+                <span v-else class="d-block mb-3 details-card-input">
+                  {{ input }}
+                </span>
+                <a
+                  class="open-in-new-tab-link"
+                  :href="`${backend}/uploads/${input}`"
+                  target="_blank"
+                >
+                  <SvgIcon name="arrow-top-right-on-square" inline />
+                  download file
+                </a>
               </div>
-              <div class="details-card-input">
-                {{ input }}
+              <div v-else>
+                <div class="details-card-label">
+                  {{ unescape(label) }}
+                </div>
+                <div class="details-card-input">
+                  {{ input }}
+                </div>
               </div>
             </div>
-          </div>
+          </template>
         </template>
       </div>
     </v-card-text>
@@ -242,15 +245,18 @@ export default {
   justify-content: center;
   text-decoration: none;
   color: rgb(var(--v-theme-secondary));
+  transition: 200ms ease;
+
   &:hover {
-    border: 2px solid rgb(var(--v-theme-secondary));
-    margin: 8px;
-    margin-top: -1px !important;
-    margin-bottom: 9px;
+    background-color: rgba(var(--v-theme-secondary), 0.07);
   }
 }
 .file-preview {
   width: 100%;
   border-radius: 4px;
+}
+.divider {
+  opacity: 0;
+  margin: 1.6rem 0;
 }
 </style>
