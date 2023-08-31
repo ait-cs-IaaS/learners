@@ -10,3 +10,4 @@ from backend.routes.questionaires import questionaires_api
 from backend.routes.statics import statics_api
 from backend.routes.setup import setup_api
 from backend.routes.users import users_api
+from backend.routes.pages import pages_api

@@ -33,6 +33,7 @@ def main():
     app.register_blueprint(routes.setup_api)
     app.register_blueprint(routes.exercises_api)
     app.register_blueprint(routes.users_api)
+    app.register_blueprint(routes.pages_api)
 
     return app
 
