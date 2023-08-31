@@ -58,6 +58,8 @@ class Configuration:
 
         self.exercise_json = learners_config.get("exercise_json")
         self.questionaire_json = learners_config.get("questionaire_json")
+        self.page_json = learners_config.get("page_json")
+
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
         self.init_notifications = learners_config.get("init_notifications") or []

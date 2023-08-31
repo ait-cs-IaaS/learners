@@ -126,6 +126,7 @@ config_schema = Map(
         ),
         Optional("exercise_json", default="statics/hugo/exercises.json"): Str(),
         Optional("questionaire_json", default="statics/hugo/questionaires.json"): Str(),
+        Optional("page_json", default="statics/hugo/pages.json"): Str(),
         Optional("init_notifications"): EmptyList()
         | Seq(
             Map(
