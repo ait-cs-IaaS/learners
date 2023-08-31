@@ -58,7 +58,7 @@ class Attachment(db.Model):
 
 class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    global_exercise_id = db.Column(db.String(120), nullable=False)
+    global_exercise_id = db.Column(db.String(32), nullable=False)
     local_exercise_id = db.Column(db.Integer, nullable=False)
     exercise_type = db.Column(db.String(120), nullable=False)
     exercise_name = db.Column(db.String(120), nullable=False)
@@ -69,6 +69,33 @@ class Exercise(db.Model):
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
+
+
+parent_child_relationship = db.Table(
+    "parent_child_relationship",
+    db.Column("parent_id", db.Integer, db.ForeignKey("page.id"), primary_key=True),
+    db.Column("child_id", db.Integer, db.ForeignKey("page.id"), primary_key=True),
+)
+
+
+class Page(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    page_id = db.Column(db.String(32), nullable=False)
+    page_title = db.Column(db.String(120), nullable=True)
+    language = db.Column(db.String(3), nullable=True)
+    root_page_id = db.Column(db.String(32), nullable=True)
+    params = db.Column(db.String(320), nullable=True)
+    hierarchy = db.Column(db.Integer, nullable=True)
+    hidden = db.Column(db.Integer, nullable=False, default=0)
+
+    childs = db.relationship(
+        "Page",
+        secondary=parent_child_relationship,
+        primaryjoin=(parent_child_relationship.c.parent_id == id),
+        secondaryjoin=(parent_child_relationship.c.child_id == id),
+        backref=db.backref("parent", lazy="dynamic"),
+        lazy="dynamic",
+    )
 
 
 class Cache(db.Model):
@@ -86,7 +113,7 @@ class Comment(db.Model):
 
 class Questionaire(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    global_questionaire_id = db.Column(db.String(120), nullable=False)
+    global_questionaire_id = db.Column(db.String(32), nullable=False)
     page_title = db.Column(db.String(120), nullable=False)
     parent_page_title = db.Column(db.String(120), nullable=False)
     root_weight = db.Column(db.Integer, nullable=False)
@@ -97,7 +124,7 @@ class Questionaire(db.Model):
 
 
 class QuestionaireQuestion(db.Model):
-    global_question_id = db.Column(db.String(120), primary_key=True)
+    global_question_id = db.Column(db.String(32), primary_key=True)
     id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(), nullable=False)
     answer_options = db.Column(db.String(), nullable=False)

@@ -15,6 +15,7 @@ from backend.conf.db_models import (
     Notification,
     QuestionaireAnswer,
     User,
+    Page,
     Comment,
     Questionaire,
     QuestionaireQuestion,
@@ -54,6 +55,50 @@ def db_insert_initial_users(*args, **kwargs):
         db_create_or_update(User, ["name"], user)
 
 
+def db_insert_pages(app, *args, **kwargs):
+    pages = extract_json_content(app, cfg.page_json)
+
+    for page in sorted(pages, key=lambda p: p["hierarchy"]):
+        default_title = "root" if page.get("hierarchy") == 0 else ""
+        params = page.get("params")
+
+        hidden = False
+        if hideopts := params.get("hideopts"):
+            if hideopts == "hidden":
+                hidden = True
+
+        new_page = {
+            "page_id": page["page_id"],
+            "page_title": page.get("params").get("title", default_title),
+            "language": page["language"],
+            "root_page_id": page["root_page"],
+            "params": json.dumps(page["params"]),
+            "hierarchy": page["hierarchy"],
+            "hidden": hidden,
+            # Force new linking in case the structure changed
+            "childs": [],
+            "parent": [],
+        }
+
+        db_create_or_update(Page, ["page_id"], new_page, nolog=True)
+        db.session.flush()
+
+        if len(page.get("parents")) > 1:
+            for parent_id in page["parents"]:
+                parent = generic_getter(Page, "page_id", parent_id)
+                child = generic_getter(Page, "page_id", page["page_id"])
+
+                if child not in parent.childs.all():
+                    parent.childs.append(generic_getter(Page, "page_id", page["page_id"]))
+                    db.session.flush()
+
+    # Remove orphans
+    for current in generic_getter(Page, all=True):
+        if not current.parent.all() and not current.childs.all():
+            db.session.delete(current)
+            db.session.flush()
+
+
 def db_insert_exercises(app, *args, **kwargs):
     exercises = extract_json_content(app, cfg.exercise_json)
     for exercise in exercises:
@@ -91,7 +136,7 @@ def db_insert_questionaires(app, *args, **kwargs):
                 db_create_or_update(QuestionaireQuestion, ["global_question_id", "language"], new_question)
 
 
-def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None) -> bool:
+def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None, nolog: bool = False) -> bool:
     # check if element already exists
     try:
         session = db.session.query(db_model)
@@ -109,7 +154,8 @@ def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict =
             if getattr(current_db_entry, key) != passed_element[key]:
                 setattr(current_db_entry, key, passed_element[key])
                 db.session.flush()
-                logger.info(f"Updated: {key}")
+                if not nolog:
+                    logger.info(f"Updated: {key}")
     else:
         # Create new
         new_element = db_model()
@@ -333,6 +379,56 @@ def db_get_comment_by_id(id: int) -> dict:
 
 def db_get_comments_by_userid(id: int) -> dict:
     return generic_getter(Comment, "user_id", id, all=True)
+
+
+def db_get_all_pages() -> dict:
+    return generic_getter(Page, all=True)
+
+
+def db_get_page_by_id(page_id) -> dict:
+    return generic_getter(Page, "page_id", page_id)
+
+
+def db_get_all_active_pages() -> dict:
+    active_pages = []
+    db_active_pages = generic_getter(Page, "hidden", False, all=True)
+    for page in db_active_pages:
+        hidden = False
+        for parent in page.parent.all():
+            if parent not in db_active_pages:
+                hidden = True
+        if not hidden:
+            active_pages.append(page)
+
+    return active_pages
+
+
+def get_direct_childs(page):
+    childs = {}
+    for child in page.childs.all():
+        if child.hierarchy <= page.hierarchy + 1:
+            childs[child.page_title] = {"page_id": child.page_id, "hidden": child.hidden, "childs": get_direct_childs(child)}
+    return childs
+
+
+def db_get_page_tree() -> dict:
+    tree_roots = generic_getter(Page, "hierarchy", 0, all=True)
+    tree = {}
+
+    for root in tree_roots:
+        if not root.page_title == "root":
+            tree[root.page_title] = {"page_id": root.page_id, "hidden": root.hidden, "childs": get_direct_childs(root)}
+
+    return tree
+
+
+def db_toggle_page_visibility(page_id):
+    page = generic_getter(Page, "page_id", page_id)
+    if page:
+        page.hidden = not page.hidden
+        db.session.commit()
+        return True
+    return False
 
 
 def db_get_exercise_groups() -> list:
