@@ -98,8 +98,7 @@
                 <div class="details-card-label">
                   {{ unescape(label) }}
                 </div>
-                <div class="details-card-input">
-                  {{ input }}
+                <div class="details-card-input" v-html="input">
                 </div>
               </div>
             </div>
@@ -258,5 +257,27 @@ export default {
 .divider {
   opacity: 0;
   margin: 1.6rem 0;
+}
+
+.details-card-input table {
+  width: 100%;
+  text-align: left;
+  border: 0px !important;
+  border-spacing: 0;
+
+  & tbody th {
+    font-size: 80%;
+    border-bottom: 2px solid #dddddd;
+    font-weight: 400;
+    background-color: #f6f6f6;
+    padding: 0.7rem 0.5rem;
+  }
+  & tbody tr td {
+    padding: 0.7rem 0.5rem;
+    margin: 0px !important;
+    background-color: #f6f6f6;
+    border-bottom: 1px solid #dddddd !important;
+  }
+
 }
 </style>
