@@ -1,4 +1,4 @@
-from strictyaml import Bool, EmptyDict, EmptyList, Int, Map, MapPattern, Optional, Seq, Str
+from strictyaml import Bool, EmptyDict, EmptyList, Int, Map, MapPattern, Optional, Seq, Str, Any
 
 config_schema = Map(
     {
@@ -86,6 +86,7 @@ config_schema = Map(
                             }
                         ),
                     ),
+                    Optional("meta"): Any(),
                 }
             ),
         ),
