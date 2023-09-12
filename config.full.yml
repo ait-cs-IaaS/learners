@@ -50,10 +50,13 @@ init_notifications:
           <h1>Notification 2</h1> Message content.
 
 tabs:
+    # Builtin tabs
     documentation:
         tooltip: 'custom tooltip'
     exercises: true
     presentations: false
+
+    # Custom tabs
     mitre:
         url: 'https://mitre-attack.github.io/attack-navigator/'
         icon: mitre
@@ -80,6 +83,12 @@ users:
                 username: 'vncusername'
                 password: 'vncpassword'
                 tooltip: 'soc client'
+        meta:
+            teams:
+                Alpha:
+                    channels:
+                        - 'Main'
+                        - 'Support'
     admin:
         password: admin
         role: instructor
@@ -91,3 +100,13 @@ users:
                 username: 'vncusername'
                 password: 'vncpassword'
                 tooltip: 'admin client'
+        meta:
+            teams:
+                Alpha:
+                    channels:
+                        - 'Main'
+                        - 'Support'
+                Beta:
+                    channels:
+                        - 'Main'
+                        - 'Support'
