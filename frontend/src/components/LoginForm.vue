@@ -51,15 +51,24 @@
                   </template>
                 </v-text-field>
 
-                <v-btn
-                  :disabled="!form"
-                  color="success"
-                  size="large"
-                  type="submit"
-                  variant="elevated"
-                >
-                  <SvgIcon name="arrow-left-on-rectangle" inline /> sign in
-                </v-btn>
+                <v-row class="ma-0">
+                  <v-btn
+                    :disabled="!form"
+                    color="success"
+                    size="large"
+                    type="submit"
+                    variant="elevated"
+                  >
+                    login
+                  </v-btn>
+                  <span
+                    v-if="error_msg"
+                    class="ml-4 d-flex justify-center align-center text-error"
+                  >
+                    <SvgIcon name="exclamation-triangle" inline />
+                    {{ error_msg }}
+                  </span>
+                </v-row>
               </v-form>
             </v-col>
           </v-row>
@@ -136,6 +145,7 @@ export default {
     this.welcomeText = "";
 
     store.dispatch("resetTabs");
+    store.dispatch("setError", "");
 
     const connectToServer = (ctx) => {
       let attemptCount = 1;
@@ -178,17 +188,6 @@ export default {
     connectToServer(this);
 
     setStyles(this);
-
-    // const response = await axios.get("setup/login");
-    // if (response) {
-    //   this.headline = response?.data.headline || "Welcome to Learners";
-    //   this.welcomeText = response?.data.welcomeText || "";
-    //   store.dispatch("resetTabs");
-    // } else {
-    //   this.headline = "Welcome to Learners";
-    //   this.welcomeText = "bla";
-    //   store.dispatch("resetTabs");
-    // }
   },
 };
 </script>

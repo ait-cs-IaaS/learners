@@ -30,7 +30,7 @@
                 type="submit"
                 variant="elevated"
               >
-                <SvgIcon name="arrow-right-on-rectangle" inline /> sign out
+                logout
               </v-btn>
             </v-form>
           </v-col>
@@ -41,15 +41,11 @@
 </template>
 
 <script lang="ts">
-import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
 import axios from "axios";
 
 export default {
   name: "LogoutForm",
-  components: {
-    SvgIcon,
-  },
   methods: {
     async submitHandler() {
       const response = await axios.post("logout");
