@@ -1,4 +1,4 @@
-from strictyaml import Bool, EmptyDict, EmptyList, Int, Map, MapPattern, Optional, Seq, Str, Any
+from strictyaml import Bool, EmptyDict, EmptyList, NullNone, Int, Map, MapPattern, Optional, Seq, Str, Any
 
 config_schema = Map(
     {
@@ -71,8 +71,6 @@ config_schema = Map(
             Map(
                 {
                     "password": Str(),
-                    Optional("groups"): Seq(Str()),
-                    Optional("admin", default=False): Bool(),
                     Optional("role", default="participant"): Str(),
                     Optional("vnc_clients"): MapPattern(
                         Str(),
@@ -90,12 +88,12 @@ config_schema = Map(
                 }
             ),
         ),
-        Optional("tabs", default={"documentation": True, "exercises": False, "presentations": False}): MapPattern(
+        Optional("tabs", default={"documentation": {"show": ["all"]}, "exercises": {"show": []}, "presentations": {"show": []}}): MapPattern(
             Str(),
-            Bool()
-            | EmptyDict()
+            EmptyDict()
             | Map(
                 {
+                    Optional("show", default=["all"]): NullNone() | EmptyList() | Seq(Str()),
                     Optional("tooltip"): Str(),
                     Optional("icon"): Str(),
                     Optional("url"): Str(),
@@ -109,11 +107,6 @@ config_schema = Map(
                 Optional("url", default=""): Str(),
             }
         ),
-        Optional("callback", default={"endpoint": "/callback"}): Map(
-            {
-                Optional("endpoint", default="/callback"): Str(),
-            }
-        ),
         Optional("novnc", default={"server": ""}): Map(
             {
                 Optional("server", default=""): Str(),
@@ -125,9 +118,6 @@ config_schema = Map(
                 Optional("serve_mode", default="role"): Str(),
             }
         ),
-        Optional("exercise_json", default="statics/hugo/exercises.json"): Str(),
-        Optional("questionaire_json", default="statics/hugo/questionaires.json"): Str(),
-        Optional("page_json", default="statics/hugo/pages.json"): Str(),
         Optional("init_notifications"): EmptyList()
         | Seq(
             Map(
