@@ -22,7 +22,7 @@ def after_request_func(response):
 @jwt_required()
 def getStaticFiles(path=""):
     # Load static defaults
-    static_root = cfg.static_base_url  # Directory holding the static sites
+    static_root = cfg.statics.get("base_url")  # Directory holding the static sites
 
     # Add "index.html" to path if empty or ends with "/"
     if not path or "." not in path:

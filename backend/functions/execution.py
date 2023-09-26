@@ -19,7 +19,7 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
                 {
                     "script": script,
                     "user_id": username,
-                    "callback": f"{cfg.callback.get('endpoint')}/{execution_uuid}",
+                    "callback": f"/callback/{execution_uuid}",
                 }
             ),
         )
