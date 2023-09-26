@@ -15,6 +15,7 @@ class Tab:
         url: string = None,
         index: numbers = 0,
         proxy: bool = False,
+        show: list = ["all"],
     ):
         self.id = name
         self._type = _type
@@ -38,13 +39,17 @@ def defaultUrl(id: string, user_role: string, language: string, base_url: string
 def defaultIcon(name: string) -> string:
     icon_map = {
         "documentation": "clipboard-document-list",
+        "hilfestellung": "clipboard-document-list",
         "exercises": "play-circle",
         "presentations": "presentation-chart-line",
+        "folien": "presentation-chart-line",
         "mitre": "mitre",
         "drawio": "drawio",
         "admin": "bookmark",
         "user": "user",
         "client": "tv",
+        "mattermost": "mattermost",
+        "injects": "book-open",
     }
 
     if name in icon_map:
