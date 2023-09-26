@@ -34,8 +34,12 @@ class Configuration:
 
         self.db_uri = learners_config.get("database").get("db_uri")
         self.novnc = {"server": learners_config.get("novnc").get("server")}
+
         self.users = json.loads(json.dumps(learners_config.get("users")).replace("DEFAULT-VNC-SERVER", self.novnc.get("server")))
-        [user.update({"admin": True}) for user in self.users.values() if user["role"] in ["admin", "instructor"]]
+
+        for _, user in self.users.items():
+            user.update({"admin": user["role"] in ["admin", "instructor"]})
+            user.update({"meta": json.dumps(user.get("meta", {}))})
 
         self.venjix = {
             "auth_secret": learners_config.get("venjix").get("auth_secret"),
@@ -43,7 +47,6 @@ class Configuration:
             "headers": {"Content-type": "application/json", "Authorization": f"Bearer {learners_config.get('venjix').get('auth_secret')}"},
         }
 
-        self.callback = {"endpoint": learners_config.get("callback").get("endpoint")}
         self.theme = learners_config.get("learners").get("theme")
 
         self.logo = learners_config.get("learners").get("logo")
@@ -53,20 +56,19 @@ class Configuration:
         self.landingpage = learners_config.get("learners").get("landingpage")
         self.language_code = learners_config.get("learners").get("language_code")
 
-        self.static_base_url = learners_config.get("statics").get("directory")
-        self.serve_mode = learners_config.get("statics").get("serve_mode")
-
-        self.exercise_json = learners_config.get("exercise_json")
-        self.questionaire_json = learners_config.get("questionaire_json")
-        self.page_json = learners_config.get("page_json")
+        self.statics = {
+            "base_url": learners_config.get("statics").get("directory"),
+            "serve_mode": learners_config.get("statics").get("serve_mode"),
+        }
 
         self.upload_folder = learners_config.get("learners").get("upload_folder")
         self.allowed_extensions = learners_config.get("learners").get("upload_extensions")
         self.init_notifications = learners_config.get("init_notifications") or []
 
         self.tabs = learners_config.get("tabs") or {}
-        # Remove falsified keys
-        self.tabs = {key: {} if isinstance(value, bool) else value for key, value in (self.tabs.items() or {}) if value is not False}
+        for tabname, tab in self.tabs.items():
+            if not tab.get("show"):
+                tab.update({"show": ["all"]})
 
 
 def build_config(app):
