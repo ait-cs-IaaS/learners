@@ -32,8 +32,12 @@ def db_insert_initial_usergroups(*args, **kwargs):
         db_user = db_get_user_by_name(username)
         usergroups = ["all"]
 
-        if "groups" in userDetails:
-            usergroups.extend(userDetails.get("groups") or [])
+        usergroups.append(f"{userDetails.get('role', '')}s")
+        if "instructor" in userDetails.get("role", ""):
+            usergroups.append("admins")
+
+        for g in json.loads(userDetails.get("meta")).get("groups", []):
+            usergroups.append(g)
 
         for group in usergroups:
             db_create_or_update(Usergroup, ["name"], {"name": group})
@@ -51,12 +55,13 @@ def db_insert_initial_usergroups(*args, **kwargs):
 
 def db_insert_initial_users(*args, **kwargs):
     for user_name, userDetails in cfg.users.items():
-        user = {"name": user_name, "role": userDetails.get("role"), "admin": userDetails.get("admin")}
+        user = {"name": user_name, "role": userDetails.get("role"), "admin": userDetails.get("admin"), "meta": userDetails.get("meta")}
         db_create_or_update(User, ["name"], user)
 
 
 def db_insert_pages(app, *args, **kwargs):
-    pages = extract_json_content(app, cfg.page_json)
+    page_json = f"{cfg.statics.get('base_url')}/hugo/pages.json"
+    pages = extract_json_content(app, page_json)
 
     for page in sorted(pages, key=lambda p: p["hierarchy"]):
         default_title = "root" if page.get("hierarchy") == 0 else ""
@@ -100,13 +105,15 @@ def db_insert_pages(app, *args, **kwargs):
 
 
 def db_insert_exercises(app, *args, **kwargs):
-    exercises = extract_json_content(app, cfg.exercise_json)
+    exercise_json = f"{cfg.statics.get('base_url')}/hugo/exercises.json"
+    exercises = extract_json_content(app, exercise_json)
     for exercise in exercises:
         db_create_or_update(Exercise, ["global_exercise_id"], exercise)
 
 
 def db_insert_questionaires(app, *args, **kwargs):
-    questionaires = extract_json_content(app, cfg.questionaire_json)
+    questionaire_json = f"{cfg.statics.get('base_url')}/hugo/questionaires.json"
+    questionaires = extract_json_content(app, questionaire_json)
     for questionaire in questionaires:
         new_questionaire = {
             "global_questionaire_id": questionaire["global_questionaire_id"],
@@ -403,21 +410,38 @@ def db_get_all_active_pages() -> dict:
     return active_pages
 
 
-def get_direct_childs(page):
+def get_direct_childs(page, usergroups):
     childs = {}
+
     for child in page.childs.all():
         if child.hierarchy <= page.hierarchy + 1:
-            childs[child.page_title] = {"page_id": child.page_id, "hidden": child.hidden, "childs": get_direct_childs(child)}
+            if "admins" in usergroups or any(group in usergroups for group in json.loads(child.params).get("groups", ["all"])):
+                hidden = child.hidden
+            else:
+                hidden = True
+
+            childs[f"{child.page_title}_{child.page_id}"] = {
+                "page_id": child.page_id,
+                "params": child.params,
+                "hidden": hidden,
+                "childs": get_direct_childs(child, usergroups),
+            }
+
     return childs
 
 
-def db_get_page_tree() -> dict:
+def db_get_page_tree(user) -> dict:
     tree_roots = generic_getter(Page, "hierarchy", 0, all=True)
     tree = {}
 
     for root in tree_roots:
         if not root.page_title == "root":
-            tree[root.page_title] = {"page_id": root.page_id, "hidden": root.hidden, "childs": get_direct_childs(root)}
+            tree[f"{root.page_title}_{root.page_id}"] = {
+                "page_id": root.page_id,
+                "params": root.params,
+                "hidden": root.hidden,
+                "childs": get_direct_childs(root, db_get_usergroups_by_user(user)),
+            }
 
     return tree
 
@@ -435,6 +459,22 @@ def db_get_exercise_groups() -> list:
     try:
         session = db.session.query(Exercise.parent_page_title).group_by(Exercise.parent_page_title).all()
         return [groupname for groupname, in session]
+    except Exception as e:
+        logger.exception(e)
+        return None
+
+
+def db_get_userids_by_usergroups(usergroups) -> list:
+    try:
+        userids = []
+        for groupname in usergroups:
+            group = generic_getter(Usergroup, "name", groupname)
+            if group:
+                for groupuser in group.users:
+                    userids.append(groupuser.user.id)
+
+        return userids
+
     except Exception as e:
         logger.exception(e)
         return None
@@ -464,6 +504,17 @@ def db_get_usergroup_by_name(groupname: str) -> list:
     except Exception as e:
         logger.exception(e)
         return None
+
+
+def db_get_usergroups_by_user(user: User) -> list:
+    try:
+        usergroups = []
+        for g in user.usergroups:
+            usergroups.append(g.usergroup.name)
+        return usergroups
+    except Exception as e:
+        logger.exception(e)
+        return []
 
 
 def db_get_exercises_by_group(parent_page_title: str) -> list:
