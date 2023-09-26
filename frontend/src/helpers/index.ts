@@ -182,3 +182,48 @@ function rgbToHex(r: number, g: number, b: number): string {
     .join("");
   return "#" + hex;
 }
+
+export const sortTree = (tree: any) => {
+  // Convert the tree to an array of objects
+  const treeArray = Object.entries(tree).map(([key, value]) => ({
+    key,
+    ...(value as any),
+  }));
+
+  // Sort the array based on 'weight' or 'title'
+  treeArray.sort((a, b) => {
+    if (
+      a.params &&
+      JSON.parse(a.params)["weight"] &&
+      b.params &&
+      JSON.parse(b.params)["weight"]
+    ) {
+      return (
+        JSON.parse(a.params)["weight"] - JSON.parse(b.params)["weight"] ||
+        JSON.parse(a.params)["title"].localeCompare(
+          JSON.parse(b.params)["title"]
+        )
+      );
+    } else {
+      return JSON.parse(a.params)["title"].localeCompare(
+        JSON.parse(b.params)["title"]
+      );
+    }
+  });
+
+  // Recursively sort child nodes
+  treeArray.forEach((node) => {
+    if (Object.keys(node.childs).length > 0) {
+      node.childs = sortTree(node.childs);
+    }
+  });
+
+  // Convert the sorted array back to an object
+  const sortedTree = {};
+  treeArray.forEach((node) => {
+    const { key, ...rest } = node;
+    sortedTree[key] = rest;
+  });
+
+  return sortedTree;
+};

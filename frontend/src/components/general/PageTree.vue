@@ -5,7 +5,7 @@
     multiple
   >
     <v-expansion-panel
-      v-for="(details, title) in pageTree"
+      v-for="(details, id) in pageTree"
       :key="details.page_id"
       :class="{
         'active-page': !details.hidden,
@@ -26,7 +26,34 @@
           />
         </v-btn>
 
-        <span v-html="title"></span>
+        <v-row class="tree-row">
+          <v-col>
+            <span v-html="JSON.parse(details.params)['title']"></span>
+          </v-col>
+
+          <v-col
+            cols="2"
+            class="text-right pr-5 mr-1"
+            v-if="JSON.parse(details.params)['groups'] !== 'undefinded'"
+          >
+            <span>{{ JSON.parse(details.params)["groups"] }}</span>
+          </v-col>
+
+          <v-col
+            cols="1"
+            class="weight-col"
+            v-if="
+              JSON.parse(details.params)['weight'] !== 'undefinded' && !topLevel
+            "
+          >
+            <span
+              >#
+              {{
+                String(JSON.parse(details.params)["weight"]).padStart(2, "0")
+              }}</span
+            >
+          </v-col>
+        </v-row>
 
         <template v-slot:actions="{ expanded }">
           <SvgIcon
@@ -55,7 +82,9 @@
     </v-expansion-panel>
   </v-expansion-panels>
 
-  <div v-if="Object.keys(pageTree).length === 0" class="no-data">No data.</div>
+  <div v-if="Object.keys(pageTree).length === 0" class="no-data">
+    No data yet.
+  </div>
 </template>
 <script lang="ts">
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
@@ -73,8 +102,6 @@ export default {
   },
   methods: {
     toggleVisibility(pageId) {
-      console.log("clicked");
-      console.log(pageId);
       this.emitChange(pageId);
     },
     emitChange(pageId) {
@@ -128,5 +155,15 @@ export default {
 
 .v-expansion-panel .v-btn:hover > .v-btn__overlay {
   opacity: 0;
+}
+
+.weight-col {
+  max-width: 60px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 0;
+  padding-left: 14px;
+  margin-right: 14px;
+  text-overflow: "+";
 }
 </style>

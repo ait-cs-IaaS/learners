@@ -47,6 +47,7 @@ import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import PageTree from "@/components/general/PageTree.vue";
 import axios from "axios";
 import { store } from "@/store";
+import { sortTree } from "@/helpers";
 
 export default {
   name: "PagesOverview",
@@ -85,7 +86,7 @@ export default {
       axios
         .get("pages")
         .then((res) => {
-          this.pageTree = res.data.pages;
+          this.pageTree = sortTree(res.data.pages);
         })
         .finally(() => {
           this.loading = false;
