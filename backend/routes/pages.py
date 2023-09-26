@@ -1,14 +1,15 @@
+import json
 from backend.classes.SSE import SSE_Event, sse
 from flask import Blueprint, jsonify, request
 from backend.functions.database import (
     db_create_notification,
-    db_get_all_userids,
     db_get_page_by_id,
     db_get_page_tree,
+    db_get_userids_by_usergroups,
     db_toggle_page_visibility,
 )
 from backend.jwt_manager import admin_required
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user, jwt_required
 
 pages_api = Blueprint("pages_api", __name__)
 
@@ -16,7 +17,7 @@ pages_api = Blueprint("pages_api", __name__)
 @pages_api.route("/pages", methods=["GET"])
 @jwt_required()
 def getPages():
-    pages = db_get_page_tree()
+    pages = db_get_page_tree(current_user)
     return jsonify(pages=pages)
 
 
@@ -26,6 +27,16 @@ def updatePage(page_id):
     notify = request.get_json().get("notify")
     updated = db_toggle_page_visibility(page_id)
     new_page = db_get_page_by_id(page_id)
+
+    sse_recipients = db_get_userids_by_usergroups(json.loads(new_page.params).get("groups", ["all"]))
+
+    newNotification = SSE_Event(
+        event="newContent",
+        recipients=sse_recipients,
+    )
+
+    # Notify Users
+    sse.publish(newNotification)
 
     if not new_page.hidden and notify:
         message = """
@@ -40,7 +51,7 @@ def updatePage(page_id):
         newNotification = SSE_Event(
             event="newNotification",
             message=message,
-            recipients=db_get_all_userids(),
+            recipients=sse_recipients,
         )
 
         # Create Database entry
