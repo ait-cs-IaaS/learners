@@ -1,3 +1,5 @@
+import json
+from backend.functions.database import db_get_usergroups_by_user
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, current_user, jwt_required
 from backend.classes.Tab import Tab
@@ -34,15 +36,15 @@ def getSidebar():
         return jsonify(tabs=None, landingpage=landingpage, logo=cfg.logo)
 
     tabs = []
+    usergroups = db_get_usergroups_by_user(current_user)
 
-    # tabs.append(Tab(id="user", _type="user").__dict__)
-
-    if current_user.admin:
+    if "admins" in usergroups:
         tabs.append(Tab(name="admin", _type="admin").__dict__)
         landingpage = "admin"
 
     for tab_id, tab_details in cfg.tabs.items():
-        tabs.append(Tab(name=tab_id, base_url=base_url, **tab_details).__dict__)
+        if "all" in tab_details.get("show", []) or any(group in usergroups for group in tab_details.get("show", [])):
+            tabs.append(Tab(name=tab_id, base_url=base_url, **tab_details).__dict__)
 
     if vnc_clients := cfg.users.get(current_user.name).get("vnc_clients"):
         multiple = len(vnc_clients) > 1
