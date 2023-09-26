@@ -7,6 +7,7 @@ class User(db.Model):
     name = db.Column(db.String(20), unique=True, nullable=False)
     role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     admin = db.Column(db.Integer, nullable=False, default=0)
+    meta = db.Column(db.String(), unique=False, nullable=True)
     executions = db.relationship("Execution", backref="user", lazy=True)
     usergroups = db.relationship("UsergroupAssociation", back_populates="user")
 
