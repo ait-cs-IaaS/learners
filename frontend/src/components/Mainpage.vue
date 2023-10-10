@@ -178,7 +178,7 @@ export default {
 
 <style lang="scss">
 .fade-leave-active {
-  transition: opacity 1s;
+  transition: opacity 500ms;
 }
 .fade-leave-to {
   opacity: 0;

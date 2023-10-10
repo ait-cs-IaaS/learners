@@ -8,24 +8,13 @@
         currentNotifications?.event == 'newComment',
     }"
   >
-    <div class="notification-grid">
-      <SvgIcon
-        name="check-circle"
-        notification
-        v-if="currentNotifications?.event == 'newSubmission'"
-      />
-      <SvgIcon
-        name="chat-bubble-bottom-center-text"
-        notification
-        v-if="currentNotifications?.event == 'newComment'"
-      />
-      <div
-        class="notification-content"
-        v-html="currentNotifications?.message"
-      ></div>
-    </div>
     <div class="notification-controls">
-      <v-tooltip location="top" text="previous" transition="fade-transition">
+      <v-tooltip
+        offset="16px"
+        location="top"
+        text="previous"
+        transition="fade-transition"
+      >
         <template #activator="{ props }">
           <v-btn
             class="notification-actions"
@@ -44,7 +33,12 @@
         </template>
       </v-tooltip>
 
-      <v-tooltip location="top" text="next" transition="fade-transition">
+      <v-tooltip
+        offset="16px"
+        location="top"
+        text="next"
+        transition="fade-transition"
+      >
         <template #activator="{ props }">
           <v-btn
             class="notification-actions"
@@ -62,7 +56,12 @@
           /></v-btn>
         </template>
       </v-tooltip>
-      <v-tooltip location="top" text="hide" transition="fade-transition">
+      <v-tooltip
+        offset="16px"
+        location="top"
+        text="hide"
+        transition="fade-transition"
+      >
         <template #activator="{ props }">
           <v-btn
             class="notification-actions"
@@ -80,6 +79,22 @@
           /></v-btn>
         </template>
       </v-tooltip>
+    </div>
+    <div class="notification-grid">
+      <SvgIcon
+        name="check-circle"
+        notification
+        v-if="currentNotifications?.event == 'newSubmission'"
+      />
+      <SvgIcon
+        name="chat-bubble-bottom-center-text"
+        notification
+        v-if="currentNotifications?.event == 'newComment'"
+      />
+      <div
+        class="notification-content"
+        v-html="currentNotifications?.message"
+      ></div>
     </div>
   </div>
 </template>
@@ -131,7 +146,7 @@ export default {
       this.contentChanging = true;
       setTimeout(() => {
         this.contentChanging = false;
-      }, 600);
+      }, 300);
     },
   },
 };
@@ -141,19 +156,19 @@ export default {
 .notification-container {
   position: absolute !important;
   background-color: rgba(0, 0, 0, 0.75);
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
   z-index: 99 !important;
   bottom: 14px !important;
   left: 74px !important;
-  // TODO: just for development:
-  // pointer-events: none;
-  padding: 24px;
+  pointer-events: none;
+  padding: 8px 8px 16px 16px;
   border-radius: 4px;
   min-width: 400px;
   max-width: 40%;
 
   &.animating {
-    animation: fade-in 600ms ease;
+    animation: fade-in 300ms ease;
   }
 
   &.submission {
@@ -180,27 +195,31 @@ export default {
 
 .v-btn.notification-actions {
   pointer-events: all;
-  height: calc(var(--v-btn-height) + 0px);
-  width: calc(var(--v-btn-height) + 6px);
+  height: 12px;
+  width: 28px;
+  margin-left: 4px;
   background: none;
+
+  & .v-btn__overlay,
+  .v-btn__underlay {
+    display: none;
+  }
 }
 .notification-content {
   color: white;
 }
 .notification-controls {
-  display: block;
-  // background-color: green;
-  position: absolute;
-  top: 0;
-  right: 0;
-  float: right;
-  clear: both;
-  height: 34px;
-  padding: 8px;
+  display: flex;
+  justify-content: end;
+  align-content: center;
+  width: 100%;
+  height: 30px;
+  padding: 4px;
   border-radius: 4px;
 }
 
 .notification-grid {
   display: flex;
+  width: 100%;
 }
 </style>
