@@ -12,7 +12,12 @@
       :currentQuestionaire="currentQuestionaire"
     />
 
-    <frame-pager v-for="tab in filteredTabs" :key="tab.id" :tab="tab" />
+    <frame-pager
+      v-for="tab in filteredTabs"
+      :key="tab.id"
+      :tab="tab"
+      :_event="serverEvent"
+    />
     <admin-area v-if="admin" />
     <!-- <user-area /> -->
   </div>
@@ -27,11 +32,7 @@ import Questionaire from "@/components/sub-components/Questionaire.vue";
 import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
-import {
-  extractNotifications,
-  extractQuestionaires,
-  setStyles,
-} from "@/helpers";
+import { setStyles, initSSE } from "@/helpers";
 
 // TODO: Add UserArea
 export default {
@@ -46,7 +47,10 @@ export default {
     return {
       notificationClosed: false,
       questionaireClosed: false,
+      sse_error: true,
       evtSource: EventSource as any,
+      serverEvent: Object as any,
+      iframes: [] as any,
     };
   },
   props: {
@@ -65,7 +69,7 @@ export default {
       this.notificationClosed = false;
       return (
         store.getters.getShowNotifications &&
-        store.getters.getNotificationsLength > 0 &&
+        store.getters.getNotifications.length > 0 &&
         this.$route.name != "Login"
       );
     },
@@ -85,62 +89,33 @@ export default {
     },
   },
   methods: {
-    initSSE() {
-      const jwt = store.getters.getJwt;
-      this.evtSource = new EventSource(
-        `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`
-      );
+    startSseSession(ctx) {
+      let attemptCount = 1;
 
-      this.evtSource.onopen = function () {
-        console.log("Connected to SSE source.");
+      const connectToStream = (context) => {
+        const jwt = store.getters.getJwt;
+        context.evtSource = new EventSource(
+          `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`
+        );
+
+        context.evtSource.onopen = function () {
+          console.log("Connected to SSE source.");
+          context.sse_error = false;
+          initSSE(context);
+        };
+
+        context.evtSource.onerror = function () {
+          console.log("Unable to establish SSE connection.");
+          context.sse_error = true;
+          setTimeout(() => {
+            attemptCount++;
+            console.log(attemptCount);
+            connectToStream(context);
+          }, 5000);
+        };
       };
 
-      this.evtSource.addEventListener("newNotification", (event) => {
-        this.notificationClosed = false;
-        const newNotification = extractNotifications(event.data);
-        newNotification.event = "newNotification";
-        // Store actions
-        store.dispatch("appendToNotifications", newNotification);
-        store.dispatch("setCurrentNotificationToLast");
-      });
-
-      this.evtSource.addEventListener("newSubmission", (event) => {
-        this.notificationClosed = false;
-        const newNotification = extractNotifications(event.data);
-        newNotification.event = "newSubmission";
-        // Store actions
-        store.dispatch("appendToNotifications", newNotification);
-        store.dispatch("setCurrentNotificationToLast");
-        store.dispatch("setAdminForceReload", "submissions");
-      });
-
-      this.evtSource.addEventListener("newComment", (event) => {
-        this.notificationClosed = false;
-        const newNotification = extractNotifications(event.data);
-        newNotification.event = "newComment";
-        // Store actions
-        store.dispatch("appendToNotifications", newNotification);
-        store.dispatch("setCurrentNotificationToLast");
-        store.dispatch("setAdminForceReload", "feedback");
-      });
-
-      this.evtSource.addEventListener("newQuestionaire", (event) => {
-        this.questionaireClosed = false;
-        const newQuestionaire = extractQuestionaires(event.data);
-        newQuestionaire.event = "newQuestionaire";
-        // Store actions
-        store.dispatch("appendToQuestionaires", newQuestionaire);
-        store.dispatch("setCurrentQuestionaireToLast");
-        store.dispatch("setAdminForceReload", "questionaire");
-      });
-
-      this.evtSource.addEventListener("newQuestionaireSubmission", (event) => {
-        store.dispatch("setAdminForceReload", "questionaire");
-      });
-
-      this.evtSource.onerror = function (error) {
-        console.error("Connecttion to SSE source lost.");
-      };
+      connectToStream(ctx);
     },
     closeSSE() {
       this.evtSource.close();
@@ -156,7 +131,7 @@ export default {
     setStyles(this);
   },
   mounted() {
-    this.initSSE();
+    this.startSseSession(this);
 
     // Get full list of notifications from server
     store.dispatch("getNotificationsFromServer");
@@ -166,6 +141,14 @@ export default {
 
     // Allow call to change drawio url
     window.addEventListener("message", this.setDrawIO);
+
+    const contentContainers = document.querySelectorAll(".content-container");
+    contentContainers.forEach((container) => {
+      const iframesInContainer = Array.from(
+        container.querySelectorAll("iframe")
+      );
+      this.iframes.push(...iframesInContainer);
+    });
   },
   beforeUnmount() {
     this.closeSSE();
