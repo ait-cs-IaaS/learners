@@ -193,7 +193,13 @@ export default {
 
       // Positions
       positions: ["all"],
-      positionOptions: ["documentation", "exercises", "clients", "all"],
+      positionOptions: [
+        "documentation",
+        "injects",
+        "exercises",
+        "clients",
+        "all",
+      ],
       // Message
       message: "",
     };

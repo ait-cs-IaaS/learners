@@ -4,8 +4,9 @@
     :class="{
       animating: animate,
       submission:
-        currentNotifications?.event == 'newSubmission' ||
-        currentNotifications?.event == 'newComment',
+        currentNotification?.event == 'submission' ||
+        currentNotification?.event == 'content' ||
+        currentNotification?.event == 'comment',
     }"
   >
     <div class="notification-controls">
@@ -84,16 +85,16 @@
       <SvgIcon
         name="check-circle"
         notification
-        v-if="currentNotifications?.event == 'newSubmission'"
+        v-if="currentNotification?.event == 'newSubmission'"
       />
       <SvgIcon
         name="chat-bubble-bottom-center-text"
         notification
-        v-if="currentNotifications?.event == 'newComment'"
+        v-if="currentNotification?.event == 'newComment'"
       />
       <div
         class="notification-content"
-        v-html="currentNotifications?.message"
+        v-html="currentNotification?.message"
       ></div>
     </div>
   </div>
@@ -114,20 +115,29 @@ export default {
     };
   },
   computed: {
-    currentNotifications() {
+    currentNotification() {
       let notifications = store.getters.getNotifications;
+      console.log(notifications);
+      const difference =
+        store.getters.getNotificationsLength - notifications.length;
+
       if (notifications) {
         let index = store.getters.getCurrentNotificationIndex;
+        index = Math.max(index - difference, 0);
         this.triggerAnimation();
         const currentNotification = notifications[index];
         if (
-          currentNotification?.event == "newSubmission" ||
-          currentNotification?.event == "newComment"
+          currentNotification?.event == "submission" ||
+          currentNotification?.event == "content" ||
+          currentNotification?.event == "comment"
         ) {
           setTimeout(() => {
             this.$emit("hide");
           }, 5000);
         }
+
+        console.log(notifications[index]);
+
         return notifications[index];
       }
     },
@@ -207,6 +217,7 @@ export default {
 }
 .notification-content {
   color: white;
+  width: 100%;
 }
 .notification-controls {
   display: flex;
