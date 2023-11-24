@@ -13,7 +13,16 @@ export default {
   },
 
   // Notifications
-  getNotifications: (state) => state.notifications || [],
+  getNotifications: (state) => {
+    const filteredNotifications = state.notifications.filter((item) => {
+      // Check positions argument
+      return (
+        item.positions.includes("all") ||
+        item.positions.includes(state.currentView)
+      );
+    });
+    return filteredNotifications;
+  },
   getCurrentNotificationIndex: (state) => state.currentNotificationIndex || 0,
   getShowNotifications: (state) => state.showNotifications,
   getNotificationsLength: (state) => {
