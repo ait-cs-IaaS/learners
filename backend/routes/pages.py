@@ -10,6 +10,7 @@ from backend.functions.database import (
 )
 from backend.jwt_manager import admin_required
 from flask_jwt_extended import current_user, jwt_required
+from backend.functions.helpers import sse_create_and_publish
 
 pages_api = Blueprint("pages_api", __name__)
 
@@ -31,7 +32,8 @@ def updatePage(page_id):
     sse_recipients = db_get_userids_by_usergroups(json.loads(new_page.params).get("groups", ["all"]))
 
     newNotification = SSE_Event(
-        event="newContent",
+        event="contentEvt",
+        message=db_get_page_tree(current_user),
         recipients=sse_recipients,
     )
 
@@ -39,25 +41,18 @@ def updatePage(page_id):
     sse.publish(newNotification)
 
     if not new_page.hidden and notify:
-        message = """
-            <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" style="width: 2rem;float: left;margin-right: 14px; margin-top: -2px;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-            Content update </h3><br>
-            """
-        message += f'New content: "{new_page.page_title}"'
+        sse_create_and_publish(event="content", page=new_page.page_title, recipients=sse_recipients)
 
-        newNotification = SSE_Event(
-            event="newNotification",
-            message=message,
-            recipients=sse_recipients,
-        )
+        # newNotification = SSE_Event(
+        #     event="content",
+        #     page=new_page.page_title,
+        #     recipients=sse_recipients,
+        # )
 
-        # Create Database entry
-        db_create_notification(newNotification)
+        # # Create Database entry
+        # db_create_notification(newNotification)
 
-        # Notify Users
-        sse.publish(newNotification)
+        # # Notify Users
+        # sse.publish(newNotification)
 
     return jsonify(updated=updated), 200 if updated else 406
