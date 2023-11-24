@@ -24,7 +24,7 @@ def postComment():
     page = data.get("page")
 
     if db_create_comment(comment=comment, page=page, user_id=current_user.id):
-        sse_create_and_publish(event="newComment", user=current_user, page=page)
+        sse_create_and_publish(event="comment", user=current_user, page=page)
         return jsonify(success=True), 200
 
     return jsonify(success=False), 500

@@ -11,6 +11,7 @@ from backend.functions.database import (
 from backend.functions.helpers import convert_to_dict
 from backend.jwt_manager import admin_required
 from backend.logger import logger
+from backend.functions.helpers import sse_create_and_publish
 
 notifications_api = Blueprint("notifications_api", __name__)
 
@@ -21,18 +22,12 @@ def postNotifications():
     try:
         formdata = request.get_json()
 
-        newNotification = SSE_Event(
-            event="newNotification",
+        sse_create_and_publish(
+            event="notification",
             message=formdata["message"],
             recipients=formdata["recipients"],
             positions=formdata["positions"],
         )
-
-        # Create Database entry
-        db_create_notification(newNotification)
-
-        # Notify Users
-        sse.publish(newNotification)
 
         return jsonify(success=True), 200
 
@@ -56,17 +51,12 @@ def postIngameNotifications():
         formdata = request.get_json()
 
         all_admins = [admin_user.id for admin_user in db_get_users_by_role("admin")]
-        newNotification = SSE_Event(
-            event="newNotification",
+
+        sse_create_and_publish(
+            event="notification",
             message=formdata["message"],
             recipients=all_admins,
         )
-
-        # Create Database entry
-        db_create_notification(newNotification)
-
-        # Notify Users
-        sse.publish(newNotification)
 
         return jsonify(success=True), 200
 

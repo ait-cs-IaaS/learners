@@ -52,7 +52,7 @@ def postExecution(exercise_type):
             response["connected"] = True
             response["executed"] = True
 
-    sse_create_and_publish(event="newSubmission", user=current_user, exercise=db_get_exercise_by_global_exercise_id(data.get("name")))
+    sse_create_and_publish(event="submission", user=current_user, exercise=db_get_exercise_by_global_exercise_id(data.get("name")))
 
     return jsonify(response)
 
@@ -152,7 +152,10 @@ def getAllSubmissions():
 def postFormExercise(global_exercise_id):
     response = SubmissionResponse()
 
+    print(global_exercise_id)
+
     data = request.get_json()
+    print(data)
     if db_create_execution("form", global_exercise_id, data, current_user.id, None):
         response.executed = True
         response.completed = True
