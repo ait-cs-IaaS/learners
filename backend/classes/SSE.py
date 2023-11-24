@@ -4,15 +4,26 @@ import string
 
 
 class SSE_Event:
-    def __init__(self, event: string = "", message: string = "", recipients: list = [], positions: list = ["all"], question: dict = {}):
+    def __init__(
+        self,
+        event: string = "",
+        _type: string = "",
+        message: string = "",
+        recipients: list = [],
+        positions: list = ["all"],
+        question: dict = {},
+    ):
         self.event = event
+        self._type = _type
         self.message = message
         self.positions = positions
         self.recipients = recipients
         self.question = question
 
     def toJson(self):
-        return json.dumps({"message": self.message, "positions": self.positions, "question": self.question})
+        return json.dumps(
+            {"event": self.event, "_type": self._type, "message": self.message, "positions": self.positions, "question": self.question}
+        )
 
 
 class SSE_Manager:
@@ -24,7 +35,7 @@ class SSE_Manager:
         self.listeners.append(q)
         return q
 
-    def publish(self, data: SSE_Event, event=None):
+    def publish(self, data: SSE_Event):
         for i in reversed(range(len(self.listeners))):
             try:
                 self.listeners[i].put_nowait(data)
