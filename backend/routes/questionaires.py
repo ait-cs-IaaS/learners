@@ -1,4 +1,3 @@
-from backend.classes.SSE import SSE_Event, sse
 from backend.jwt_manager import admin_required
 
 from flask import Blueprint, jsonify, request
@@ -11,8 +10,9 @@ from backend.functions.database import (
     db_get_grouped_questionaires,
     db_get_questionaire_question_by_global_question_id,
     db_get_questionaire_results_by_global_question_id,
-    db_get_users_by_role,
+    db_get_admin_users,
 )
+from backend.functions.helpers import sse_create_and_publish
 
 questionaires_api = Blueprint("questionaires_api", __name__)
 
@@ -52,15 +52,11 @@ def activateQuestion(global_question_id):
     if question := db_activate_questioniare_question(global_question_id=global_question_id):
         user_list = db_get_all_userids()
 
-        # Send SSE event
-        newQuestionaire = SSE_Event(
-            event="newQuestionaire",
+        sse_create_and_publish(
+            event="questionaire",
             question=question,
             recipients=user_list,
         )
-
-        # Notify Users
-        sse.publish(newQuestionaire)
 
         return jsonify(success=True), 200
 
@@ -75,14 +71,12 @@ def submitQuestion(global_question_id):
 
     if db_create_questionaire_answer(global_question_id=global_question_id, answers=answers, user_id=current_user.id):
         # Send SSE event
-        newQuestionaire = SSE_Event(
-            event="newQuestionaireSubmission",
-            question=global_question_id,
-            recipients=[admin_user.id for admin_user in db_get_users_by_role("admin")],
-        )
 
-        # Notify Users
-        sse.publish(newQuestionaire)
+        sse_create_and_publish(
+            event="questionaireSubmission",
+            question=global_question_id,
+            recipients=[admin_user.id for admin_user in db_get_admin_users()],
+        )
 
         return jsonify(success=True), 200
 

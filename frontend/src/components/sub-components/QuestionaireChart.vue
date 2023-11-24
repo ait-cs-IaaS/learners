@@ -19,6 +19,9 @@ import { store } from "@/store";
 
 export default {
   name: "QuestionaireChart",
+  components: {
+    apexchart: VueApexCharts,
+  },
   props: {
     questionaireId: { type: String, require: true },
   },

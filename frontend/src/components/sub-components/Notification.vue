@@ -4,9 +4,9 @@
     :class="{
       animating: animate,
       submission:
-        currentNotification?.event == 'submission' ||
-        currentNotification?.event == 'content' ||
-        currentNotification?.event == 'comment',
+        currentNotification?._type == 'submission' ||
+        currentNotification?._type == 'content' ||
+        currentNotification?._type == 'comment',
     }"
   >
     <div class="notification-controls">
@@ -85,12 +85,12 @@
       <SvgIcon
         name="check-circle"
         notification
-        v-if="currentNotification?.event == 'newSubmission'"
+        v-if="currentNotification?._type == 'submission'"
       />
       <SvgIcon
         name="chat-bubble-bottom-center-text"
         notification
-        v-if="currentNotification?.event == 'newComment'"
+        v-if="currentNotification?._type == 'comment'"
       />
       <div
         class="notification-content"
@@ -127,9 +127,9 @@ export default {
         this.triggerAnimation();
         const currentNotification = notifications[index];
         if (
-          currentNotification?.event == "submission" ||
-          currentNotification?.event == "content" ||
-          currentNotification?.event == "comment"
+          currentNotification?._type == "submission" ||
+          currentNotification?._type == "content" ||
+          currentNotification?._type == "comment"
         ) {
           setTimeout(() => {
             this.$emit("hide");

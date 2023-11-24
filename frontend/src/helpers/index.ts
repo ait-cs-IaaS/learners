@@ -39,6 +39,7 @@ export const extractNotifications = (responseData) => {
     newNotifications = (responseData || []).map((newNotification) => {
       return <INotificationObject>{
         event: `${newNotification?.event}`,
+        _type: `${newNotification?._type}`,
         message: `${newNotification?.message}`,
         positions: newNotification?.positions,
       };
@@ -46,6 +47,7 @@ export const extractNotifications = (responseData) => {
   } else {
     newNotifications = <INotificationObject>{
       event: `${JSON.parse(responseData)?.event}`,
+      _type: `${JSON.parse(responseData)?._type}`,
       message: `${JSON.parse(responseData)?.message}`,
       positions: JSON.parse(responseData)?.positions,
     };
@@ -133,8 +135,6 @@ export const setStyles = async (root) => {
   for (const colorName in colors) {
     root.$vuetify.theme.themes.light.colors[colorName] = colors[colorName];
   }
-
-  const styles = store.getters.getTheme;
 };
 
 export const generateColorScale = (steps: number): string[] => {
@@ -229,93 +229,47 @@ export const sortTree = (tree: any) => {
 };
 
 export const initSSE = (ctx) => {
-  ctx.evtSource.addEventListener("contentEvt", (event) => {
+  ctx.evtSource.addEventListener("content", (event) => {
     // Broadcast to all iFrames
     ctx.iframes.forEach((_iframe) => {
-      console.log(_iframe);
       const pages = JSON.parse(event.data).message;
-      console.log("post message");
       _iframe.contentWindow.postMessage(pages, new URL(_iframe.src).origin);
     });
-    // const _openedTabs = store.getters.getOpenedTabs || [];
-    // _openedTabs.forEach((_openedTab) => {
-    //   // console.log(_openedTab);
-    //   const pages = JSON.parse(event.data).message;
-    //   console.log("1: ", _openedTab);
-    //   console.log("2: ", _openedTab.src);
-    //   console.log("3: ", _openedTab.origin);
-    //   console.log("4: ", new URL(_openedTab.origin));
-    //   // _openedTab.postMessage(pages, new URL(_openedTab.src).origin);
-    // });
   });
 
   ctx.evtSource.addEventListener("notification", (event) => {
     ctx.notificationClosed = false;
-    const newNotification = extractNotifications(event.data);
-    newNotification.event = "notification";
-    // Store actions
-    store.dispatch("appendToNotifications", newNotification);
+    console.log("event: ", event);
+    console.log("data: ", event.data);
+    const notification = extractNotifications(event.data);
+    console.log("notification: ", notification);
+
+    store.dispatch("appendToNotifications", notification);
     store.dispatch("setCurrentNotificationToLast");
 
-    // // Broadcast to all iFrames
-    // ctx.iframes.forEach((_iframe) => {
-    //   let serverEvent = { new_data: event.data };
-    //   _iframe.contentWindow.postMessage(
-    //     serverEvent,
-    //     new URL(_iframe.src).origin
-    //   );
-    // });
+    switch (notification._type) {
+      case "submission":
+        store.dispatch("setAdminForceReload", "submissions");
+        break;
+      case "comment":
+        store.dispatch("setAdminForceReload", "feedback");
+        break;
+      default:
+      //
+    }
   });
 
-  ctx.evtSource.addEventListener("content", (event) => {
-    ctx.notificationClosed = false;
-    const newNotification = extractNotifications(event.data);
-    newNotification.event = "content";
-    // Store actions
-    store.dispatch("appendToNotifications", newNotification);
-    store.dispatch("setCurrentNotificationToLast");
-
-    // // Broadcast to all iFrames
-    // ctx.iframes.forEach((_iframe) => {
-    //   let serverEvent = { new_data: event.data };
-    //   _iframe.contentWindow.postMessage(
-    //     serverEvent,
-    //     new URL(_iframe.src).origin
-    //   );
-    // });
-  });
-
-  ctx.evtSource.addEventListener("submission", (event) => {
-    ctx.notificationClosed = false;
-    const newNotification = extractNotifications(event.data);
-    newNotification.event = "submission";
-    // Store actions
-    store.dispatch("appendToNotifications", newNotification);
-    store.dispatch("setCurrentNotificationToLast");
-    store.dispatch("setAdminForceReload", "submissions");
-  });
-
-  ctx.evtSource.addEventListener("comment", (event) => {
-    ctx.notificationClosed = false;
-    const newNotification = extractNotifications(event.data);
-    newNotification.event = "comment";
-    // Store actions
-    store.dispatch("appendToNotifications", newNotification);
-    store.dispatch("setCurrentNotificationToLast");
-    store.dispatch("setAdminForceReload", "feedback");
-  });
-
-  ctx.evtSource.addEventListener("newQuestionaire", (event) => {
+  ctx.evtSource.addEventListener("questionaire", (event) => {
     ctx.questionaireClosed = false;
     const newQuestionaire = extractQuestionaires(event.data);
-    newQuestionaire.event = "newQuestionaire";
     // Store actions
     store.dispatch("appendToQuestionaires", newQuestionaire);
     store.dispatch("setCurrentQuestionaireToLast");
     store.dispatch("setAdminForceReload", "questionaire");
   });
 
-  ctx.evtSource.addEventListener("newQuestionaireSubmission", (event) => {
+  ctx.evtSource.addEventListener("questionaireSubmission", (event) => {
+    console.log("new sub");
     store.dispatch("setAdminForceReload", "questionaire");
   });
 

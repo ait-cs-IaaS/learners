@@ -32,7 +32,8 @@ def updatePage(page_id):
     sse_recipients = db_get_userids_by_usergroups(json.loads(new_page.params).get("groups", ["all"]))
 
     newNotification = SSE_Event(
-        event="contentEvt",
+        event="content",
+        _type="content",
         message=db_get_page_tree(current_user),
         recipients=sse_recipients,
     )
@@ -41,7 +42,7 @@ def updatePage(page_id):
     sse.publish(newNotification)
 
     if not new_page.hidden and notify:
-        sse_create_and_publish(event="content", page=new_page.page_title, recipients=sse_recipients)
+        sse_create_and_publish(_type="content", page=new_page.page_title, recipients=sse_recipients)
 
         # newNotification = SSE_Event(
         #     event="content",

@@ -23,7 +23,7 @@ def postNotifications():
         formdata = request.get_json()
 
         sse_create_and_publish(
-            event="notification",
+            _type="notification",
             message=formdata["message"],
             recipients=formdata["recipients"],
             positions=formdata["positions"],
@@ -53,7 +53,7 @@ def postIngameNotifications():
         all_admins = [admin_user.id for admin_user in db_get_users_by_role("admin")]
 
         sse_create_and_publish(
-            event="notification",
+            _type="notification",
             message=formdata["message"],
             recipients=all_admins,
         )

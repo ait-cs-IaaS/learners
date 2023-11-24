@@ -90,22 +90,30 @@ def replace_attachhment_with_url(formData):
 
 
 def sse_create_and_publish(
-    event: str = "notificationEvt", message: str = "", user=None, page=None, exercise=None, recipients=None, positions=None
+    event: str = "notification",
+    _type: str = "standard",
+    message: str = "",
+    user=None,
+    page=None,
+    exercise=None,
+    recipients=None,
+    positions=None,
+    question=None,
 ) -> bool:
     # Import
     from backend.classes.SSE import SSE_Event, sse
     from backend.functions.database import db_create_notification, db_get_admin_users
 
     # Conditional publishing
-    if event == "submission":
+    if _type == "submission":
         message = f"<h4>New submission</h4>User: {user.name}<br>Exercise: {exercise.exercise_name}"
         recipients = [admin_user.id for admin_user in db_get_admin_users()]
 
-    if event == "comment":
+    if _type == "comment":
         message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page}"
         recipients = [admin_user.id for admin_user in db_get_admin_users()]
 
-    if event == "content":
+    if _type == "content":
         message = """
             <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" style="width: 1.5rem; float: left;margin-right: 10px; margin-top: -2px;">
@@ -118,7 +126,7 @@ def sse_create_and_publish(
     if not positions:
         positions = ["all"]
 
-    new_event = SSE_Event(event=event, message=message, recipients=recipients, positions=positions)
+    new_event = SSE_Event(event=event, _type=_type, message=message, question=question, recipients=recipients, positions=positions)
 
     # Create Database entry
     db_create_notification(new_event)

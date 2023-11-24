@@ -25,6 +25,7 @@ export interface IExerciseObject {
 
 export interface INotificationObject {
   event: string;
+  _type: string;
   message: string;
   positions: Array<string>;
 }
