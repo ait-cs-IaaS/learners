@@ -30,10 +30,8 @@ export default {
     NotificationsOverview,
     FeedbackOverview,
   },
-  computed: {
-    currentView() {
-      return store.getters.getCurrentView;
-    },
+  props: {
+    currentView: { type: String, require: false, default: "" },
   },
   methods: {
     triggerUpdate(tab) {

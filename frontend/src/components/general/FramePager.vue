@@ -61,6 +61,7 @@ export default {
   name: "FramePager",
   props: {
     tab: { type: Object as PropType<ITabObject>, require: true, default: null },
+    currentView: { type: String, require: false, default: "" },
   },
   components: {
     Loader,
@@ -73,9 +74,6 @@ export default {
     };
   },
   computed: {
-    currentView() {
-      return store.getters.getCurrentView;
-    },
     iframeSrc() {
       const jwt = store.getters.getJwt;
       let src =

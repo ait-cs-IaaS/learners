@@ -1,5 +1,9 @@
 <template>
-  <div class="d-flex flex-column pb-2" style="height: 100%">
+  <div
+    id="sidebar-wrapper"
+    class="d-flex flex-column pb-2"
+    style="height: 100%"
+  >
     <!-- eslint-disable vue/no-v-html -->
     <v-tooltip :text="authTooltip" transition="slide-x-transition">
       <template #activator="{ props }">
@@ -16,7 +20,12 @@
     </v-tooltip>
     <!--eslint-enable-->
     <div class="pt-5 mb-auto d-flex flex-column">
-      <tab-icon v-for="tab in tabs" :key="tab.id" :tab="tab" />
+      <tab-icon
+        v-for="tab in tabs"
+        :key="tab.id"
+        :tab="tab"
+        :currentView="currentView"
+      />
     </div>
     <!-- Footer -->
     <div class="mt-auto">
@@ -94,6 +103,7 @@ export default {
   },
   props: {
     tabs: Array<ITabObject>,
+    currentView: { type: String, require: false, default: "" },
   },
   computed: {
     logoSvg: () => store.getters.getLogo,
@@ -107,31 +117,30 @@ export default {
       else store.dispatch("enableNotifications");
     },
     openNewTab() {
-      const currentView = store.getters.getCurrentView;
-
-      if (currentView === "admin") return false;
+      console.log(window.location);
 
       const activeTab = this.tabs?.find((tab) => {
-        return tab.id === currentView;
+        return tab.id === this.currentView;
       });
 
-      if (activeTab) {
-        const activeIFrame = document.getElementById(activeTab.id);
+      let url = window.location.href;
 
+      if (activeTab) {
         if (activeTab._type === "client") {
+          const activeIFrame = document.getElementById(activeTab.id);
+
+          // Unload client iFrame
           if (activeIFrame) {
             activeIFrame.setAttribute("src", "");
           }
+
+          // Register opened tab
           store.dispatch("setOpendInTab", {
             tabId: activeTab.id,
             opened: true,
           });
-        }
 
-        let url = activeIFrame?.getAttribute("src") || activeTab.url;
-        const splitArray = url.split("/proxy/");
-        if (splitArray.length > 1) {
-          url = splitArray[1];
+          url = activeIFrame?.getAttribute("src") || activeTab.url;
         }
 
         let newTab = window.open(url, "_blank");

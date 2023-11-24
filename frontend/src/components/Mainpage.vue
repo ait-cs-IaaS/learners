@@ -16,9 +16,9 @@
       v-for="tab in filteredTabs"
       :key="tab.id"
       :tab="tab"
-      :_event="serverEvent"
+      :currentView="currentView"
     />
-    <admin-area v-if="admin" />
+    <admin-area v-if="admin" :currentView="currentView" />
     <!-- <user-area /> -->
   </div>
 </template>
@@ -55,6 +55,7 @@ export default {
   },
   props: {
     tabs: { type: Array<ITabObject>, require: true },
+    currentView: { type: String, require: false, default: "" },
   },
   computed: {
     admin() {
@@ -77,7 +78,7 @@ export default {
       return (
         store.getters.getShowQuestionaires &&
         store.getters.getQuestionairesLength > 0 &&
-        store.getters.getCurrentView === "presentations"
+        this.currentView === "presentations"
       );
     },
     currentQuestionaire() {
@@ -149,6 +150,9 @@ export default {
       );
       this.iframes.push(...iframesInContainer);
     });
+
+    // const pParam = this.$route.query.p;
+    // if (pParam) store.dispatch("setCurrentView", pParam);
   },
   beforeUnmount() {
     this.closeSSE();

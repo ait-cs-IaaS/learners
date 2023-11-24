@@ -45,17 +45,11 @@ export default {
   },
   props: {
     tab: { type: Object as PropType<ITabObject>, require: true, default: null },
-  },
-
-  computed: {
-    currentView() {
-      return store.getters.getCurrentView;
-    },
+    currentView: { type: String, require: false, default: "" },
   },
   methods: {
     async changeView() {
-      this.$router.push("/");
-      await store.dispatch("setCurrentView", this.tab.id);
+      this.$router.push(`/#${this.tab.id}`);
     },
   },
 };
