@@ -55,7 +55,11 @@ export default {
   },
   props: {
     tabs: { type: Array<ITabObject>, require: true },
-    currentView: { type: String, require: false, default: "" },
+    currentView: {
+      type: String,
+      require: false,
+      default: store.getters.getCurrentView,
+    },
   },
   computed: {
     admin() {
@@ -150,9 +154,6 @@ export default {
       );
       this.iframes.push(...iframesInContainer);
     });
-
-    // const pParam = this.$route.query.p;
-    // if (pParam) store.dispatch("setCurrentView", pParam);
   },
   beforeUnmount() {
     this.closeSSE();

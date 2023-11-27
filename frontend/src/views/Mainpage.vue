@@ -1,5 +1,5 @@
 <template>
-  <mainpage :current-view="true" />
+  <mainpage />
 </template>
 
 <script lang="ts" setup>

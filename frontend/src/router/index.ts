@@ -1,4 +1,3 @@
-// Composables
 import { createRouter, createWebHistory } from "vue-router";
 import { store } from "@/store";
 import axios from "axios";
@@ -12,6 +11,7 @@ const routes = [
   {
     path: "/",
     component: Default,
+    props: (route) => ({ routeHash: route.hash || "" }),
     children: [
       {
         path: "",

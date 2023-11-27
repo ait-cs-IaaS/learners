@@ -107,6 +107,7 @@ export default {
     return {
       headline: "",
       welcomeText: "",
+      landingpage: "",
       showPassword: false,
       form: false,
       username: null,
@@ -116,6 +117,13 @@ export default {
       loadingText: "Connecting to server ...",
       errorText: "",
     };
+  },
+  props: {
+    currentView: {
+      type: String,
+      require: false,
+      default: store.getters.getCurrentView,
+    },
   },
   computed: {
     error_msg: () => store.getters.getError,
@@ -132,7 +140,7 @@ export default {
       if (jwt) {
         store.dispatch("setJwt", jwt);
         axios.defaults.headers.common["Authorization"] = "Bearer " + jwt;
-        this.$router.push("/");
+        this.$router.push(`/#${this.landingpage}`);
       } else {
         store.dispatch("unsetJwt");
         axios.defaults.headers.common["Authorization"] = "";
@@ -141,9 +149,6 @@ export default {
     },
   },
   async beforeMount() {
-    this.headline = "Login";
-    this.welcomeText = "";
-
     store.dispatch("resetTabs");
     store.dispatch("setError", "");
 
@@ -159,9 +164,9 @@ export default {
             context.welcomeText = response?.data.welcomeText || "";
             context.loaded = true;
             context.error = false;
+            context.landingpage = response?.data.landingpage;
           })
           .catch((error) => {
-            console.log(context);
             context.error = true;
             if (error.response) {
               context.errorText = `Encounted error on server: <br> <strong>${error.response.status}</strong> <br> ${error.response.data} <br><br> Retrying in 5 seconds ... (${attemptCount})`;
@@ -176,7 +181,6 @@ export default {
             }
             setTimeout(() => {
               attemptCount++;
-              console.log(attemptCount);
               makeConnection(context);
             }, 5000);
           });

@@ -28,9 +28,16 @@ export default {
   },
   data() {
     return {
-      currentView: "",
       loaded: false,
+      currentView: "",
     };
+  },
+  props: {
+    routeHash: {
+      type: String,
+      required: false,
+      default: "",
+    },
   },
   computed: {
     tabs: () => store.getters.getTabs,
@@ -41,20 +48,20 @@ export default {
   watch: {
     "$route.hash": {
       handler(new_state, old_state) {
-        if (new_state != undefined) {
-          const view_id = new_state.substring(1);
-          const tabs = store.getters.getTabs;
-          console.log(tabs);
-          if (tabs.length) {
-            if (tabs.some((tab) => tab.id === view_id)) {
-              this.currentView = view_id;
-              store.dispatch("setCurrentView", view_id);
-            } else {
-              this.currentView = tabs[0].id;
-              store.dispatch("setCurrentView", tabs[0].id);
-            }
-          }
+        const tabs = store.getters.getTabs;
+
+        // Set new view_id when routehash, currentView or query changed
+        let view_id = new_state
+          ? new_state.substring(1)
+          : this.routeHash || store.getters.getCurrentView || "";
+
+        // Verify the id exists in tabs, if not choose the first tab
+        if (tabs.length && !tabs.some((tab) => tab.id === view_id)) {
+          view_id = tabs[0].id;
         }
+
+        this.currentView = view_id;
+        store.dispatch("setCurrentView", view_id);
       },
       immediate: true,
     },
