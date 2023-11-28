@@ -229,16 +229,19 @@ export const sortTree = (tree: any) => {
 };
 
 export const initVisibility = async (ctx) => {
-  const visibilityData = await axios.get("/pages")
-  const pages = visibilityData.data.pages
+  const visibilityData = await axios.get("/pages");
+  const pages = visibilityData.data.pages;
   ctx.iframes.forEach((_iframe) => {
     const functionCall = {
       function: "visibility",
       data: pages,
     };
-    _iframe.contentWindow.postMessage(functionCall, new URL(_iframe.src).origin);
+    _iframe.contentWindow.postMessage(
+      functionCall,
+      new URL(_iframe.src).origin
+    );
   });
-}
+};
 
 export const initSSE = (ctx) => {
   ctx.evtSource.addEventListener("content", (event) => {
@@ -248,7 +251,10 @@ export const initSSE = (ctx) => {
         function: "visibility",
         data: JSON.parse(event.data).message,
       };
-      _iframe.contentWindow.postMessage(functionCall, new URL(_iframe.src).origin);
+      _iframe.contentWindow.postMessage(
+        functionCall,
+        new URL(_iframe.src).origin
+      );
     });
   });
 
