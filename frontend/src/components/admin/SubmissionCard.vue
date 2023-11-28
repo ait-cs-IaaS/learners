@@ -55,19 +55,14 @@
                 missing: String(input).length < 1,
               }"
             >
-              <div v-if="String(label) == 'drawio-input'">
+              <div v-if="String(label).startsWith('drawio_')">
                 <div class="details-card-label">
                   {{ unescape(label) }}
                 </div>
-                <iframe
-                  class="drawio-preview"
-                  style="width: 100%; height: 35vw"
-                  :src="`https://viewer.diagrams.net/${input}`"
-                  frameborder="0"
-                ></iframe>
+                <object :data="`${input}`" type="image/svg+xml"></object>
                 <a
                   class="open-in-new-tab-link"
-                  :href="`https://app.diagrams.net/${input}`"
+                  @click="openInNewTab(input)"
                   target="_blank"
                 >
                   <SvgIcon name="arrow-top-right-on-square" inline />
@@ -146,6 +141,11 @@ export default {
     unescape(_string) {
       return _string.replaceAll("_", " ");
     },
+    openInNewTab(object_data) {
+      const newTab = window.open();
+      newTab?.document.write('<html><body style="margin: 0;"><img src="' + object_data + '" alt="SVG Image"></body></html>');
+      newTab?.document.close();
+    }
   },
   async beforeMount() {
     this.loading = true;
@@ -220,6 +220,13 @@ export default {
     border-left: 5px solid #9e9e9e;
     background-color: #ececec;
   }
+  object {
+    background-color: #fff;
+    padding: 30px;
+    margin: 30px auto;
+    width: 90%;
+    display: block;
+  }
 }
 
 .details-card-label {
@@ -245,6 +252,7 @@ export default {
   text-decoration: none;
   color: rgb(var(--v-theme-secondary));
   transition: 200ms ease;
+  cursor: pointer;
 
   &:hover {
     background-color: rgba(var(--v-theme-secondary), 0.07);
