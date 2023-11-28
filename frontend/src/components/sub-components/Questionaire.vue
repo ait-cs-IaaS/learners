@@ -1,6 +1,6 @@
 <template>
   <div
-    class="questionaire-container"
+    class="questionnaire-container"
     :class="{
       animating: animate,
     }"
@@ -9,21 +9,21 @@
       <v-form @submit.prevent="submitHandler">
         <v-row>
           <v-col>
-            <h2>Q{{ currentQuestionaire?.id }}</h2>
+            <h2>Q{{ currentQuestionnaire?.id }}</h2>
           </v-col>
         </v-row>
         <v-row>
-          <v-col>{{ currentQuestionaire?.question }} </v-col>
+          <v-col>{{ currentQuestionnaire?.question }} </v-col>
         </v-row>
         <v-row>
           <v-item-group
             v-model="selectedAnswers"
-            :multiple="currentQuestionaire?.multiple"
+            :multiple="currentQuestionnaire?.multiple"
             style="width: 100%"
             class="pr-3"
           >
             <v-col
-              v-for="answer in currentQuestionaire?.answers"
+              v-for="answer in currentQuestionnaire?.answers"
               :key="answer"
               cols="12"
               class="py-1"
@@ -67,12 +67,12 @@
 <script lang="ts">
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
-import { IQuestionaireQuestionObject } from "@/types";
+import { IQuestionnaireQuestionObject } from "@/types";
 import axios from "axios";
 import { PropType } from "vue";
 
 export default {
-  name: "Questionaire",
+  name: "Questionnaire",
   components: {
     SvgIcon,
   },
@@ -83,8 +83,8 @@ export default {
     };
   },
   props: {
-    currentQuestionaire: {
-      type: Object as PropType<IQuestionaireQuestionObject>,
+    currentQuestionnaire: {
+      type: Object as PropType<IQuestionnaireQuestionObject>,
       require: true,
     },
   },
@@ -97,14 +97,14 @@ export default {
     async submitHandler() {
       if (this.selectedAnswers === undefined) return;
       const response = await axios.post(
-        `questionaires/questions/${this.currentQuestionaire?.global_question_id}`,
+        `questionnaires/questions/${this.currentQuestionnaire?.global_question_id}`,
         {
           answers: this.selectedAnswers,
         }
       );
       store.dispatch(
-        "removeQuestionaire",
-        this.currentQuestionaire?.global_question_id
+        "removeQuestionnaire",
+        this.currentQuestionnaire?.global_question_id
       );
     },
     triggerAnimation() {
@@ -115,7 +115,7 @@ export default {
     },
   },
   watch: {
-    currentQuestionaire: function (newVal, oldVal) {
+    currentQuestionnaire: function (newVal, oldVal) {
       this.selectedAnswers = undefined;
       this.triggerAnimation();
     },
@@ -124,7 +124,7 @@ export default {
 </script>
 
 <style lang="scss">
-.questionaire-container {
+.questionnaire-container {
   position: absolute !important;
   background-color: rgb(var(--v-theme-secondary));
   display: block;
@@ -166,7 +166,7 @@ export default {
   }
 }
 
-.questionaire-grid {
+.questionnaire-grid {
   display: flex;
 }
 </style>

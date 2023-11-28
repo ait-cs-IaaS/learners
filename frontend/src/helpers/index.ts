@@ -2,7 +2,7 @@ import { store } from "@/store";
 import {
   INotificationObject,
   ITabObject,
-  IQuestionaireQuestionObject,
+  IQuestionnaireQuestionObject,
 } from "@/types/index";
 import axios from "axios";
 
@@ -56,25 +56,25 @@ export const extractNotifications = (responseData) => {
   return newNotifications;
 };
 
-export const extractQuestionaires = (responseData) => {
-  let newQuestionaires;
+export const extractQuestionnaires = (responseData) => {
+  let newQuestionnaires;
 
   if (Array.isArray(responseData)) {
-    newQuestionaires = (responseData || []).map((newQuestionaire) => {
-      // event: `${newQuestionaire?.event}`,
-      return <IQuestionaireQuestionObject>{
-        id: newQuestionaire?.id,
-        question: newQuestionaire?.question,
-        multiple: newQuestionaire?.multiple,
-        answers: JSON.parse(newQuestionaire?.answer_options),
-        language: newQuestionaire?.language,
-        global_question_id: newQuestionaire?.global_question_id,
-        global_questionaire_id: newQuestionaire?.global_questionaire_id,
-        page_title: newQuestionaire?.page_title,
+    newQuestionnaires = (responseData || []).map((newQuestionnaire) => {
+      // event: `${newQuestionnaire?.event}`,
+      return <IQuestionnaireQuestionObject>{
+        id: newQuestionnaire?.id,
+        question: newQuestionnaire?.question,
+        multiple: newQuestionnaire?.multiple,
+        answers: JSON.parse(newQuestionnaire?.answer_options),
+        language: newQuestionnaire?.language,
+        global_question_id: newQuestionnaire?.global_question_id,
+        global_questionnaire_id: newQuestionnaire?.global_questionnaire_id,
+        page_title: newQuestionnaire?.page_title,
       };
     });
   } else {
-    newQuestionaires = <IQuestionaireQuestionObject>{
+    newQuestionnaires = <IQuestionnaireQuestionObject>{
       id: (JSON.parse(responseData)?.question).id,
       question: (JSON.parse(responseData)?.question).question,
       multiple: (JSON.parse(responseData)?.question).multiple,
@@ -82,13 +82,13 @@ export const extractQuestionaires = (responseData) => {
       language: (JSON.parse(responseData)?.question).language,
       global_question_id:
         (JSON.parse(responseData)?.question).global_question_id,
-      global_questionaire_id:
-        (JSON.parse(responseData)?.question).global_questionaire_id,
+      global_questionnaire_id:
+        (JSON.parse(responseData)?.question).global_questionnaire_id,
       page_title: (JSON.parse(responseData)?.question).page_title,
     };
   }
 
-  return newQuestionaires;
+  return newQuestionnaires;
 };
 
 export const httpErrorHandler = (error) => {
@@ -277,17 +277,17 @@ export const initSSE = (ctx) => {
     }
   });
 
-  ctx.evtSource.addEventListener("questionaire", (event) => {
-    ctx.questionaireClosed = false;
-    const newQuestionaire = extractQuestionaires(event.data);
+  ctx.evtSource.addEventListener("questionnaire", (event) => {
+    ctx.questionnaireClosed = false;
+    const newQuestionnaire = extractQuestionnaires(event.data);
     // Store actions
-    store.dispatch("appendToQuestionaires", newQuestionaire);
-    store.dispatch("setCurrentQuestionaireToLast");
-    store.dispatch("setAdminForceReload", "questionaire");
+    store.dispatch("appendToQuestionnaires", newQuestionnaire);
+    store.dispatch("setCurrentQuestionnaireToLast");
+    store.dispatch("setAdminForceReload", "questionnaire");
   });
 
-  ctx.evtSource.addEventListener("questionaireSubmission", (event) => {
-    store.dispatch("setAdminForceReload", "questionaire");
+  ctx.evtSource.addEventListener("questionnaireSubmission", (event) => {
+    store.dispatch("setAdminForceReload", "questionnaire");
   });
 
   ctx.evtSource.onerror = (error) => {

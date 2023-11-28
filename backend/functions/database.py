@@ -13,12 +13,12 @@ from backend.conf.db_models import (
     Execution,
     Exercise,
     Notification,
-    QuestionaireAnswer,
+    QuestionnaireAnswer,
     User,
     Page,
     Comment,
-    Questionaire,
-    QuestionaireQuestion,
+    Questionnaire,
+    QuestionnaireQuestion,
     Usergroup,
     UsergroupAssociation,
     VenjixExecution,
@@ -111,25 +111,25 @@ def db_insert_exercises(app, *args, **kwargs):
         db_create_or_update(Exercise, ["global_exercise_id"], exercise)
 
 
-def db_insert_questionaires(app, *args, **kwargs):
-    questionaire_json = f"{cfg.statics.get('base_url')}/hugo/questionaires.json"
-    questionaires = extract_json_content(app, questionaire_json)
-    for questionaire in questionaires:
-        new_questionaire = {
-            "global_questionaire_id": questionaire["global_questionaire_id"],
-            "page_title": questionaire["page_title"],
-            "parent_page_title": questionaire["parent_page_title"],
-            "root_weight": questionaire["root_weight"],
-            "parent_weight": questionaire["parent_weight"],
-            "child_weight": questionaire["child_weight"],
-            "order_weight": questionaire["order_weight"],
+def db_insert_questionnaires(app, *args, **kwargs):
+    questionnaire_json = f"{cfg.statics.get('base_url')}/hugo/questionnaires.json"
+    questionnaires = extract_json_content(app, questionnaire_json)
+    for questionnaire in questionnaires:
+        new_questionnaire = {
+            "global_questionnaire_id": questionnaire["global_questionnaire_id"],
+            "page_title": questionnaire["page_title"],
+            "parent_page_title": questionnaire["parent_page_title"],
+            "root_weight": questionnaire["root_weight"],
+            "parent_weight": questionnaire["parent_weight"],
+            "child_weight": questionnaire["child_weight"],
+            "order_weight": questionnaire["order_weight"],
         }
 
-        db_create_or_update(Questionaire, ["global_questionaire_id"], new_questionaire)
+        db_create_or_update(Questionnaire, ["global_questionnaire_id"], new_questionnaire)
         db.session.flush()
 
-        for language in questionaire["questions"]:
-            for question in questionaire["questions"][language]:
+        for language in questionnaire["questions"]:
+            for question in questionnaire["questions"][language]:
                 new_question = {
                     "global_question_id": question["global_question_id"],
                     "id": question["id"],
@@ -137,10 +137,10 @@ def db_insert_questionaires(app, *args, **kwargs):
                     "answer_options": json.dumps(question["answers"]),
                     "language": language,
                     "multiple": question.get("multiple") or False,
-                    "global_questionaire_id": questionaire["global_questionaire_id"],
+                    "global_questionnaire_id": questionnaire["global_questionnaire_id"],
                 }
 
-                db_create_or_update(QuestionaireQuestion, ["global_question_id", "language"], new_question)
+                db_create_or_update(QuestionnaireQuestion, ["global_question_id", "language"], new_question)
 
 
 def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None, nolog: bool = False) -> bool:
@@ -309,20 +309,20 @@ def db_get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
     return generic_getter(Exercise, "global_exercise_id", global_exercise_id)
 
 
-def db_get_questionaire_by_global_questionaire_id(global_questionaire_id: str) -> dict:
-    return generic_getter(Questionaire, "global_questionaire_id", global_questionaire_id)
+def db_get_questionnaire_by_global_questionnaire_id(global_questionnaire_id: str) -> dict:
+    return generic_getter(Questionnaire, "global_questionnaire_id", global_questionnaire_id)
 
 
-def db_get_questionaire_question_by_global_question_id(global_question_id: str) -> dict:
-    return generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
+def db_get_questionnaire_question_by_global_question_id(global_question_id: str) -> dict:
+    return generic_getter(QuestionnaireQuestion, "global_question_id", global_question_id)
 
 
-def db_get_all_questionaires_questions(global_questionaire_id: str) -> dict:
+def db_get_all_questionnaires_questions(global_questionnaire_id: str) -> dict:
     try:
         return (
-            db.session.query(QuestionaireQuestion)
-            .filter_by(global_questionaire_id=global_questionaire_id)
-            .order_by(QuestionaireQuestion.local_question_id.asc())
+            db.session.query(QuestionnaireQuestion)
+            .filter_by(global_questionnaire_id=global_questionnaire_id)
+            .order_by(QuestionnaireQuestion.local_question_id.asc())
             .all()
         )
     except Exception as e:
@@ -330,15 +330,15 @@ def db_get_all_questionaires_questions(global_questionaire_id: str) -> dict:
         return None
 
 
-def db_get_questionaire_results_by_global_question_id(global_question_id: str) -> dict:
-    questionaire_question = generic_getter(QuestionaireQuestion, "global_question_id", global_question_id)
-    questionaire_answers = generic_getter(QuestionaireAnswer, "global_question_id", global_question_id, all=True)
+def db_get_questionnaire_results_by_global_question_id(global_question_id: str) -> dict:
+    questionnaire_question = generic_getter(QuestionnaireQuestion, "global_question_id", global_question_id)
+    questionnaire_answers = generic_getter(QuestionnaireAnswer, "global_question_id", global_question_id, all=True)
 
-    labels = json.loads(questionaire_question.answer_options)
+    labels = json.loads(questionnaire_question.answer_options)
     results = [0] * len(labels)
 
-    for questionaire_answer in questionaire_answers:
-        for answer in json.loads(questionaire_answer.answers):
+    for questionnaire_answer in questionnaire_answers:
+        for answer in json.loads(questionnaire_answer.answers):
             results[answer] += 1
 
     return labels, results
@@ -619,23 +619,23 @@ def db_get_all_exercises_sorted() -> list:
         return None
 
 
-def db_get_all_questionaires_sorted() -> list:
+def db_get_all_questionnaires_sorted() -> list:
     try:
-        return db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
+        return db.session.query(Questionnaire).order_by(Questionnaire.order_weight.asc()).all()
     except Exception as e:
         logger.exception(e)
         return None
 
 
-def db_get_grouped_questionaires() -> list:
+def db_get_grouped_questionnaires() -> list:
     try:
-        questionaires = db.session.query(Questionaire).order_by(Questionaire.order_weight.asc()).all()
-        grouped_questionaires = []
+        questionnaires = db.session.query(Questionnaire).order_by(Questionnaire.order_weight.asc()).all()
+        grouped_questionnaires = []
 
-        for questionaire in questionaires:
+        for questionnaire in questionnaires:
             # extract questions
             questions = []
-            for question in questionaire.questions:
+            for question in questionnaire.questions:
                 questions.append(
                     {
                         "id": question.id,
@@ -647,13 +647,13 @@ def db_get_grouped_questionaires() -> list:
                     }
                 )
 
-            questionaire_object = convert_to_dict(questionaire)
+            questionnaire_object = convert_to_dict(questionnaire)
 
             # append questions
-            questionaire_object["questions"] = questions
-            grouped_questionaires.append(questionaire_object)
+            questionnaire_object["questions"] = questions
+            grouped_questionnaires.append(questionnaire_object)
 
-        return grouped_questionaires
+        return grouped_questionnaires
 
     except Exception as e:
         logger.exception(e)
@@ -662,20 +662,20 @@ def db_get_grouped_questionaires() -> list:
 
 def db_activate_questioniare_question(global_question_id) -> bool:
     try:
-        question = db.session.query(QuestionaireQuestion).filter_by(global_question_id=global_question_id).first()
+        question = db.session.query(QuestionnaireQuestion).filter_by(global_question_id=global_question_id).first()
 
         # Set active state
         setattr(question, "active", True)
         db.session.flush()
         db.session.commit()
 
-        questionaire = db.session.query(Questionaire).filter_by(global_questionaire_id=question.global_questionaire_id).first()
+        questionnaire = db.session.query(Questionnaire).filter_by(global_questionnaire_id=question.global_questionnaire_id).first()
         question_dict = convert_to_dict(question)
 
         # Adjust dict
         question_dict["multiple"] = bool(question_dict.get("multiple"))
         question_dict["active"] = bool(question_dict.get("active"))
-        question_dict["page_title"] = questionaire.page_title
+        question_dict["page_title"] = questionnaire.page_title
 
         return question_dict
 
@@ -684,12 +684,12 @@ def db_activate_questioniare_question(global_question_id) -> bool:
         return False
 
 
-def db_create_questionaire_answer(global_question_id: str, answers: str, user_id: int) -> bool:
+def db_create_questionnaire_answer(global_question_id: str, answers: str, user_id: int) -> bool:
     try:
         if isinstance(answers, int):
             answers = [answers]
 
-        submission = QuestionaireAnswer(answers=json.dumps(answers), user_id=user_id, global_question_id=global_question_id)
+        submission = QuestionnaireAnswer(answers=json.dumps(answers), user_id=user_id, global_question_id=global_question_id)
 
         db.session.add(submission)
         db.session.commit()
@@ -700,8 +700,8 @@ def db_create_questionaire_answer(global_question_id: str, answers: str, user_id
         return False
 
 
-def db_get_questionaire_question_answers_by_user(global_question_id: str, user_id: int) -> list:
-    answers = generic_getter(QuestionaireAnswer, ["global_question_id", "user_id"], [global_question_id, user_id], all=True)
+def db_get_questionnaire_question_answers_by_user(global_question_id: str, user_id: int) -> list:
+    answers = generic_getter(QuestionnaireAnswer, ["global_question_id", "user_id"], [global_question_id, user_id], all=True)
     return answers
 
 

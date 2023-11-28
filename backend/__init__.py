@@ -24,7 +24,7 @@ def main():
     app.register_blueprint(routes.authentication_api)
     app.register_blueprint(routes.notifications_api)
     app.register_blueprint(routes.stream_api)
-    app.register_blueprint(routes.questionaires_api)
+    app.register_blueprint(routes.questionnaires_api)
     app.register_blueprint(routes.executions_api)
     app.register_blueprint(routes.comments_api)
     app.register_blueprint(routes.cache_api)

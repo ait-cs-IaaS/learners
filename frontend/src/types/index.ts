@@ -31,13 +31,13 @@ export interface INotificationObject {
 }
 
 // event: string;
-export interface IQuestionaireQuestionObject {
+export interface IQuestionnaireQuestionObject {
   id: number;
   question: string;
   multiple: boolean;
   language: string;
   answers: Array<string>;
   global_question_id: string;
-  global_questionaire_id: string;
+  global_questionnaire_id: string;
   page_title: string;
 }

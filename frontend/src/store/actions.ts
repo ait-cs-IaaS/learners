@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Commit } from "vuex";
-import { extractNotifications, extractQuestionaires } from "@/helpers";
-import { INotificationObject, IQuestionaireQuestionObject } from "@/types";
+import { extractNotifications, extractQuestionnaires } from "@/helpers";
+import { INotificationObject, IQuestionnaireQuestionObject } from "@/types";
 
 export default {
   // Setup/General Actions
@@ -91,38 +91,38 @@ export default {
   disableNotifications: ({ commit }: { commit: Commit }) =>
     commit("SET_SHOW_NOTIFICATIONS_STATE", false),
 
-  // Questionaires
-  appendToQuestionaires: (
+  // Questionnaires
+  appendToQuestionnaires: (
     { commit }: { commit: Commit },
-    payload: IQuestionaireQuestionObject
-  ) => commit("APPEND_TO_QUESTIONAIRES", payload),
+    payload: IQuestionnaireQuestionObject
+  ) => commit("APPEND_TO_QUESTIONNAIRES", payload),
 
-  setCurrentQuestionaireToLast: ({ commit }: { commit: Commit }) =>
-    commit("SET_CURRENT_QUESTIONAIRE_INDEX_TO_LAST"),
+  setCurrentQuestionnaireToLast: ({ commit }: { commit: Commit }) =>
+    commit("SET_CURRENT_QUESTIONNAIRE_INDEX_TO_LAST"),
 
-  removeQuestionaire: (
+  removeQuestionnaire: (
     { commit }: { commit: Commit },
     global_question_id: Number
   ) => {
-    commit("REMOVE_QUESTIONAIRE", global_question_id);
-    commit("SET_CURRENT_QUESTIONAIRE_INDEX_TO_LAST");
+    commit("REMOVE_QUESTIONNAIRE", global_question_id);
+    commit("SET_CURRENT_QUESTIONNAIRE_INDEX_TO_LAST");
   },
 
-  async getQuestionairesFromServer({ commit }) {
-    await axios.get("questionaires/questions").then((response) => {
+  async getQuestionnairesFromServer({ commit }) {
+    await axios.get("questionnaires/questions").then((response) => {
       commit(
-        "SET_QUESTIONAIRES",
-        extractQuestionaires(response.data.questions)
+        "SET_QUESTIONNAIRES",
+        extractQuestionnaires(response.data.questions)
       );
-      commit("SET_CURRENT_QUESTIONAIRE_INDEX_TO_LAST");
+      commit("SET_CURRENT_QUESTIONNAIRE_INDEX_TO_LAST");
     });
   },
 
-  enableQuestionaire: ({ commit }: { commit: Commit }) =>
-    commit("SET_SHOW_QUESTIONAIRE_STATE", true),
+  enableQuestionnaire: ({ commit }: { commit: Commit }) =>
+    commit("SET_SHOW_QUESTIONNAIRE_STATE", true),
 
-  disableQuestionaire: ({ commit }: { commit: Commit }) =>
-    commit("SET_SHOW_QUESTIONAIRE_STATE", false),
+  disableQuestionnaire: ({ commit }: { commit: Commit }) =>
+    commit("SET_SHOW_QUESTIONNAIRE_STATE", false),
 
   // Admin View Actions
   setAdminForceReload: ({ commit }: { commit: Commit }, tab: string) =>

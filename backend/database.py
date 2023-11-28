@@ -13,7 +13,7 @@ def build_db(app):
     from backend.functions.database import (
         db_insert_exercises,
         db_insert_initial_users,
-        db_insert_questionaires,
+        db_insert_questionnaires,
         db_insert_initial_usergroups,
         db_insert_pages,
     )
@@ -25,7 +25,7 @@ def build_db(app):
     db_insert_initial_usergroups()
     db_insert_pages(app)
     db_insert_exercises(app)
-    db_insert_questionaires(app)
+    db_insert_questionnaires(app)
 
     try:
         loaded_exercises = db.session.query(Exercise).all()

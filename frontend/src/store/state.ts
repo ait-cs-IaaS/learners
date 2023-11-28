@@ -1,7 +1,7 @@
 import {
   ITabObject,
   INotificationObject,
-  IQuestionaireQuestionObject,
+  IQuestionnaireQuestionObject,
 } from "@/types";
 
 export default {
@@ -17,10 +17,10 @@ export default {
   currentNotificationIndex: 0,
   showNotifications: true,
 
-  // Questionaires
-  questionaires: new Array<IQuestionaireQuestionObject>(),
-  currentQuestionaireIndex: 0,
-  showQuestionaires: true,
+  // Questionnaires
+  questionnaires: new Array<IQuestionnaireQuestionObject>(),
+  currentQuestionnaireIndex: 0,
+  showQuestionnaires: true,
 
   // Admin Reloads
   adminForceReload: {
@@ -28,7 +28,7 @@ export default {
     exercises: false,
     notifications: false,
     feedback: false,
-    questionaire: false,
+    questionnaire: false,
   },
 
   // DrawIO

@@ -113,19 +113,19 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
-class Questionaire(db.Model):
+class Questionnaire(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    global_questionaire_id = db.Column(db.String(32), nullable=False)
+    global_questionnaire_id = db.Column(db.String(32), nullable=False)
     page_title = db.Column(db.String(120), nullable=False)
     parent_page_title = db.Column(db.String(120), nullable=False)
     root_weight = db.Column(db.Integer, nullable=False)
     parent_weight = db.Column(db.Integer, nullable=False)
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
-    questions = db.relationship("QuestionaireQuestion", backref="questionaire", lazy=True)
+    questions = db.relationship("QuestionnaireQuestion", backref="questionnaire", lazy=True)
 
 
-class QuestionaireQuestion(db.Model):
+class QuestionnaireQuestion(db.Model):
     global_question_id = db.Column(db.String(32), primary_key=True)
     id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(), nullable=False)
@@ -133,15 +133,15 @@ class QuestionaireQuestion(db.Model):
     language = db.Column(db.String(), nullable=False, primary_key=True)
     multiple = db.Column(db.Integer, nullable=False, default=1)
     active = db.Column(db.Integer, nullable=False, default=0)
-    global_questionaire_id = db.Column(db.String(), db.ForeignKey("questionaire.global_questionaire_id"), primary_key=True)
+    global_questionnaire_id = db.Column(db.String(), db.ForeignKey("questionnaire.global_questionnaire_id"), primary_key=True)
 
 
-class QuestionaireAnswer(db.Model):
+class QuestionnaireAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     answers = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
-    global_question_id = db.Column(db.Integer, db.ForeignKey("questionaire_question.global_question_id"), nullable=False)
+    global_question_id = db.Column(db.Integer, db.ForeignKey("questionnaire_question.global_question_id"), nullable=False)
 
 
 class TokenBlocklist(db.Model):

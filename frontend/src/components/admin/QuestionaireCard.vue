@@ -24,9 +24,9 @@
       class="details-card-text pb-10"
       style="height: 70vh"
     >
-      <QuestionaireChart
-        ref="questionaireChart"
-        v-bind:questionaireId="questionaireId"
+      <QuestionnaireChart
+        ref="questionnaireChart"
+        v-bind:questionnaireId="questionnaireId"
       />
     </v-card-text>
   </v-card>
@@ -34,17 +34,17 @@
 
 <script lang="ts">
 import Loader from "@/components/sub-components/Loader.vue";
-import QuestionaireChart from "@/components/sub-components/QuestionaireChart.vue";
+import QuestionnaireChart from "@/components/sub-components/QuestionnaireChart.vue";
 import axios from "axios";
 
 export default {
-  name: "QuestionaireCard",
+  name: "QuestionnaireCard",
   components: {
     Loader,
-    QuestionaireChart,
+    QuestionnaireChart,
   },
   props: {
-    questionaireId: { type: String, require: true },
+    questionnaireId: { type: String, require: true },
   },
   data() {
     return {
@@ -54,7 +54,7 @@ export default {
   },
   async beforeMount() {
     this.loading = true;
-    const url = `questionaires/questions/${this.questionaireId}`;
+    const url = `questionnaires/questions/${this.questionnaireId}`;
     axios
       .get(url)
       .then((res) => {

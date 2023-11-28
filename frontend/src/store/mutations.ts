@@ -1,5 +1,5 @@
 import { generateTabs } from "@/helpers";
-import { INotificationObject, IQuestionaireQuestionObject } from "@/types";
+import { INotificationObject, IQuestionnaireQuestionObject } from "@/types";
 
 export default {
   SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
@@ -63,42 +63,42 @@ export default {
     state: { adminForceReload: any },
     newState: { tab: string; state: boolean }
   ) => (state.adminForceReload[newState.tab] = newState.state),
-  APPEND_TO_QUESTIONAIRES: (
-    state: { questionaires: any; showQuestionaires: boolean },
-    payload: IQuestionaireQuestionObject
+  APPEND_TO_QUESTIONNAIRES: (
+    state: { questionnaires: any; showQuestionnaires: boolean },
+    payload: IQuestionnaireQuestionObject
   ) => {
-    state.questionaires.push(payload);
-    if (state.questionaires.length) state.showQuestionaires = true;
+    state.questionnaires.push(payload);
+    if (state.questionnaires.length) state.showQuestionnaires = true;
   },
 
-  REMOVE_QUESTIONAIRE: (
-    state: { questionaires: any },
+  REMOVE_QUESTIONNAIRE: (
+    state: { questionnaires: any },
     global_question_id: Number
   ) =>
-    (state.questionaires = state.questionaires.filter(
+    (state.questionnaires = state.questionnaires.filter(
       (q) => q.global_question_id != global_question_id
     )),
 
-  SET_SHOW_QUESTIONAIRE_STATE: (
-    state: { showQuestionaires: boolean },
+  SET_SHOW_QUESTIONNAIRE_STATE: (
+    state: { showQuestionnaires: boolean },
     newState: boolean
-  ) => (state.showQuestionaires = newState),
+  ) => (state.showQuestionnaires = newState),
 
-  SET_CURRENT_QUESTIONAIRE_INDEX_TO_LAST: (state: {
-    currentQuestionaireIndex: number;
-    questionaires: any;
-    showQuestionaires: boolean;
+  SET_CURRENT_QUESTIONNAIRE_INDEX_TO_LAST: (state: {
+    currentQuestionnaireIndex: number;
+    questionnaires: any;
+    showQuestionnaires: boolean;
   }) => {
-    state.currentQuestionaireIndex = state.questionaires.length - 1;
-    if (state.questionaires.length) {
-      state.showQuestionaires = true;
+    state.currentQuestionnaireIndex = state.questionnaires.length - 1;
+    if (state.questionnaires.length) {
+      state.showQuestionnaires = true;
     } else {
-      state.showQuestionaires = false;
+      state.showQuestionnaires = false;
     }
   },
 
-  SET_QUESTIONAIRES: (state: { questionaires: any }, payload: any) =>
-    (state.questionaires = payload),
+  SET_QUESTIONNAIRES: (state: { questionnaires: any }, payload: any) =>
+    (state.questionnaires = payload),
 
   // DrawIO
   SET_DRAWIO_DATA: (state: { drawioEncodedData: string }, data: string) =>

@@ -1,5 +1,5 @@
 <template>
-  <div class="questionaireChart">
+  <div class="questionnaireChart">
     <apexchart
       ref="donut"
       width="100%"
@@ -18,12 +18,12 @@ import { generateColorScale } from "@/helpers";
 import { store } from "@/store";
 
 export default {
-  name: "QuestionaireChart",
+  name: "QuestionnaireChart",
   components: {
     apexchart: VueApexCharts,
   },
   props: {
-    questionaireId: { type: String, require: true },
+    questionnaireId: { type: String, require: true },
   },
   data: function () {
     return {
@@ -178,12 +178,12 @@ export default {
   computed: {
     forceReload() {
       // this.updateData(false);
-      return store.getters.getAdminForceReload("questionaire");
+      return store.getters.getAdminForceReload("questionnaire");
     },
   },
   methods: {
     async updateData(initRun = false) {
-      const url = `questionaires/questions/${this.questionaireId}`;
+      const url = `questionnaires/questions/${this.questionnaireId}`;
       const { data } = await axios.get(url);
 
       // On mounted also set colors and labels
@@ -217,7 +217,7 @@ export default {
 </script>
 
 <style lang="scss">
-.questionaireChart {
+.questionnaireChart {
   height: 90%;
 }
 .apexcharts-legend {
@@ -225,10 +225,10 @@ export default {
   flex-wrap: wrap;
   flex-direction: column;
 }
-.questionaireChart .vue-apexcharts .apexcharts-canvas {
+.questionnaireChart .vue-apexcharts .apexcharts-canvas {
   margin: 35px auto;
 }
-.questionaireChart .vue-apexcharts .apexcharts-tooltip .apexcharts-active {
+.questionnaireChart .vue-apexcharts .apexcharts-tooltip .apexcharts-active {
   background: #00000030 !important;
   color: white;
 }

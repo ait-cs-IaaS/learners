@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="mb-5">
-      Questionaire Overview
+      Questionnaire Overview
 
       <v-progress-circular
         class="mx-2 mb-1"
@@ -15,18 +15,18 @@
 
     <v-expansion-panels>
       <v-expansion-panel
-        v-for="questionaire in questionaires"
-        :key="questionaire.page_title"
+        v-for="questionnaire in questionnaires"
+        :key="questionnaire.page_title"
       >
         <v-expansion-panel-title>
-          <span v-html="questionaire.page_title"></span>
+          <span v-html="questionnaire.page_title"></span>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
           <v-container class="px-0">
             <v-row
-              v-for="question in extractRows(questionaire.questions)"
+              v-for="question in extractRows(questionnaire.questions)"
               :key="question.id"
-              class="questionaire-row"
+              class="questionnaire-row"
             >
               <v-col cols="4">
                 <span class="question-id">
@@ -68,7 +68,7 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <div v-if="Object.keys(questionaires).length === 0" class="no-data">
+    <div v-if="Object.keys(questionnaires).length === 0" class="no-data">
       No data.
     </div>
 
@@ -84,7 +84,7 @@
         @click="dialog = false"
         ><SvgIcon name="x-mark" clickable
       /></v-btn>
-      <questionaire-card :questionaireId="selectedQuestionaire" />
+      <questionnaire-card :questionnaireId="selectedQuestionnaire" />
     </v-dialog>
   </div>
 </template>
@@ -102,28 +102,28 @@ interface Question {
 
 import axios from "axios";
 
-import QuestionaireCard from "@/components/admin/QuestionaireCard.vue";
+import QuestionnaireCard from "@/components/admin/QuestionnaireCard.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import { store } from "@/store";
-import { IQuestionaireQuestionObject } from "@/types";
+import { IQuestionnaireQuestionObject } from "@/types";
 
 export default {
-  name: "QuestionaireOverview",
+  name: "QuestionnaireOverview",
   components: {
-    QuestionaireCard,
+    QuestionnaireCard,
     Loader,
     SvgIcon,
   },
   data() {
     return {
-      questionaires: [] as any[],
+      questionnaires: [] as any[],
       // Loader conditions
-      questionaireLoading: false,
+      questionnaireLoading: false,
       // Form
       form: false,
       dialog: false,
-      selectedQuestionaire: "",
+      selectedQuestionnaire: "",
     };
   },
   props: {
@@ -131,10 +131,10 @@ export default {
   },
   computed: {
     loading() {
-      return this.questionaireLoading;
+      return this.questionnaireLoading;
     },
     forceReload() {
-      return store.getters.getAdminForceReload("questionaire");
+      return store.getters.getAdminForceReload("questionnaire");
     },
   },
   methods: {
@@ -154,22 +154,22 @@ export default {
       return updatedRows;
     },
     async activateQuestion(global_question_id) {
-      await axios.put(`questionaires/questions/${global_question_id}`);
+      await axios.put(`questionnaires/questions/${global_question_id}`);
     },
     async viewQuestion(global_question_id) {
-      this.selectedQuestionaire = global_question_id;
+      this.selectedQuestionnaire = global_question_id;
       this.dialog = true;
     },
     async getDataFromServer() {
-      this.questionaireLoading = true;
+      this.questionnaireLoading = true;
       axios
-        .get("questionaires")
+        .get("questionnaires")
         .then((res) => {
-          this.questionaires = res.data.questionaires;
+          this.questionnaires = res.data.questionnaires;
         })
         .finally(() => {
-          this.questionaireLoading = false;
-          store.dispatch("unsetAdminForceReload", "questionaire");
+          this.questionnaireLoading = false;
+          store.dispatch("unsetAdminForceReload", "questionnaire");
         });
     },
   },
@@ -211,7 +211,7 @@ export default {
   font-weight: bold;
 }
 
-.questionaire-row {
+.questionnaire-row {
   transition: all 100ms ease;
   padding: 16px 24px 16px 16px;
   cursor: pointer;

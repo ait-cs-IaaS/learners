@@ -7,9 +7,9 @@
       />
     </transition>
 
-    <questionaire
-      v-show="showQuestionaires"
-      :currentQuestionaire="currentQuestionaire"
+    <questionnaire
+      v-show="showQuestionnaires"
+      :currentQuestionnaire="currentQuestionnaire"
     />
 
     <frame-pager
@@ -29,7 +29,7 @@ import FramePager from "@/components/general/FramePager.vue";
 import AdminArea from "@/components/admin/AdminArea.vue";
 // import UserArea from "@/components/user/UserArea.vue";
 import Notification from "@/components/sub-components/Notification.vue";
-import Questionaire from "@/components/sub-components/Questionaire.vue";
+import Questionnaire from "@/components/sub-components/Questionnaire.vue";
 import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
@@ -42,12 +42,12 @@ export default {
     FramePager,
     AdminArea,
     Notification,
-    Questionaire,
+    Questionnaire,
   },
   data() {
     return {
       notificationClosed: false,
-      questionaireClosed: false,
+      questionnaireClosed: false,
       sse_error: true,
       evtSource: EventSource as any,
       serverEvent: Object as any,
@@ -78,17 +78,17 @@ export default {
         this.$route.name != "Login"
       );
     },
-    showQuestionaires() {
+    showQuestionnaires() {
       return (
-        store.getters.getShowQuestionaires &&
-        store.getters.getQuestionairesLength > 0
+        store.getters.getShowQuestionnaires &&
+        store.getters.getQuestionnairesLength > 0
       );
     },
-    currentQuestionaire() {
-      let questionaires = store.getters.getQuestionaires;
-      if (questionaires) {
-        let index = store.getters.getCurrentQuestionaireIndex;
-        return questionaires[index];
+    currentQuestionnaire() {
+      let questionnaires = store.getters.getQuestionnaires;
+      if (questionnaires) {
+        let index = store.getters.getCurrentQuestionnaireIndex;
+        return questionnaires[index];
       }
     },
   },
@@ -139,8 +139,8 @@ export default {
     // Get full list of notifications from server
     store.dispatch("getNotificationsFromServer");
 
-    // Get full list of questionaires from server
-    store.dispatch("getQuestionairesFromServer");
+    // Get full list of questionnaires from server
+    store.dispatch("getQuestionnairesFromServer");
 
     // Allow call to change drawio url
     window.addEventListener("message", this.iFrameHandle);

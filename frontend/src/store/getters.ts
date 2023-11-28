@@ -30,12 +30,12 @@ export default {
     else return 0;
   },
 
-  // Questionaires
-  getShowQuestionaires: (state) => state.showQuestionaires,
-  getQuestionaires: (state) => state.questionaires || [],
-  getCurrentQuestionaireIndex: (state) => state.currentQuestionaireIndex || 0,
-  getQuestionairesLength: (state) => {
-    if (state.questionaires) return state.questionaires.length;
+  // Questionnaires
+  getShowQuestionnaires: (state) => state.showQuestionnaires,
+  getQuestionnaires: (state) => state.questionnaires || [],
+  getCurrentQuestionnaireIndex: (state) => state.currentQuestionnaireIndex || 0,
+  getQuestionnairesLength: (state) => {
+    if (state.questionnaires) return state.questionnaires.length;
     else return 0;
   },
 
