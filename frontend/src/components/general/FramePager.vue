@@ -13,7 +13,7 @@
       noresize="noresize"
       style="height: 100vh"
       width="100%"
-      @load="iframeLoaded = true"
+      @load="iframeLoaded = true; $emit('loaded')"
     ></iframe>
 
     <div class="fullscreen-center" v-else>

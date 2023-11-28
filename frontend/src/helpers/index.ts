@@ -228,21 +228,33 @@ export const sortTree = (tree: any) => {
   return sortedTree;
 };
 
+export const initVisibility = async (ctx) => {
+  const visibilityData = await axios.get("/pages")
+  const pages = visibilityData.data.pages
+  ctx.iframes.forEach((_iframe) => {
+    const functionCall = {
+      function: "visibility",
+      data: pages,
+    };
+    _iframe.contentWindow.postMessage(functionCall, new URL(_iframe.src).origin);
+  });
+}
+
 export const initSSE = (ctx) => {
   ctx.evtSource.addEventListener("content", (event) => {
     // Broadcast to all iFrames
     ctx.iframes.forEach((_iframe) => {
-      const pages = JSON.parse(event.data).message;
-      _iframe.contentWindow.postMessage(pages, new URL(_iframe.src).origin);
+      const functionCall = {
+        function: "visibility",
+        data: JSON.parse(event.data).message,
+      };
+      _iframe.contentWindow.postMessage(functionCall, new URL(_iframe.src).origin);
     });
   });
 
   ctx.evtSource.addEventListener("notification", (event) => {
     ctx.notificationClosed = false;
-    console.log("event: ", event);
-    console.log("data: ", event.data);
     const notification = extractNotifications(event.data);
-    console.log("notification: ", notification);
 
     store.dispatch("appendToNotifications", notification);
     store.dispatch("setCurrentNotificationToLast");
@@ -269,7 +281,6 @@ export const initSSE = (ctx) => {
   });
 
   ctx.evtSource.addEventListener("questionaireSubmission", (event) => {
-    console.log("new sub");
     store.dispatch("setAdminForceReload", "questionaire");
   });
 

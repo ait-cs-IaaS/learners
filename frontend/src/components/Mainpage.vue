@@ -17,6 +17,7 @@
       :key="tab.id"
       :tab="tab"
       :currentView="currentView"
+      @loaded="iframeLoaded"
     />
     <admin-area v-if="admin" :currentView="currentView" />
     <!-- <user-area /> -->
@@ -32,7 +33,7 @@ import Questionaire from "@/components/sub-components/Questionaire.vue";
 import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
-import { setStyles, initSSE } from "@/helpers";
+import { setStyles, initSSE, initVisibility } from "@/helpers";
 
 // TODO: Add UserArea
 export default {
@@ -114,7 +115,6 @@ export default {
           context.sse_error = true;
           setTimeout(() => {
             attemptCount++;
-            console.log(attemptCount);
             connectToStream(context);
           }, 5000);
         };
@@ -125,11 +125,11 @@ export default {
     closeSSE() {
       this.evtSource.close();
     },
-    setDrawIO(event) {
-      // Set url of iframe
-      store.dispatch("setDrawioData", event.data.message);
-      // switch view
-      store.dispatch("setCurrentView", "drawio");
+    iframeLoaded() {
+      initVisibility(this)
+    },
+    iFrameHandle(event) {
+      // Receiving function for calls from iframe
     },
   },
   async beforeMount() {
@@ -145,7 +145,7 @@ export default {
     store.dispatch("getQuestionairesFromServer");
 
     // Allow call to change drawio url
-    window.addEventListener("message", this.setDrawIO);
+    window.addEventListener("message", this.iFrameHandle);
 
     const contentContainers = document.querySelectorAll(".content-container");
     contentContainers.forEach((container) => {
@@ -154,12 +154,13 @@ export default {
       );
       this.iframes.push(...iframesInContainer);
     });
+
   },
   beforeUnmount() {
     this.closeSSE();
   },
   beforeDestroy() {
-    window.removeEventListener("message", this.setDrawIO);
+    window.removeEventListener("message", this.iFrameHandle);
   },
 };
 </script>
