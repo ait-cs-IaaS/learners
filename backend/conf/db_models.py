@@ -15,6 +15,7 @@ class User(db.Model):
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event = db.Column(db.String(120), nullable=True)
+    _type = db.Column(db.String(120), nullable=True)
     message = db.Column(db.String(240), nullable=True)
     recipients = db.Column(db.String(120), nullable=True)
     positions = db.Column(db.String(120), nullable=True)

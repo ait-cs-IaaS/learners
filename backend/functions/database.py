@@ -729,6 +729,7 @@ def db_create_notification(sse_Event: SSE_Event) -> bool:
         notification = Notification(
             event=sse_Event.event,
             message=sse_Event.message,
+            _type=sse_Event._type,
             recipients=json.dumps(sse_Event.recipients),
             positions=json.dumps(sse_Event.positions),
         )
@@ -794,6 +795,7 @@ def db_get_notifications_by_user(user_id: int) -> dict:
             # Convert json lists to lists
             notification.recipients = json.loads(notification.recipients)
             notification.positions = json.loads(notification.positions)
+            notification._type = json.loads(notification._type)
             if user_id in notification.recipients:
                 notifications.append(notification)
 

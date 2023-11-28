@@ -112,12 +112,12 @@ export default {
   data() {
     return {
       contentChanging: false,
+      timeoutId: null as ReturnType<typeof setTimeout> | null,
     };
   },
   computed: {
     currentNotification() {
       let notifications = store.getters.getNotifications;
-      console.log(notifications);
       const difference =
         store.getters.getNotificationsLength - notifications.length;
 
@@ -126,17 +126,21 @@ export default {
         index = Math.max(index - difference, 0);
         this.triggerAnimation();
         const currentNotification = notifications[index];
+
+        // Clear the existing timeout
+        if (this.timeoutId) {
+          clearTimeout(this.timeoutId);
+        }
+
         if (
           currentNotification?._type == "submission" ||
           currentNotification?._type == "content" ||
           currentNotification?._type == "comment"
         ) {
-          setTimeout(() => {
+          this.timeoutId = setTimeout(() => {
             this.$emit("hide");
           }, 5000);
         }
-
-        console.log(notifications[index]);
 
         return notifications[index];
       }
@@ -158,6 +162,11 @@ export default {
         this.contentChanging = false;
       }, 300);
     },
+  },
+  beforeDestroy() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
   },
 };
 </script>
