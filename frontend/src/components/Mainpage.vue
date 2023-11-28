@@ -72,7 +72,6 @@ export default {
       return tabsList.filter((tab) => tab._type != "admin");
     },
     showNotifications() {
-      this.notificationClosed = false;
       return (
         store.getters.getShowNotifications &&
         store.getters.getNotifications.length > 0 &&
@@ -82,8 +81,7 @@ export default {
     showQuestionaires() {
       return (
         store.getters.getShowQuestionaires &&
-        store.getters.getQuestionairesLength > 0 &&
-        this.currentView === "presentations"
+        store.getters.getQuestionairesLength > 0
       );
     },
     currentQuestionaire() {
@@ -126,7 +124,7 @@ export default {
       this.evtSource.close();
     },
     iframeLoaded() {
-      initVisibility(this)
+      initVisibility(this);
     },
     iFrameHandle(event) {
       // Receiving function for calls from iframe
@@ -154,7 +152,6 @@ export default {
       );
       this.iframes.push(...iframesInContainer);
     });
-
   },
   beforeUnmount() {
     this.closeSSE();
