@@ -105,7 +105,6 @@ export default {
           obj[key].hidden = !obj[key].hidden;
           return true;
         }
-        console.log(obj[key].childs);
         if (obj[key].childs) {
           if (this.updateObjectById(obj[key].childs, page_id)) {
             return true;

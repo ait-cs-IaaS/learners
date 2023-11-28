@@ -117,7 +117,6 @@ export default {
       else store.dispatch("enableNotifications");
     },
     openNewTab() {
-      console.log(window.location);
 
       const activeTab = this.tabs?.find((tab) => {
         return tab.id === this.currentView;
