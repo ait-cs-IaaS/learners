@@ -93,13 +93,13 @@
 
                     <template v-slot:item="{ props, item, index }">
                       <div
-                        v-if="props.title.header"
+                        v-if="props.title && props.title['header']"
                         class="drop-down-group-title pl-5 pt-5 pb-3 ml-1"
                       >
-                        {{ props.title.header }}
+                        {{ props.title["header"] }}
                       </div>
                       <div
-                        v-else-if="props.title.divider"
+                        v-else-if="props.title && props.title['divider']"
                         class="drop-down-divider pt-5 pb-2"
                       >
                         <hr />
