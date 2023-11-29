@@ -39,8 +39,9 @@ def postNotifications():
 @notifications_api.route("/notifications", methods=["GET"])
 @jwt_required()
 def getNotifications():
-    db_notifications = db_get_notifications_by_user(current_user.id)
-    notifications = convert_to_dict(db_notifications)
+    notifications = []
+    if db_notifications := db_get_notifications_by_user(current_user.id):
+        notifications = convert_to_dict(db_notifications)
 
     return jsonify(notifications=notifications), 200
 
