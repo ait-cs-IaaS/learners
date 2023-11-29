@@ -124,10 +124,22 @@ export default {
       this.evtSource.close();
     },
     iframeLoaded() {
-      initVisibility(this);
+      initVisibility(this.iFramesGather());
     },
     iFrameHandle(event) {
       // Receiving function for calls from iframe
+    },
+    iFramesGather() {
+      const contentContainers = document.querySelectorAll(".content-container");
+      let iframes_list = [] as any;
+      contentContainers.forEach((container) => {
+        const iframesInContainer = Array.from(
+          container.querySelectorAll("iframe")
+        );
+        iframes_list.push(...iframesInContainer);
+      });
+      this.iframes = iframes_list;
+      return iframes_list;
     },
   },
   async beforeMount() {
@@ -145,13 +157,8 @@ export default {
     // Allow call to change drawio url
     window.addEventListener("message", this.iFrameHandle);
 
-    const contentContainers = document.querySelectorAll(".content-container");
-    contentContainers.forEach((container) => {
-      const iframesInContainer = Array.from(
-        container.querySelectorAll("iframe")
-      );
-      this.iframes.push(...iframesInContainer);
-    });
+    // Get a list of all iFrames
+    this.iFramesGather();
   },
   beforeUnmount() {
     this.closeSSE();
