@@ -243,55 +243,79 @@ export const initVisibility = async (ctx) => {
   });
 };
 
+export const sseHandlerContent = (ctx, event) => {
+  // Broadcast to all iFrames
+  ctx.iframes.forEach((_iframe) => {
+    const functionCall = {
+      function: "visibility",
+      data: JSON.parse(event.data).message,
+    };
+    _iframe.contentWindow.postMessage(
+      functionCall,
+      new URL(_iframe.src).origin
+    );
+  });
+};
+
+export const sseHandlerNotification = (ctx, event) => {
+  ctx.notificationClosed = false;
+  const notification = extractNotifications(event.data);
+
+  store.dispatch("appendToNotifications", notification);
+  store.dispatch("setCurrentNotificationToLast");
+
+  switch (notification._type) {
+    case "submission":
+      store.dispatch("setAdminForceReload", "submissions");
+      break;
+    case "comment":
+      store.dispatch("setAdminForceReload", "feedback");
+      break;
+    default:
+    //
+  }
+};
+
+export const sseHandlerQuestionnaire = (ctx, event) => {
+  ctx.questionnaireClosed = false;
+  const newQuestionnaire = extractQuestionnaires(event.data);
+  // Store actions
+  store.dispatch("appendToQuestionnaires", newQuestionnaire);
+  store.dispatch("setCurrentQuestionnaireToLast");
+  store.dispatch("setAdminForceReload", "questionnaire");
+};
+
+export const sseHandlerQuestionnaireSubmission = (ctx, event) => {
+  store.dispatch("setAdminForceReload", "questionnaire");
+};
 export const initSSE = (ctx) => {
-  ctx.evtSource.addEventListener("content", (event) => {
-    // Broadcast to all iFrames
-    ctx.iframes.forEach((_iframe) => {
-      const functionCall = {
-        function: "visibility",
-        data: JSON.parse(event.data).message,
-      };
-      _iframe.contentWindow.postMessage(
-        functionCall,
-        new URL(_iframe.src).origin
-      );
-    });
-  });
-
-  ctx.evtSource.addEventListener("notification", (event) => {
-    ctx.notificationClosed = false;
-    const notification = extractNotifications(event.data);
-
-    store.dispatch("appendToNotifications", notification);
-    store.dispatch("setCurrentNotificationToLast");
-
-    switch (notification._type) {
-      case "submission":
-        store.dispatch("setAdminForceReload", "submissions");
-        break;
-      case "comment":
-        store.dispatch("setAdminForceReload", "feedback");
-        break;
-      default:
-      //
-    }
-  });
-
-  ctx.evtSource.addEventListener("questionnaire", (event) => {
-    ctx.questionnaireClosed = false;
-    const newQuestionnaire = extractQuestionnaires(event.data);
-    // Store actions
-    store.dispatch("appendToQuestionnaires", newQuestionnaire);
-    store.dispatch("setCurrentQuestionnaireToLast");
-    store.dispatch("setAdminForceReload", "questionnaire");
-  });
-
-  ctx.evtSource.addEventListener("questionnaireSubmission", (event) => {
-    store.dispatch("setAdminForceReload", "questionnaire");
-  });
+  ctx.evtSource.addEventListener("content", (event) =>
+    sseHandlerContent(ctx, event)
+  );
+  ctx.evtSource.addEventListener("notification", (event) =>
+    sseHandlerNotification(ctx, event)
+  );
+  ctx.evtSource.addEventListener("questionnaire", (event) =>
+    sseHandlerQuestionnaire(ctx, event)
+  );
+  ctx.evtSource.addEventListener("questionnaireSubmission", (event) =>
+    sseHandlerQuestionnaireSubmission(ctx, event)
+  );
 
   ctx.evtSource.onerror = (error) => {
     console.log("Connection to SSE source lost. ", error);
+    ctx.evtSource.removeEventListener("content", (event) =>
+      sseHandlerContent(ctx, event)
+    );
+    ctx.evtSource.removeEventListener("notification", (event) =>
+      sseHandlerNotification(ctx, event)
+    );
+    ctx.evtSource.removeEventListener("questionnaire", (event) =>
+      sseHandlerQuestionnaire(ctx, event)
+    );
+    ctx.evtSource.removeEventListener("questionnaireSubmission", (event) =>
+      sseHandlerQuestionnaireSubmission(ctx, event)
+    );
     ctx.evtSource = null;
     ctx.startSseSession(ctx);
   };
