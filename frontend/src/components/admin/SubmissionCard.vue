@@ -93,8 +93,7 @@
                 <div class="details-card-label">
                   {{ unescape(label) }}
                 </div>
-                <div class="details-card-input" v-html="input">
-                </div>
+                <div class="details-card-input" v-html="input"></div>
               </div>
             </div>
           </template>
@@ -143,9 +142,13 @@ export default {
     },
     openInNewTab(object_data) {
       const newTab = window.open();
-      newTab?.document.write('<html><body style="margin: 0;"><img src="' + object_data + '" alt="SVG Image"></body></html>');
+      newTab?.document.write(
+        '<html><body style="margin: 0;"><img src="' +
+          object_data +
+          '" alt="SVG Image"></body></html>'
+      );
       newTab?.document.close();
-    }
+    },
   },
   async beforeMount() {
     this.loading = true;
@@ -286,6 +289,5 @@ export default {
     background-color: #f6f6f6;
     border-bottom: 1px solid #dddddd !important;
   }
-
 }
 </style>
