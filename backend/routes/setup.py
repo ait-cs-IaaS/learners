@@ -30,7 +30,6 @@ def getStyles():
 @jwt_required(optional=True)
 def getSidebar():
     landingpage = cfg.landingpage
-    base_url = request.url_root
 
     if not current_user:
         return jsonify(tabs=None, landingpage=landingpage, logo=cfg.logo)
@@ -44,7 +43,7 @@ def getSidebar():
 
     for tab_id, tab_details in cfg.tabs.items():
         if "all" in tab_details.get("show", []) or any(group in usergroups for group in tab_details.get("show", [])):
-            tabs.append(Tab(name=tab_id, base_url=base_url, **tab_details).__dict__)
+            tabs.append(Tab(name=tab_id, **tab_details).__dict__)
 
     if vnc_clients := cfg.users.get(current_user.name).get("vnc_clients"):
         multiple = len(vnc_clients) > 1
@@ -68,9 +67,7 @@ def getSidebar():
                 )
 
             tab_index = (index + 1) if multiple else 0
-            tabs.append(
-                Tab(name=key, base_url=base_url, index=tab_index, tooltip=value.get("tooltip"), url=auth_url, _type="client").__dict__
-            )
+            tabs.append(Tab(name=key, index=tab_index, tooltip=value.get("tooltip"), url=auth_url, _type="client").__dict__)
 
     return jsonify(tabs=tabs, landingpage=landingpage)
 

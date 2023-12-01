@@ -22,11 +22,7 @@ class Tab:
         self.icon = icon or defaultIcon(_type or name)
         self.tooltip = tooltip if tooltip else name
         self.index = index
-
-        if proxy:
-            self.url = f"{base_url}/proxy/{url}"
-        else:
-            self.url = url if url else defaultUrl(name, user_role, language, base_url)
+        self.url = url if url else defaultUrl(name, user_role, language, base_url)
 
     def toJson(self):
         return {"id": self.id}
