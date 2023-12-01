@@ -13,7 +13,10 @@
       noresize="noresize"
       style="height: 100vh"
       width="100%"
-      @load="iframeLoaded = true; $emit('loaded')"
+      @load="
+        iframeLoaded = true;
+        $emit('loaded');
+      "
     ></iframe>
 
     <div class="fullscreen-center" v-else>
@@ -83,6 +86,10 @@ export default {
       if (this.tab.id === "drawio") {
         const encoded_data = store.getters.getDrawioData;
         if (encoded_data) src += `${encoded_data}`;
+      }
+      // Add backend prefix
+      if (!src.startsWith("http")) {
+        src = `${import.meta.env.VITE_BACKEND}/${src}`
       }
       return src;
     },
