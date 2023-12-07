@@ -68,7 +68,6 @@ function IsAuthenticated() {
     .get("authentication")
     .then((response) => {
       store.dispatch("setError", "");
-      store.dispatch("getTabsFromServer");
       return response.data.user;
     })
     .catch((error) => {

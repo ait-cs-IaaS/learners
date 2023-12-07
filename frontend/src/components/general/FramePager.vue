@@ -83,11 +83,8 @@ export default {
         this.tab._type !== "client" && this.tab.id !== "drawio" && jwt
           ? `${this.tab.url}?jwt=${jwt}`
           : this.tab.url;
-      if (this.tab.id === "drawio") {
-        const encoded_data = store.getters.getDrawioData;
-        if (encoded_data) src += `${encoded_data}`;
-      }
-      // Add backend prefix
+
+          // Add backend prefix
       if (!src.startsWith("http")) {
         src = `${import.meta.env.VITE_BACKEND}/${src}`
       }

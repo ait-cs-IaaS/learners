@@ -140,6 +140,7 @@ export default {
       if (jwt) {
         store.dispatch("setJwt", jwt);
         axios.defaults.headers.common["Authorization"] = "Bearer " + jwt;
+        store.dispatch("getTabsFromServer");
         this.$router.push(`/#${this.landingpage}`);
       } else {
         store.dispatch("unsetJwt");

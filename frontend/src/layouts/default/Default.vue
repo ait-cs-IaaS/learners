@@ -44,6 +44,7 @@ export default {
   },
   mounted() {
     this.loaded = true;
+    store.dispatch("getTabsFromServer");
   },
   watch: {
     "$route.hash": {

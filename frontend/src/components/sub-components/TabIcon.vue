@@ -23,7 +23,7 @@
           block
           icon
           v-bind="props"
-          @click="changeView"
+          :to="`#${tab.id}`"
         >
           <SvgIcon :name="tab.icon" sidebar />
         </v-btn>
@@ -46,11 +46,6 @@ export default {
   props: {
     tab: { type: Object as PropType<ITabObject>, require: true, default: null },
     currentView: { type: String, require: false, default: "" },
-  },
-  methods: {
-    async changeView() {
-      this.$router.push(`/#${this.tab.id}`);
-    },
   },
 };
 </script>
