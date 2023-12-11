@@ -49,3 +49,10 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.active {
+  color: white !important;
+  opacity: 1;
+}
+</style>
