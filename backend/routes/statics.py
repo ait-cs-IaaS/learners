@@ -34,36 +34,3 @@ def getStaticFiles(path=""):
     except Exception:
         logger.exception(f"ERROR: Loading file failed: {path}")
         return jsonify(error="file not found"), 404
-
-
-@statics_api.route("/proxy/<path:path>", methods=["GET", "POST"])
-def proxy(path):
-    if request.method == "GET":
-        resp = requests.get(path)
-        excluded_headers = [
-            "content-encoding",
-            "content-length",
-            "transfer-encoding",
-            "connection",
-            "content-security-policy",
-            "content-security-policy-report-only",
-        ]
-        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        headers.append(("Access-Control-Allow-Origin", "*"))
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-    elif request.method == "POST":
-        resp = requests.post(path, data=request.form)
-        excluded_headers = [
-            "content-encoding",
-            "content-length",
-            "transfer-encoding",
-            "connection",
-            "content-security-policy",
-            "server",
-            "date",
-        ]
-        headers.append(("Access-Control-Allow-Origin", "*"))
-        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.content, resp.status_code, headers)
-        return response
