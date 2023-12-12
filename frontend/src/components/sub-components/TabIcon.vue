@@ -51,7 +51,11 @@ export default {
 </script>
 
 <style lang="scss">
-.active {
+a.v-theme--light.active,
+a.v-btn--icon.active,
+a.v-btn.active,
+a.v-btn--variant-plain.active,
+a.active {
   color: white !important;
   opacity: 1;
 }
