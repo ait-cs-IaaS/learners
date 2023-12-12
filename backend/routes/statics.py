@@ -1,8 +1,8 @@
-from flask import Blueprint, send_from_directory, make_response, jsonify, request, Response
-from backend.conf.config import cfg
-import requests
-
+from flask import Blueprint, send_from_directory, make_response, jsonify, request
+from werkzeug.exceptions import NotFound
 from flask_jwt_extended import jwt_required
+
+from backend.conf.config import cfg
 
 from backend.logger import logger
 
@@ -31,6 +31,10 @@ def getStaticFiles(path=""):
     try:
         return make_response(send_from_directory(static_root, path))
 
-    except Exception:
-        logger.exception(f"ERROR: Loading file failed: {path}")
+    except NotFound:
+        logger.error(f"ERROR: File not found: {path}")
         return jsonify(error="file not found"), 404
+
+    except Exception as e:
+        logger.exception(f"ERROR: An unexpected error occurred: {e}")
+        return jsonify(error="internal server error"), 500
