@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import jwt
 from datetime import datetime
 from backend.logger import logger
 
@@ -155,3 +156,11 @@ def convert_to_dict(input):
         output.append(element)
 
     return output[0] if single else output
+
+
+def get_user_from_request(req):
+    try:
+        raw_jwt = req.__dict__["headers"]["Authorization"].split("Bearer ")[1]
+        return jwt.decode(raw_jwt, options={"verify_signature": False}).get("sub")
+    except:
+        return ""

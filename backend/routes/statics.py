@@ -32,9 +32,9 @@ def getStaticFiles(path=""):
         return make_response(send_from_directory(static_root, path))
 
     except NotFound:
-        logger.error(f"ERROR: File not found: {path}")
+        logger.warning(f"File not found: {path}")
         return jsonify(error="file not found"), 404
 
     except Exception as e:
-        logger.exception(f"ERROR: An unexpected error occurred: {e}")
+        logger.exception(f"An unexpected error occurred: {e}")
         return jsonify(error="internal server error"), 500

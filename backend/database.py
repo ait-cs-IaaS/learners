@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from backend.logger import logger
+from backend.logger import STARTUP, logger
 
 
 db = SQLAlchemy()
@@ -29,6 +29,6 @@ def build_db(app):
 
     try:
         loaded_exercises = db.session.query(Exercise).all()
-        logger.info(f"\n\tCurrently, {len(loaded_exercises)} Exercises has been loaded.\n")
+        logger.log(STARTUP, f"{len(loaded_exercises)} Exercises has been loaded.")
     except Exception as e:
         logger.exception(e)

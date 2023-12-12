@@ -1,8 +1,26 @@
 from flask import Flask
+from backend.logger import STARTUP, logger
 
 
 def main():
     app = Flask(__name__)
+
+    welcome_text = """
+
+         _      ______          _____  _   _ ______ _____   _____
+        | |    |  ____|   /\   |  __ \| \ | |  ____|  __ \ / ____|
+        | |    | |__     /  \  | |__) |  \| | |__  | |__) | (___
+        | |    |  __|   / /\ \ |  _  /| . ` |  __| |  _  / \___ \\
+        | |____| |____ / ____ \| | \ \| |\  | |____| | \ \ ____) |
+        |______|______/_/    \_\_|  \_\_| \_|______|_|  \_\_____/
+
+        Learners - web framework developed by the International Atomic Energy Agency (IAEA)
+        and the Austrian Institute of Technology (AIT) for streamlined training courses,
+        with a specific emphasis on information and computer security.
+
+        """
+
+    logger.log(STARTUP, welcome_text)
 
     with app.app_context():
         from backend.conf.config import build_config

@@ -152,10 +152,7 @@ def getAllSubmissions():
 def postFormExercise(global_exercise_id):
     response = SubmissionResponse()
 
-    print(global_exercise_id)
-
     data = request.get_json()
-    print(data)
     if db_create_execution("form", global_exercise_id, data, current_user.id, None):
         response.executed = True
         response.completed = True
