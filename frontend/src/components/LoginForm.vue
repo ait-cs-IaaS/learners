@@ -172,11 +172,7 @@ export default {
             if (error.response) {
               context.errorText = `Encounted error on server: <br> <strong>${error.response.status}</strong> <br> ${error.response.data} <br><br> Retrying in 5 seconds ... (${attemptCount})`;
             } else if (error.request) {
-              context.errorText = `Unable to connect to the server. <br> Make sure the server can be reached and the certificate (if self-signed) is accepted. In order verify this, go to <a href="${
-                import.meta.env.VITE_BACKEND
-              }">${
-                import.meta.env.VITE_BACKEND
-              }</a> and accept the certificate if prompted. <br><br> Retrying in 5 seconds ... (${attemptCount})`;
+              context.errorText = `Unable to connect to the server. <br> Make sure the server can be reached and the certificate (if self-signed) is accepted. In order verify this, go to <a href="${store.getters.getBackendUrl}">${store.getters.getBackendUrl}</a> and accept the certificate if prompted. <br><br> Retrying in 5 seconds ... (${attemptCount})`;
             } else {
               context.errorText = `Error in setting up the request to the server: <br> ${error.message} <br><br> Retrying in 5 seconds ... (${attemptCount})`;
             }

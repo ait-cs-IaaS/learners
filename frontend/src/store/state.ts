@@ -1,3 +1,4 @@
+import { initializeBackendUrl } from "@/helpers";
 import {
   ITabObject,
   INotificationObject,
@@ -11,6 +12,7 @@ export default {
   tabs: new Array<ITabObject>(),
   error: "",
   theme: new Array(),
+  backendUrl: initializeBackendUrl(),
 
   // Notifications
   notifications: new Array<INotificationObject>(),
@@ -30,7 +32,4 @@ export default {
     feedback: false,
     questionnaire: false,
   },
-
-  // DrawIO
-  drawioEncodedData: "",
 };

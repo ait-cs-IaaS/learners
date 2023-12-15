@@ -5,34 +5,39 @@ import pluginYaml from "vite-plugin-yaml2";
 import svgLoader from "vite-svg-loader";
 
 // Utilities
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
-export default defineConfig({
-  css: {
-    preprocessorOptions: {
-      scss: {},
+export default ({ mode }) => {
+  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+
+  return defineConfig({
+    css: {
+      preprocessorOptions: {
+        scss: {},
+      },
     },
-  },
-  plugins: [
-    vue({
-      template: { transformAssetUrls },
-    }),
-    vuetify({
-      autoImport: true,
-      styles: { configFile: "./src/scss/settings.scss" },
-    }),
-    pluginYaml(),
-    svgLoader(),
-  ],
-  define: { "process.env": {} },
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    plugins: [
+      vue({
+        template: { transformAssetUrls },
+      }),
+      vuetify({
+        autoImport: true,
+        styles: { configFile: "./src/scss/settings.scss" },
+      }),
+      pluginYaml(),
+      svgLoader(),
+    ],
+    base: "/" + process.env.VITE_BASEURL,
+    define: { "process.env": {} },
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+      extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },
-    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
-  },
-  server: {
-    port: 3000,
-  },
-});
+    server: {
+      port: 3000,
+    },
+  });
+};

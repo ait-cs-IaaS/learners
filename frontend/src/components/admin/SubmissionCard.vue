@@ -109,6 +109,7 @@ import FailIcon from "@/components/sub-components/FailIcon.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import axios from "axios";
+import { store } from "@/store";
 
 export default {
   name: "SubmissionCard",
@@ -129,12 +130,8 @@ export default {
       submissions: <any>[],
       loading: false,
       filetypes: ["png", "jpg", "jpeg", "gif", "json", "svg"],
+      backend: "",
     };
-  },
-  computed: {
-    backend() {
-      return import.meta.env.VITE_BACKEND;
-    },
   },
   methods: {
     unescape(_string) {
@@ -151,6 +148,7 @@ export default {
     },
   },
   async beforeMount() {
+    this.backend = store.getters.getBackendUrl;
     this.loading = true;
     const url = `submissions/${this.userId}/${this.exerciseId}`;
 

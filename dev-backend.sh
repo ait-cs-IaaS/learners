@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-gunicorn backend:app --worker-class gevent --bind 0.0.0.0:5000
+mkdir /tmp/learners
+gunicorn backend:app --worker-class gevent --bind unix:/tmp/learners/learners.sock

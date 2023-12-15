@@ -84,9 +84,9 @@ export default {
           ? `${this.tab.url}?jwt=${jwt}`
           : this.tab.url;
 
-          // Add backend prefix
+      // Add backend prefix
       if (!src.startsWith("http")) {
-        src = `${import.meta.env.VITE_BACKEND}/${src}`
+        src = `${store.getters.getBackendUrl}/${src}`;
       }
       return src;
     },

@@ -99,8 +99,4 @@ export default {
 
   SET_QUESTIONNAIRES: (state: { questionnaires: any }, payload: any) =>
     (state.questionnaires = payload),
-
-  // DrawIO
-  SET_DRAWIO_DATA: (state: { drawioEncodedData: string }, data: string) =>
-    (state.drawioEncodedData = data),
 };

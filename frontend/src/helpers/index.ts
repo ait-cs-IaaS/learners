@@ -6,6 +6,24 @@ import {
 } from "@/types/index";
 import axios from "axios";
 
+export function initializeBackendUrl() {
+  let backendUrl =
+    import.meta.env.VITE_BACKEND ||
+    (import.meta.env.VITE_BASEURL
+      ? `${import.meta.env.VITE_BASEURL}/api`
+      : undefined);
+
+  backendUrl =
+    !backendUrl.startsWith("http") && !backendUrl.startsWith("//")
+      ? `${window.location.origin}/${backendUrl}`.replace(
+          /([^:])\/{2,}/g,
+          "$1/"
+        )
+      : backendUrl;
+
+  return backendUrl;
+}
+
 export const generateTabs = (tabs, response) => {
   const newtabs = response.tabs;
   tabs = (newtabs || []).map((newtab) => {

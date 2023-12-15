@@ -98,9 +98,9 @@ export default {
 
       const connectToStream = (context) => {
         const jwt = store.getters.getJwt;
-        context.evtSource = new EventSource(
-          `${import.meta.env.VITE_BACKEND}/stream?jwt=${jwt}`
-        );
+
+        const backend = store.getters.getBackendUrl;
+        context.evtSource = new EventSource(`${backend}/stream?jwt=${jwt}`);
 
         context.evtSource.onopen = function () {
           console.log("Connected to SSE source.");
@@ -154,7 +154,7 @@ export default {
     // Get full list of questionnaires from server
     store.dispatch("getQuestionnairesFromServer");
 
-    // Allow call to change drawio url
+    // Allow call to wrapper
     window.addEventListener("message", this.iFrameHandle);
 
     // Get a list of all iFrames

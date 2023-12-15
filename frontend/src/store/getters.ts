@@ -2,6 +2,7 @@ export default {
   // General
   getLogo: (state) => state.logo,
   getJwt: (state) => state.jwt,
+  getBackendUrl: (state) => state.backendUrl,
   getError: (state) => state.error,
   getTabs: (state) => state.tabs,
   getCurrentView: (state) => state.currentView || "",
@@ -38,7 +39,4 @@ export default {
     if (state.questionnaires) return state.questionnaires.length;
     else return 0;
   },
-
-  // DrawIO
-  getDrawioData: (state) => state.drawioEncodedData,
 };
