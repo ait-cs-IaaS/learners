@@ -13,13 +13,9 @@ export function initializeBackendUrl() {
       ? `${import.meta.env.VITE_BASEURL}/api`
       : undefined);
 
-  backendUrl =
-    !backendUrl.startsWith("http") && !backendUrl.startsWith("//")
-      ? `${window.location.origin}/${backendUrl}`.replace(
-          /([^:])\/{2,}/g,
-          "$1/"
-        )
-      : backendUrl;
+  backendUrl = !backendUrl.startsWith("http")
+    ? `${window.location.origin}/${backendUrl}`.replace(/([^:])\/{2,}/g, "$1/")
+    : backendUrl;
 
   return backendUrl;
 }
