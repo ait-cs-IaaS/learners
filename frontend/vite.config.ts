@@ -28,7 +28,7 @@ export default ({ mode }) => {
       pluginYaml(),
       svgLoader(),
     ],
-    base: "/" + process.env.VITE_BASEURL,
+    base: process.env.VITE_BASEURL,
     define: { "process.env": {} },
     resolve: {
       alias: {
