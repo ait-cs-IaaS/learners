@@ -72,6 +72,7 @@ export default {
       return tabsList.filter((tab) => tab._type != "admin");
     },
     showNotifications() {
+      this.notificationClosed = false;
       return (
         store.getters.getShowNotifications &&
         store.getters.getNotifications.length > 0 &&
