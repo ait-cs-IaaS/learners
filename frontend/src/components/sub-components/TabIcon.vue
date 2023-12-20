@@ -23,7 +23,7 @@
           block
           icon
           v-bind="props"
-          :to="`#${tab.id}`"
+          :to="getPath"
         >
           <SvgIcon :name="tab.icon" sidebar />
         </v-btn>
@@ -46,6 +46,15 @@ export default {
   props: {
     tab: { type: Object as PropType<ITabObject>, require: true, default: null },
     currentView: { type: String, require: false, default: "" },
+  },
+  computed: {
+    getPath() {
+      if (this.$route.name == "Login" || this.$route.name == "Logout") {
+        return `/#${this.tab.id}`;
+      } else {
+        return `#${this.tab.id}`;
+      }
+    },
   },
 };
 </script>
