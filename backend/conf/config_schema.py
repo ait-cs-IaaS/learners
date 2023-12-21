@@ -41,9 +41,9 @@ config_schema = Map(
                 ),
                 Optional(
                     "logo",
-                    default="<svg viewBox='0 0 343.71 136.32' style='enable-background:new 0 0 200 200;' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'><polygon points='343.71 41.4 343.71 0 236 0 236 41.4 268.17 41.4 268.17 136.32 311.54 136.32 311.54 41.4 343.71 41.4' style='fill: #fff;'/><rect x='184.69' width='43.37' height='136.32' style='fill: #fff;'/><polygon points='133.38 136.32 176.75 136.32 176.75 0 136.22 0 0 136.32 55.97 136.32 133.38 58.82 133.38 136.32' style='fill: #fff;'/></svg>",
+                    default='<?xml version="1.0" encoding="UTF-8"?><svg id="b" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 202.44 130.4"><g id="c"><g id="d"><g id="e"><path d="m120.33,100l-1.13,1.67c-20.13,29.84-60.63,37.71-90.47,17.58C9.96,106.59-.89,85.11.06,62.49,1.4,29.33,28.4,1.92,61.51.1c18.75-1.04,37.04,6.05,50.2,19.44.82.84.98,2.11.4,3.13l-13,22.43c-.36.62-1.01,1-1.72,1-.72.04-1.4-.31-1.79-.92-11.09-16.79-33.68-21.41-50.47-10.33-10.89,7.19-17.1,19.66-16.29,32.68,1.28,20.07,18.6,35.31,38.67,34.02,10.68-.68,20.52-6.03,26.9-14.61l1-1.35,24.92,14.41ZM202.09,5.67c-.47-.81-1.34-1.32-2.28-1.32h-54.51c-1.78,0-3.42.95-4.31,2.49l-39.22,67.93,24.9,14.39,32.36-56h27.21c.95-.02,1.81-.53,2.27-1.36l13.58-23.5c.47-.81.47-1.82,0-2.63Z" style="fill:#fff; stroke-width:0px;"/></g></g></g></svg>',
                 ): Str(),
-                Optional("headline", default="Welcome to the CyberRange"): Str(),
+                Optional("headline", default="Welcome to Learners"): Str(),
                 Optional(
                     "welcomeText",
                     default="Please log in with your assigned credentials:",

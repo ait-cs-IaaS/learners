@@ -24,7 +24,9 @@ export default {
     commit("SET_CURRENT_VIEW", currentView),
 
   reinitBackendUrl({ commit }) {
-    commit("SET_BACKEND_URL", initializeBackendUrl());
+    const backendUrl = initializeBackendUrl();
+    console.log("Backend is set to:", backendUrl);
+    commit("SET_BACKEND_URL", backendUrl);
   },
 
   // Tabs
