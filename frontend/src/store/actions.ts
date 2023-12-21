@@ -1,6 +1,10 @@
 import axios from "axios";
 import { Commit } from "vuex";
-import { extractNotifications, extractQuestionnaires } from "@/helpers";
+import {
+  extractNotifications,
+  extractQuestionnaires,
+  initializeBackendUrl,
+} from "@/helpers";
 import { INotificationObject, IQuestionnaireQuestionObject } from "@/types";
 
 export default {
@@ -18,6 +22,10 @@ export default {
 
   setCurrentView: ({ commit }: { commit: Commit }, currentView: string) =>
     commit("SET_CURRENT_VIEW", currentView),
+
+  reinitBackendUrl({ commit }) {
+    commit("SET_BACKEND_URL", initializeBackendUrl());
+  },
 
   // Tabs
   async getTabsFromServer({ commit }) {

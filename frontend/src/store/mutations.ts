@@ -4,6 +4,8 @@ import { INotificationObject, IQuestionnaireQuestionObject } from "@/types";
 export default {
   SET_LOGO: (state: { logo: string }, logo: string) => (state.logo = logo),
   SET_JWT: (state: { jwt: string }, jwt: string) => (state.jwt = jwt),
+  SET_BACKEND_URL: (state: { backendUrl: string }, backendUrl: string) =>
+    (state.backendUrl = backendUrl),
   SET_ERROR: (state: { error: string }, error_msg: string) =>
     (state.error = error_msg),
   SET_TABS: (state: { tabs: any; currentView: string }, response: any) => {
