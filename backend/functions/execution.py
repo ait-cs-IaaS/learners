@@ -5,10 +5,12 @@ from typing import Tuple
 import requests
 from backend.logger import logger
 from backend.conf.config import cfg
-from backend.functions.database import db_get_venjix_execution, db_update_venjix_execution
+from backend.functions.database import db_get_exercise_by_global_exercise_id, db_get_venjix_execution, db_update_venjix_execution
 
 
-def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, bool]:
+def call_venjix(global_exercise_id: str, username: str, callback_url: str, execution_uuid: str) -> Tuple[bool, bool]:
+    script_response = None
+    script = db_get_exercise_by_global_exercise_id(global_exercise_id).script_name
     try:
         response = requests.post(
             # TODO: Remove verify line
@@ -19,7 +21,7 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
                 {
                     "script": script,
                     "user_id": username,
-                    "callback": f"/callback/{execution_uuid}",
+                    "callback": f"{callback_url}/{execution_uuid}",
                 }
             ),
         )
@@ -33,14 +35,15 @@ def call_venjix(username: str, script: str, execution_uuid: str) -> Tuple[bool, 
             connected = True
             executed = bool(resp["response"] == "script started")
             msg = resp.get("msg") or None
+            script_response = resp.get("script_response") or None
 
     except Exception as connection_exception:
-        logger.exception(connection_exception)
+        logger.error(connection_exception)
         connected = False
         executed = False
-        msg = "Connection failed"
+        msg = "connection failed"
 
-    db_update_venjix_execution(execution_uuid, connection_failed=(not connected), msg=msg)
+    db_update_venjix_execution(execution_uuid, connection_failed=(not connected), msg=msg, script_response=script_response)
 
     return connected, executed
 
@@ -54,7 +57,7 @@ def wait_for_venjix_response(execution_uuid: str) -> dict:
             if execution["response_timestamp"] or execution["connection_failed"]:
                 if execution["connection_failed"]:
                     execution["executed"] = False
-                    execution["msg"] = "Connection failed."
+                    execution["msg"] = execution["msg"] or "connection failed"
                 else:
                     # Get error msg
                     error = json.loads(execution["response_content"]).get("stderr")

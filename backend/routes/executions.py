@@ -10,6 +10,7 @@ from backend.functions.database import (
     db_create_execution,
     db_create_file,
     db_create_venjix_execution,
+    db_get_current_executions,
     db_get_current_submissions,
     db_get_running_executions_by_name,
     db_get_all_exercises,
@@ -135,9 +136,7 @@ def getAllSubmissions():
         executions = {"user_id": user.id, "username": user.name}
         for exercise in db_get_all_exercises():
             completed_state = [state[0] for state in db_get_completed_state(user.id, exercise.id)]
-            execution_ids = [
-                execution.get("execution_uuid") for execution in convert_to_dict(db_get_executions_by_user_exercise(user.id, exercise.id))
-            ]
+            execution_ids = [execution.get("id") for execution in convert_to_dict(db_get_executions_by_user_exercise(user.id, exercise.id))]
             executions[exercise.global_exercise_id] = {
                 "completed": int(any(completed_state)) if completed_state else -1,
                 "executions": execution_ids,
@@ -149,13 +148,28 @@ def getAllSubmissions():
 
 @executions_api.route("/submissions/form/<global_exercise_id>", methods=["POST"])
 @jwt_required()
-def postFormExercise(global_exercise_id):
+def postFormSubmission(global_exercise_id):
     response = SubmissionResponse()
 
     data = request.get_json()
     if db_create_execution("form", global_exercise_id, data, current_user.id, None):
         response.executed = True
         response.completed = True
+
+    sse_create_and_publish(_type="submission", user=current_user, exercise=db_get_exercise_by_global_exercise_id(global_exercise_id))
+
+    return jsonify(response.__dict__)
+
+
+@executions_api.route("/submissions/script/<global_exercise_id>", methods=["POST"])
+@jwt_required()
+def postScriptSubmission(global_exercise_id):
+    execution_uuid = f"{str(current_user.name)}_{uuid.uuid4().int & (1 << 64) - 1}"
+    response = SubmissionResponse(uuid=execution_uuid)
+    callback_url = f"{request.headers.get('Referer').split('/statics')[0]}/callback"
+
+    if db_create_venjix_execution(global_exercise_id, execution_uuid, current_user.id):
+        response.connected, response.executed = call_venjix(global_exercise_id, current_user.name, callback_url, execution_uuid)
 
     sse_create_and_publish(_type="submission", user=current_user, exercise=db_get_exercise_by_global_exercise_id(global_exercise_id))
 
@@ -192,13 +206,28 @@ def runExecution(script_name):
     execution_uuid = f"{str(current_user.name)}_{uuid.uuid4().int & (1 << 64) - 1}"
     response = SubmissionResponse(uuid=execution_uuid)
 
+    callback_url = f"{request.headers.get('Referer').split('/statics')[0]}/callback"
+
     if db_create_venjix_execution(execution_uuid, current_user.id, script_name):
-        response.connected, response.executed = call_venjix(current_user.name, script_name, execution_uuid)
+        response.connected, response.executed = call_venjix(current_user.name, script_name, callback_url, execution_uuid)
 
     return jsonify(response.__dict__)
 
 
-@executions_api.route("/executions/<execution_uuid>", methods=["GET"])
+@executions_api.route("/executions/<global_exercise_id>", methods=["GET"])
+@jwt_required()
+def getExecutions(global_exercise_id):
+    response = None
+
+    if executions := db_get_current_executions(current_user.id, global_exercise_id):
+        response = SubmissionResponse()
+        response.update(convert_to_dict(executions))
+        response = response.__dict__
+
+    return jsonify(response)
+
+
+@executions_api.route("/executions/state/<execution_uuid>", methods=["GET"])
 @jwt_required()
 def getExecutionState(execution_uuid):
     response = SubmissionResponse()
