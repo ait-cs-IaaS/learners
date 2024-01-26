@@ -15,6 +15,7 @@ class SubmissionResponse:
         exercise_type: string = "",
         filename: string = "",
         uuid: string = "",
+        script_response: string = ""
     ):
         self.completed = completed
         self.executed = executed
@@ -26,6 +27,7 @@ class SubmissionResponse:
         self.exercise_type = exercise_type
         self.filename = filename
         self.uuid = uuid
+        self.script_response = script_response
 
     def update(self, executions) -> dict:
         if not len(executions):
@@ -45,10 +47,11 @@ class SubmissionResponse:
         self.partial = last_execution.get("partial")
         self.completed = last_execution.get("completed")
         self.exercise_type = last_execution.get("exercise_type")
+        self.script_response = last_execution.get("script_response")
 
         if self.connection_failed:
             self.executed = False
-            self.msg = "Connection failed."
+            self.msg = self.msg or "connection failed"
 
         if self.response_timestamp:
             if self.exercise_type == "form":
