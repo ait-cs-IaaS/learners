@@ -3,9 +3,14 @@ import time
 from typing import Tuple
 
 import requests
+from backend.functions.helpers import convert_to_dict
 from backend.logger import logger
 from backend.conf.config import cfg
-from backend.functions.database import db_get_exercise_by_global_exercise_id, db_get_venjix_execution, db_update_venjix_execution
+from backend.functions.database import (
+    db_get_exercise_by_global_exercise_id,
+    db_get_submission_by_execution_uuid,
+    db_update_venjix_execution,
+)
 
 
 def call_venjix(global_exercise_id: str, username: str, callback_url: str, execution_uuid: str) -> Tuple[bool, bool]:
@@ -30,20 +35,27 @@ def call_venjix(global_exercise_id: str, username: str, callback_url: str, execu
         if response.status_code != 200:
             connected = False
             executed = False
-            msg = f"{response.status_code}: {resp['response']}"
+            status_msg = f"{response.status_code}: {resp['response']}"
         else:
             connected = True
             executed = bool(resp["response"] == "script started")
-            msg = resp.get("msg") or None
+            status_msg = resp.get("status_msg") or None
             script_response = resp.get("script_response") or None
 
     except Exception as connection_exception:
         logger.error(connection_exception)
         connected = False
         executed = False
-        msg = "connection failed"
+        status_msg = "connection failed"
 
-    db_update_venjix_execution(execution_uuid, connection_failed=(not connected), msg=msg, script_response=script_response)
+    updates = {
+        "execution_uuid": execution_uuid,
+        "executed": executed,
+        "status_msg": status_msg,
+        "script_response": script_response,
+    }
+
+    db_update_venjix_execution(updates)
 
     return connected, executed
 
@@ -53,19 +65,16 @@ def wait_for_venjix_response(execution_uuid: str) -> dict:
         time.sleep(0.5)
 
         try:
-            execution = db_get_venjix_execution(execution_uuid)
-            if execution["response_timestamp"] or execution["connection_failed"]:
-                if execution["connection_failed"]:
-                    execution["executed"] = False
-                    execution["msg"] = execution["msg"] or "connection failed"
-                else:
-                    # Get error msg
-                    error = json.loads(execution["response_content"]).get("stderr")
-                    execution["executed"] = bool(not error)
-                    # Apply error msg to msg if none given
-                    execution["msg"] = execution["msg"] or error
+            submission = db_get_submission_by_execution_uuid(execution_uuid)
+            submission = convert_to_dict(submission)
+            if not submission["executed"]:
+                submission["status_msg"] = (
+                    submission["status_msg"] or json.loads(submission["response_content"]).get("stderr") or "connection failed"
+                )
+                return submission
 
-                return execution
+            if submission["response_timestamp"]:
+                return submission
 
         except Exception as e:
             logger.exception(e)

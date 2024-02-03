@@ -8,7 +8,7 @@ class User(db.Model):
     role = db.Column(db.String(20), unique=False, nullable=False, default="participant")
     admin = db.Column(db.Integer, nullable=False, default=0)
     meta = db.Column(db.String(), unique=False, nullable=True)
-    executions = db.relationship("Execution", backref="user", lazy=True)
+    submission = db.relationship("Submission", backref="user", lazy=True)
     usergroups = db.relationship("UsergroupAssociation", back_populates="user")
 
 
@@ -124,6 +124,7 @@ class Exercise(db.Model):
     child_weight = db.Column(db.Integer, nullable=False)
     order_weight = db.Column(db.Integer, nullable=False)
     script_name = db.Column(db.String(120), nullable=True)
+    submissions = db.relationship("Submission", backref="exercise", lazy=True)
     executions = db.relationship("Execution", backref="exercise", lazy=True)
     venjix_executions = db.relationship("VenjixExecution", backref="exercise", lazy=True)
 
@@ -167,3 +168,25 @@ class VenjixExecution(db.Model):
     connection_failed = db.Column(db.Integer, nullable=False, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+
+
+class Submission(db.Model):
+    # General Fields
+    id = db.Column(db.Integer, primary_key=True)
+    exercise_type = db.Column(db.String(120), nullable=False)
+    execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
+    completed = db.Column(db.Integer, nullable=False, default=0)
+    executed = db.Column(db.Integer, nullable=False, default=0)
+    partial = db.Column(db.Integer, nullable=False, default=0)
+    status_msg = db.Column(db.String(240), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+
+    # Form Submission
+    form_data = db.Column(db.String(), nullable=True)
+
+    # Script Submission
+    execution_uuid = db.Column(db.String(120), unique=True, nullable=True)
+    response_timestamp = db.Column(db.DateTime, nullable=True)
+    response_content = db.Column(db.Text, nullable=True)
+    script_response = db.Column(db.Text, nullable=True)

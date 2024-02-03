@@ -33,12 +33,18 @@
           <v-row>
             <v-col cols="1">
               <success-icon v-if="submission.completed === 1" />
-              <fail-icon v-else-if="submission.completed === -1" />
+              <fail-icon
+                v-else-if="
+                  submission.completed === 0 && submission.executed === 0
+                "
+              />
+              <partial-icon v-else-if="submission.executed === 1" />
             </v-col>
             <v-col cols="11">
               <h2>Submission #{{ submissions.length - index }}</h2>
               <span class="text-grey">
                 Executed on: {{ submission.execution_timestamp }}
+                {{ submission }}
               </span>
             </v-col>
           </v-row>
@@ -106,6 +112,7 @@
 <script lang="ts">
 import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
 import FailIcon from "@/components/sub-components/FailIcon.vue";
+import PartialIcon from "@/components/sub-components/PartialIcon.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import axios from "axios";
@@ -116,6 +123,7 @@ export default {
   components: {
     SuccessIcon,
     FailIcon,
+    PartialIcon,
     Loader,
     SvgIcon,
   },

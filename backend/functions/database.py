@@ -10,10 +10,10 @@ from backend.conf.config import cfg
 from backend.conf.db_models import (
     Attachment,
     Cache,
-    Execution,
     Exercise,
     Notification,
     QuestionnaireAnswer,
+    Submission,
     User,
     Page,
     Comment,
@@ -196,22 +196,9 @@ def db_create_venjix_execution(global_exercise_id: str, execution_uuid: str, use
         logger.exception(e)
 
 
-def db_update_venjix_execution(
-    execution_uuid: str,
-    connection_failed: bool = False,
-    response_timestamp: str = None,
-    response_content: str = None,
-    completed: bool = False,
-    msg: str = None,
-    partial: bool = False,
-    script_response: str = None,
-) -> bool:
+def db_update_venjix_execution(updates) -> bool:
     try:
-        execution = VenjixExecution.query.filter_by(execution_uuid=execution_uuid).first()
-        for key, value in list(locals().items())[:-1]:
-            if value:
-                setattr(execution, key, value)
-        db.session.commit()
+        db_create_or_update(Submission, ["execution_uuid"], updates, nolog=True)
         return True
 
     except Exception as e:
@@ -222,11 +209,11 @@ def db_update_venjix_execution(
 def db_get_running_executions_by_name(user_id: int, script: str) -> dict:
     try:
         running_executions = (
-            VenjixExecution.query.filter_by(user_id=user_id)
+            Submission.query.filter_by(user_id=user_id)
             .filter_by(script=script)
-            .filter_by(connection_failed=False)
+            .filter_by(executed=True)
             .filter_by(response_timestamp=None)
-            .order_by(VenjixExecution.execution_timestamp.desc())
+            .order_by(Submission.execution_timestamp.desc())
             .all()
         )
         return convert_to_dict(running_executions)
@@ -236,36 +223,30 @@ def db_get_running_executions_by_name(user_id: int, script: str) -> dict:
         return None
 
 
-def db_get_venjix_execution(execution_uuid: str) -> dict:
-    try:
-        execution = generic_getter(VenjixExecution, "execution_uuid", execution_uuid)
-        return convert_to_dict(execution)
-
-    except Exception as e:
-        logger.exception(e)
-        return None
+def db_get_submission_by_execution_uuid(execution_uuid: str) -> dict:
+    return generic_getter(Submission, "execution_uuid", execution_uuid)
 
 
-def db_create_execution(exercise_type: str, global_exercise_id: str, data: dict, user_id: int, execution_uuid: str) -> bool:
-    form_data = json.dumps(data, indent=4, sort_keys=False)
-
+def db_create_submission(exercise_type: str, global_exercise_id: str, user_id: int, data: dict = None, execution_uuid: str = None) -> bool:
     try:
         exercise_id = db_get_exercise_by_global_exercise_id(global_exercise_id).id
 
-        execution = Execution(
+        submission = Submission(
             exercise_type=exercise_type,
-            script="script",
-            form_data=form_data,
-            execution_uuid=execution_uuid,
             user_id=user_id,
             exercise_id=exercise_id,
         )
 
         if exercise_type == "form":
-            execution.completed = True
-            execution.response_timestamp = datetime.now(timezone.utc)
+            form_data = json.dumps(data, indent=4, sort_keys=False)
+            submission.form_data = form_data
+            submission.completed = True
+            submission.executed = True
 
-        db.session.add(execution)
+        if exercise_type == "script":
+            submission.execution_uuid = execution_uuid
+
+        db.session.add(submission)
         db.session.commit()
         return True
 
@@ -294,22 +275,13 @@ def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tupl
         exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
         submissions = []
 
-        if exercise.exercise_type == "form":
-            submissions = (
-                db.session.query(Execution)
-                .filter_by(user_id=user_id)
-                .filter_by(exercise_id=exercise.id)
-                .order_by(Execution.execution_timestamp.desc(), Execution.response_timestamp.desc())
-                .all()
-            )
-        elif exercise.exercise_type == "script":
-            submissions = (
-                db.session.query(VenjixExecution)
-                .filter_by(user_id=user_id)
-                .filter_by(exercise_id=exercise.id)
-                .order_by(VenjixExecution.execution_timestamp.desc(), VenjixExecution.response_timestamp.desc())
-                .all()
-            )
+        submissions = (
+            db.session.query(Submission)
+            .filter_by(user_id=user_id)
+            .filter_by(exercise_id=exercise.id)
+            .order_by(Submission.execution_timestamp.desc(), Submission.response_timestamp.desc())
+            .all()
+        )
 
         return submissions
     except Exception as e:
@@ -317,14 +289,14 @@ def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tupl
         return []
 
 
-def db_get_current_executions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
+def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
     try:
         exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
         submissions = (
-            db.session.query(VenjixExecution)
+            db.session.query(Submission)
             .filter_by(user_id=user_id)
             .filter_by(exercise_id=exercise.id)
-            .order_by(VenjixExecution.response_timestamp.desc(), VenjixExecution.execution_timestamp.desc())
+            .order_by(Submission.execution_timestamp.desc(), Submission.response_timestamp.desc())
             .all()
         )
         return submissions
@@ -398,6 +370,10 @@ def db_get_admin_users() -> list:
 
 def db_get_all_users() -> list:
     return generic_getter(User, "role", "participant", all=True)
+
+
+def db_get_participants_userids() -> list:
+    return [id[0] for id in db.session.query(User).filter_by(role="participant").with_entities(User.id).all()]
 
 
 def db_get_all_userids() -> list:
@@ -585,13 +561,13 @@ def db_convert_ids_to_usernames(user_ids: list = []) -> list:
     return usernames
 
 
-def db_get_executions_by_user_exercise(user_id: int, exercise_id: int) -> list:
+def db_get_submissions_by_user_exercise(user_id: int, exercise_id: int) -> list:
     try:
         return (
-            db.session.query(Execution)
+            db.session.query(Submission)
             .filter_by(user_id=user_id)
             .filter_by(exercise_id=exercise_id)
-            .order_by(Execution.execution_timestamp.desc())
+            .order_by(Submission.execution_timestamp.desc())
             .all()
         )
     except Exception as e:
@@ -604,9 +580,9 @@ def db_get_completed_state(user_id: int, exercise_id: int) -> dict:
         return (
             db.session.query(User)
             .filter_by(id=user_id)
-            .join(Execution)
+            .join(Submission)
             .filter_by(exercise_id=exercise_id)
-            .with_entities(Execution.completed)
+            .with_entities(Submission.completed)
             .all()
         )
     except Exception as e:
@@ -742,11 +718,11 @@ def db_get_completion_percentage(exercise_id):
 
     try:
         executions = (
-            db.session.query(Execution)
+            db.session.query(Submission)
             .filter_by(exercise_id=exercise_id)
             .join(User)
             .group_by(User.id)
-            .with_entities(db.func.max(Execution.completed))
+            .with_entities(db.func.max(Submission.completed))
             .all()
         )
         return len(executions) / len(users) * 100

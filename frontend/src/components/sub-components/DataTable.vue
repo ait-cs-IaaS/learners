@@ -39,27 +39,53 @@
       v-slot:[getSlotName(header.value)]="data"
     >
       <div :key="header.value" :data="data" class="content-col">
-        <success-icon
-          class="clickable"
-          v-if="data[header.value].completed === 1"
+        <!-- <success-icon v-if="submission.completed === 1" />
+              <fail-icon
+                v-else-if="
+                  submission.completed === 0 && submission.executed === 0
+                "
+              />
+              <partial-icon v-else-if="submission.executed === 1" />
+               -->
+        <div
+          v-if="
+            data[header.value].executions &&
+            data[header.value].executions.length > 0
+          "
           @click="
             $emit('showDetails', {
               userId: data['user_id'],
               exerciseId: header.value,
             })
           "
-        />
+        >
+          <success-icon
+            class="clickable"
+            v-if="data[header.value].completed === 1"
+            @click="
+              $emit('showDetails', {
+                userId: data['user_id'],
+                exerciseId: header.value,
+              })
+            "
+          />
 
-        <fail-icon
-          class="clickable"
-          v-else-if="
-            data[header.value].completed === -1 &&
-            data[header.value].executions.len > 0
-          "
-        />
-        <span v-else-if="header.value === 'username'">{{
-          data[header.value]
-        }}</span>
+          <fail-icon
+            class="clickable"
+            v-else-if="
+              data[header.value].completed === 0 &&
+              data[header.value].executed === 0
+            "
+          />
+
+          <partial-icon
+            class="clickable"
+            v-else-if="data[header.value].executed === 1"
+          />
+          <span v-else-if="header.value === 'username'">{{
+            data[header.value]
+          }}</span>
+        </div>
 
         <span v-else> - </span>
       </div>
@@ -71,6 +97,7 @@
 import type { Header, Item } from "vue3-easy-data-table";
 import SuccessIcon from "@/components/sub-components/SuccessIcon.vue";
 import FailIcon from "@/components/sub-components/FailIcon.vue";
+import PartialIcon from "@/components/sub-components/PartialIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 
 export default {
@@ -78,6 +105,7 @@ export default {
   components: {
     SuccessIcon,
     FailIcon,
+    PartialIcon,
     Loader,
   },
   props: {

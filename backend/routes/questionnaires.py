@@ -7,7 +7,6 @@ from backend.functions.database import (
     db_create_questionnaire_answer,
     db_get_participants_userids,
     db_get_questionnaire_question_answers_by_user,
-    db_get_all_userids,
     db_get_grouped_questionnaires,
     db_get_questionnaire_question_by_global_question_id,
     db_get_questionnaire_results_by_global_question_id,
@@ -31,6 +30,10 @@ def getQuestions():
     grouped_questionnaires = db_get_grouped_questionnaires()
 
     active_questions = []
+
+    # Avoid promting admins
+    if current_user.role == "instructor":
+        return jsonify(questions=[]), 200
 
     # Filter for active questions
     for questionnaire in grouped_questionnaires:
@@ -72,7 +75,6 @@ def submitQuestion(global_question_id):
 
     if db_create_questionnaire_answer(global_question_id=global_question_id, answers=answers, user_id=current_user.id):
         # Send SSE event
-
         sse_create_and_publish(
             event="questionnaireSubmission",
             question=global_question_id,
