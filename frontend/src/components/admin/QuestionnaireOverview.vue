@@ -47,7 +47,7 @@
               <v-col cols="1" class="d-flex justify-end">
                 <v-btn
                   v-if="!question.active"
-                  @click="activateQuestion(question.global_question_id)"
+                  @click="activateQuestion(question)"
                   color="success"
                 >
                   send
@@ -153,8 +153,10 @@ export default {
       });
       return updatedRows;
     },
-    async activateQuestion(global_question_id) {
-      await axios.put(`questionnaires/questions/${global_question_id}`);
+    async activateQuestion(question) {
+      await axios
+        .put(`questionnaires/questions/${question.global_question_id}`)
+        .then(() => (question.active = true));
     },
     async viewQuestion(global_question_id) {
       this.selectedQuestionnaire = global_question_id;

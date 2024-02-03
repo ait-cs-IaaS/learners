@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_activate_questioniare_question,
     db_create_questionnaire_answer,
+    db_get_participants_userids,
     db_get_questionnaire_question_answers_by_user,
     db_get_all_userids,
     db_get_grouped_questionnaires,
@@ -50,7 +51,7 @@ def getQuestions():
 @admin_required()
 def activateQuestion(global_question_id):
     if question := db_activate_questioniare_question(global_question_id=global_question_id):
-        user_list = db_get_all_userids()
+        user_list = db_get_participants_userids()
 
         sse_create_and_publish(
             event="questionnaire",
