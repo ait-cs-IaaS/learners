@@ -19,20 +19,20 @@ def putCache():
 
     new_cache_entry = {
         "user_id": current_user.id,
-        "global_exercise_id": data.get("global_exercise_id"),
+        "exercise_id": data.get("global_exercise_id"),
         "form_data": json.dumps(data.get("form_data")),
     }
 
-    db_create_or_update(Cache, ["user_id", "global_exercise_id"], new_cache_entry)
+    db_create_or_update(Cache, ["user_id", "exercise_id"], new_cache_entry)
 
     return jsonify(updated=True), 200
 
 
 # Post new comment
-@cache_api.route("/cache/<global_exercise_id>", methods=["GET"])
+@cache_api.route("/cache/<exercise_id>", methods=["GET"])
 @jwt_required()
-def getCache(global_exercise_id):
-    if cache := db_get_cache_by_ids(current_user.id, global_exercise_id):
+def getCache(exercise_id):
+    if cache := db_get_cache_by_ids(current_user.id, exercise_id):
         return jsonify(form_data=cache.form_data), 200
     else:
         return jsonify(form_data=None), 200

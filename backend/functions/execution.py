@@ -7,15 +7,15 @@ from backend.functions.helpers import convert_to_dict
 from backend.logger import logger
 from backend.conf.config import cfg
 from backend.functions.database import (
-    db_get_exercise_by_global_exercise_id,
+    db_get_exercise_by_id,
     db_get_submission_by_execution_uuid,
     db_update_venjix_execution,
 )
 
 
-def call_venjix(global_exercise_id: str, username: str, callback_url: str, execution_uuid: str) -> Tuple[bool, bool]:
+def call_venjix(exercise_id: str, username: str, callback_url: str, execution_uuid: str) -> Tuple[bool, bool]:
     script_response = None
-    script = db_get_exercise_by_global_exercise_id(global_exercise_id).script_name
+    script = db_get_exercise_by_id(exercise_id).script_name
     try:
         response = requests.post(
             # TODO: Remove verify line

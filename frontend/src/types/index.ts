@@ -9,13 +9,12 @@ export interface ITabObject {
 }
 
 export interface IExerciseObject {
-  id: number;
+  id: string;
   exercise_type: string;
   page_title: string;
   root_weight: number;
   child_weight: number;
   local_exercise_id: number;
-  global_exercise_id: string;
   exercise_name: string;
   parent_page_title: string;
   parent_weight: number;

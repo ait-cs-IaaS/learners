@@ -21,7 +21,6 @@ from backend.conf.db_models import (
     QuestionnaireQuestion,
     Usergroup,
     UsergroupAssociation,
-    VenjixExecution,
 )
 from backend.database import db
 from backend.functions.helpers import convert_to_dict, extract_json_content
@@ -108,7 +107,8 @@ def db_insert_exercises(app, *args, **kwargs):
     exercise_json = f"{cfg.statics.get('base_url')}/hugo/exercises.json"
     exercises = extract_json_content(app, exercise_json)
     for exercise in exercises:
-        db_create_or_update(Exercise, ["global_exercise_id"], exercise)
+        exercise["id"] = exercise.pop("global_exercise_id")
+        db_create_or_update(Exercise, ["id"], exercise)
 
 
 def db_insert_questionnaires(app, *args, **kwargs):
@@ -177,25 +177,6 @@ def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict =
     return True
 
 
-def db_create_venjix_execution(global_exercise_id: str, execution_uuid: str, user_id: int) -> bool:
-    try:
-        exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
-
-        execution = VenjixExecution(
-            exercise_id=exercise.id,
-            script=exercise.script_name,
-            execution_uuid=execution_uuid,
-            user_id=user_id,
-        )
-
-        db.session.add(execution)
-        db.session.commit()
-        return True
-
-    except Exception as e:
-        logger.exception(e)
-
-
 def db_update_venjix_execution(updates) -> bool:
     try:
         db_create_or_update(Submission, ["execution_uuid"], updates, nolog=True)
@@ -227,10 +208,8 @@ def db_get_submission_by_execution_uuid(execution_uuid: str) -> dict:
     return generic_getter(Submission, "execution_uuid", execution_uuid)
 
 
-def db_create_submission(exercise_type: str, global_exercise_id: str, user_id: int, data: dict = None, execution_uuid: str = None) -> bool:
+def db_create_submission(exercise_type: str, exercise_id: str, user_id: int, data: dict = None, execution_uuid: str = None) -> bool:
     try:
-        exercise_id = db_get_exercise_by_global_exercise_id(global_exercise_id).id
-
         submission = Submission(
             exercise_type=exercise_type,
             user_id=user_id,
@@ -248,11 +227,12 @@ def db_create_submission(exercise_type: str, global_exercise_id: str, user_id: i
 
         db.session.add(submission)
         db.session.commit()
-        return True
+        return submission
 
     except Exception as e:
-        logger.exception(e)
-        return False
+        logger.error(f"Error creating submission: {e}")
+        db.session.rollback()
+        return None
 
 
 def db_create_comment(comment: str, page: str, user_id: int) -> bool:
@@ -270,9 +250,9 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
         return False
 
 
-def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
+def db_get_current_submissions(user_id: int, exercise_id: string) -> Tuple[dict, dict]:
     try:
-        exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
+        exercise = db_get_exercise_by_id(exercise_id)
         submissions = []
 
         submissions = (
@@ -289,9 +269,9 @@ def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tupl
         return []
 
 
-def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tuple[dict, dict]:
+def db_get_current_submissions(user_id: int, exercise_id: string) -> Tuple[dict, dict]:
     try:
-        exercise = db_get_exercise_by_global_exercise_id(global_exercise_id)
+        exercise = db_get_exercise_by_id(exercise_id)
         submissions = (
             db.session.query(Submission)
             .filter_by(user_id=user_id)
@@ -307,10 +287,6 @@ def db_get_current_submissions(user_id: int, global_exercise_id: string) -> Tupl
 
 def db_get_exercise_by_name(exercise_name: str) -> dict:
     return generic_getter(Exercise, "exercise_name", exercise_name)
-
-
-def db_get_exercise_by_global_exercise_id(global_exercise_id: str) -> dict:
-    return generic_getter(Exercise, "global_exercise_id", global_exercise_id)
 
 
 def db_get_questionnaire_by_global_questionnaire_id(global_questionnaire_id: str) -> dict:
@@ -611,9 +587,9 @@ def db_get_filename_from_hash(filename_hash):
         return None
 
 
-def db_get_cache_by_ids(user_id: int, global_exercise_id: str) -> dict:
+def db_get_cache_by_ids(user_id: int, exercise_id: str) -> dict:
     try:
-        return db.session.query(Cache).filter_by(user_id=user_id).filter_by(global_exercise_id=global_exercise_id).first()
+        return db.session.query(Cache).filter_by(user_id=user_id).filter_by(exercise_id=exercise_id).first()
     except Exception as e:
         logger.exception(e)
         return None

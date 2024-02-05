@@ -30,9 +30,8 @@ def callback(execution_uuid):
         db_update_venjix_execution(updates)
 
         submission = db_get_submission_by_execution_uuid(execution_uuid)
-        global_exercise_id = db_get_exercise_by_id(submission.exercise_id)
 
-        sse_create_and_publish(_type="submission", user=submission.user, exercise=global_exercise_id)
+        sse_create_and_publish(_type="submission", user=submission.user, exercise=submission.exercise)
 
         return jsonify(success=True), 200
 

@@ -39,16 +39,9 @@
       v-slot:[getSlotName(header.value)]="data"
     >
       <div :key="header.value" :data="data" class="content-col">
-        <!-- <success-icon v-if="submission.completed === 1" />
-              <fail-icon
-                v-else-if="
-                  submission.completed === 0 && submission.executed === 0
-                "
-              />
-              <partial-icon v-else-if="submission.executed === 1" />
-               -->
+        <span v-if="header.value === 'username'">{{ data[header.value] }}</span>
         <div
-          v-if="
+          v-else-if="
             data[header.value].executions &&
             data[header.value].executions.length > 0
           "
@@ -82,9 +75,6 @@
             class="clickable"
             v-else-if="data[header.value].executed === 1"
           />
-          <span v-else-if="header.value === 'username'">{{
-            data[header.value]
-          }}</span>
         </div>
 
         <span v-else> - </span>

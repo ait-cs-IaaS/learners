@@ -63,7 +63,7 @@ class Page(db.Model):
 
 class Cache(db.Model):
     user_id = db.Column(db.ForeignKey("user.id"), primary_key=True)
-    global_exercise_id = db.Column(db.ForeignKey("exercise.global_exercise_id"), primary_key=True)
+    exercise_id = db.Column(db.ForeignKey("exercise.id"), primary_key=True)
     form_data = db.Column(db.String(), nullable=True)
 
 
@@ -112,8 +112,7 @@ class TokenBlocklist(db.Model):
 
 
 class Exercise(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    global_exercise_id = db.Column(db.String(32), nullable=False)
+    id = db.Column(db.String(32), primary_key=True)
     local_exercise_id = db.Column(db.Integer, nullable=False)
     exercise_type = db.Column(db.String(120), nullable=False)
     exercise_name = db.Column(db.String(120), nullable=False)
@@ -125,26 +124,6 @@ class Exercise(db.Model):
     order_weight = db.Column(db.Integer, nullable=False)
     script_name = db.Column(db.String(120), nullable=True)
     submissions = db.relationship("Submission", backref="exercise", lazy=True)
-    executions = db.relationship("Execution", backref="exercise", lazy=True)
-    venjix_executions = db.relationship("VenjixExecution", backref="exercise", lazy=True)
-
-
-# TODO: Refactor Execution -> Submission
-class Execution(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    exercise_type = db.Column(db.String(120), nullable=False)
-    script = db.Column(db.String(120), nullable=True)
-    execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
-    response_timestamp = db.Column(db.DateTime, nullable=True)
-    response_content = db.Column(db.Text, nullable=True)
-    form_data = db.Column(db.String(), nullable=True)
-    msg = db.Column(db.String(240), nullable=True)
-    execution_uuid = db.Column(db.String(120), unique=True, nullable=True)
-    completed = db.Column(db.Integer, nullable=False, default=0)
-    partial = db.Column(db.Integer, nullable=False, default=0)
-    connection_failed = db.Column(db.Integer, nullable=False, default=0)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
 class Attachment(db.Model):
@@ -152,22 +131,6 @@ class Attachment(db.Model):
     filename = db.Column(db.String(120), nullable=False)
     filename_hash = db.Column(db.String(120), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-
-
-class VenjixExecution(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    script = db.Column(db.String(120), nullable=True)
-    execution_timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
-    response_timestamp = db.Column(db.DateTime, nullable=True)
-    response_content = db.Column(db.Text, nullable=True)
-    msg = db.Column(db.String(240), nullable=True)
-    script_response = db.Column(db.Text, nullable=True)
-    execution_uuid = db.Column(db.String(120), unique=True, nullable=True)
-    completed = db.Column(db.Integer, nullable=False, default=0)
-    partial = db.Column(db.Integer, nullable=False, default=0)
-    connection_failed = db.Column(db.Integer, nullable=False, default=0)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
 
 
 class Submission(db.Model):
@@ -180,7 +143,7 @@ class Submission(db.Model):
     partial = db.Column(db.Integer, nullable=False, default=0)
     status_msg = db.Column(db.String(240), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    exercise_id = db.Column(db.Integer, db.ForeignKey("exercise.id"), nullable=False)
+    exercise_id = db.Column(db.String(32), db.ForeignKey("exercise.id"), nullable=False)
 
     # Form Submission
     form_data = db.Column(db.String(), nullable=True)

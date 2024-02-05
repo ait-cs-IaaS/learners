@@ -17,10 +17,6 @@
           <v-col cols="9">{{ exercise.id }}</v-col>
         </v-row>
         <v-row class="d-flex flex-end">
-          <v-col cols="3" class="details-card-label">Global Exercise ID:</v-col>
-          <v-col cols="9">{{ exercise.global_exercise_id }}</v-col>
-        </v-row>
-        <v-row class="d-flex flex-end">
           <v-col cols="3" class="details-card-label">Exercise Type:</v-col>
           <v-col cols="9">{{ exercise.exercise_type }}</v-col>
         </v-row>
