@@ -54,7 +54,7 @@
                 </v-btn>
                 <v-btn
                   v-else
-                  @click="viewQuestion(question.global_question_id)"
+                  @click="viewQuestion(question.question_id)"
                   color="success"
                   variant="outlined"
                 >
@@ -92,7 +92,7 @@
 <script lang="ts">
 interface Question {
   id: number;
-  global_question_id: string;
+  question_id: string;
   question: string;
   answer_options: string;
   language: string;
@@ -142,7 +142,7 @@ export default {
       let updatedRows = [] as Question[];
       questions.forEach((question) => {
         let found_index = updatedRows.findIndex(
-          (q) => q.global_question_id === question.global_question_id
+          (q) => q.question_id === question.question_id
         );
         if (found_index > -1) {
           const current_language = updatedRows[found_index]["language"];
@@ -155,11 +155,11 @@ export default {
     },
     async activateQuestion(question) {
       await axios
-        .put(`questionnaires/questions/${question.global_question_id}`)
+        .put(`questionnaires/questions/${question.question_id}`)
         .then(() => (question.active = true));
     },
-    async viewQuestion(global_question_id) {
-      this.selectedQuestionnaire = global_question_id;
+    async viewQuestion(question_id) {
+      this.selectedQuestionnaire = question_id;
       this.dialog = true;
     },
     async getDataFromServer() {

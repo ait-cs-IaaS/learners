@@ -97,14 +97,14 @@ export default {
     async submitHandler() {
       if (this.selectedAnswers === undefined) return;
       const response = await axios.post(
-        `questionnaires/questions/${this.currentQuestionnaire?.global_question_id}`,
+        `questionnaires/questions/${this.currentQuestionnaire?.question_id}`,
         {
           answers: this.selectedAnswers,
         }
       );
       store.dispatch(
         "removeQuestionnaire",
-        this.currentQuestionnaire?.global_question_id
+        this.currentQuestionnaire?.question_id
       );
     },
     triggerAnimation() {

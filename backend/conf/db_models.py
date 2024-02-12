@@ -75,8 +75,7 @@ class Comment(db.Model):
 
 
 class Questionnaire(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    global_questionnaire_id = db.Column(db.String(32), nullable=False)
+    id = db.Column(db.String(32), primary_key=True)
     page_title = db.Column(db.String(120), nullable=False)
     parent_page_title = db.Column(db.String(120), nullable=False)
     root_weight = db.Column(db.Integer, nullable=False)
@@ -87,14 +86,13 @@ class Questionnaire(db.Model):
 
 
 class QuestionnaireQuestion(db.Model):
-    global_question_id = db.Column(db.String(32), primary_key=True)
-    id = db.Column(db.Integer, nullable=False)
+    question_id = db.Column(db.String(32), primary_key=True)
     question = db.Column(db.String(), nullable=False)
     answer_options = db.Column(db.String(), nullable=False)
     language = db.Column(db.String(), nullable=False, primary_key=True)
     multiple = db.Column(db.Integer, nullable=False, default=1)
     active = db.Column(db.Integer, nullable=False, default=0)
-    global_questionnaire_id = db.Column(db.String(), db.ForeignKey("questionnaire.global_questionnaire_id"), primary_key=True)
+    questionnaire_id = db.Column(db.String(), db.ForeignKey("questionnaire.id"), primary_key=True)
 
 
 class QuestionnaireAnswer(db.Model):
@@ -102,7 +100,7 @@ class QuestionnaireAnswer(db.Model):
     answers = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
-    global_question_id = db.Column(db.Integer, db.ForeignKey("questionnaire_question.global_question_id"), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey("questionnaire_question.question_id"), nullable=False)
 
 
 class TokenBlocklist(db.Model):

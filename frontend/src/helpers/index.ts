@@ -80,8 +80,8 @@ export const extractQuestionnaires = (responseData) => {
         multiple: newQuestionnaire?.multiple,
         answers: JSON.parse(newQuestionnaire?.answer_options),
         language: newQuestionnaire?.language,
-        global_question_id: newQuestionnaire?.global_question_id,
-        global_questionnaire_id: newQuestionnaire?.global_questionnaire_id,
+        question_id: newQuestionnaire?.question_id,
+        questionnaire_id: newQuestionnaire?.questionnaire_id,
         page_title: newQuestionnaire?.page_title,
       };
     });
@@ -92,10 +92,8 @@ export const extractQuestionnaires = (responseData) => {
       multiple: (JSON.parse(responseData)?.question).multiple,
       answers: JSON.parse((JSON.parse(responseData)?.question).answer_options),
       language: (JSON.parse(responseData)?.question).language,
-      global_question_id:
-        (JSON.parse(responseData)?.question).global_question_id,
-      global_questionnaire_id:
-        (JSON.parse(responseData)?.question).global_questionnaire_id,
+      question_id: (JSON.parse(responseData)?.question).question_id,
+      questionnaire_id: (JSON.parse(responseData)?.question).questionnaire_id,
       page_title: (JSON.parse(responseData)?.question).page_title,
     };
   }

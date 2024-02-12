@@ -36,7 +36,7 @@ export interface IQuestionnaireQuestionObject {
   multiple: boolean;
   language: string;
   answers: Array<string>;
-  global_question_id: string;
-  global_questionnaire_id: string;
+  question_id: string;
+  questionnaire_id: string;
   page_title: string;
 }
