@@ -45,12 +45,12 @@ def getAllSubmissions():
         executions = {"user_id": user.id, "username": user.name}
         for exercise in db_get_all_exercises():
             # completed_state = [state[0] for state in db_get_completed_state(user.id, exercise.id)]
-            submissions = db_get_submissions_by_user_exercise(user.id, exercise.id)
-            execution_ids = [execution.get("id") for execution in convert_to_dict(submissions)]
+            _submissions = db_get_submissions_by_user_exercise(user.id, exercise.id)
+            execution_ids = [execution.get("id") for execution in convert_to_dict(_submissions)]
             executions[exercise.id] = {
                 # "completed": int(any(completed_state)) if completed_state else -1,
-                "completed": int(submissions[0].completed) if submissions and submissions[0] else 0,
-                "executed": int(submissions[0].executed) if submissions and submissions[0] else 0,
+                "completed": int(_submissions[0].completed) if _submissions and _submissions[0] else 0,
+                "executed": int(_submissions[0].executed) if _submissions and _submissions[0] else 0,
                 "executions": execution_ids,
             }
         submissions.append(executions)
