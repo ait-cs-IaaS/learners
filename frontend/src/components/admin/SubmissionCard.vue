@@ -44,7 +44,6 @@
               <h2>Submission #{{ submissions.length - index }}</h2>
               <span class="text-grey">
                 Executed on: {{ submission.execution_timestamp }}
-                {{ submission }}
               </span>
             </v-col>
           </v-row>

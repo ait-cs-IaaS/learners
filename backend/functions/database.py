@@ -131,7 +131,7 @@ def db_insert_questionnaires(app, *args, **kwargs):
         for language in questionnaire["questions"]:
             for question in questionnaire["questions"][language]:
                 new_question = {
-                    "question_id": question["global_question_id"],
+                    "id": question["global_question_id"],
                     "question": question["question"],
                     "answer_options": json.dumps(question["answers"]),
                     "language": language,
@@ -139,7 +139,7 @@ def db_insert_questionnaires(app, *args, **kwargs):
                     "questionnaire_id": questionnaire["global_questionnaire_id"],
                 }
 
-                db_create_or_update(QuestionnaireQuestion, ["question_id", "language"], new_question)
+                db_create_or_update(QuestionnaireQuestion, ["id", "language"], new_question)
 
 
 def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None, nolog: bool = False) -> bool:
@@ -292,8 +292,8 @@ def db_get_questionnaire_by_id(questionnaire_id: str) -> dict:
     return generic_getter(Questionnaire, "id", questionnaire_id)
 
 
-def db_get_questionnaire_question_by_question_id(question_id: str) -> dict:
-    return generic_getter(QuestionnaireQuestion, "question_id", question_id)
+def db_get_questionnaire_question_by_id(question_id: str) -> dict:
+    return generic_getter(QuestionnaireQuestion, "id", question_id)
 
 
 def db_get_all_questionnaires_questions(questionnaire_id: str) -> dict:
@@ -310,7 +310,7 @@ def db_get_all_questionnaires_questions(questionnaire_id: str) -> dict:
 
 
 def db_get_questionnaire_results_by_question_id(question_id: str) -> dict:
-    questionnaire_question = generic_getter(QuestionnaireQuestion, "question_id", question_id)
+    questionnaire_question = generic_getter(QuestionnaireQuestion, "id", question_id)
     questionnaire_answers = generic_getter(QuestionnaireAnswer, "question_id", question_id, all=True)
 
     labels = json.loads(questionnaire_question.answer_options)
@@ -644,7 +644,7 @@ def db_get_grouped_questionnaires() -> list:
 
 def db_activate_questioniare_question(question_id) -> bool:
     try:
-        question = db.session.query(QuestionnaireQuestion).filter_by(question_id=question_id).first()
+        question = db.session.query(QuestionnaireQuestion).filter_by(id=question_id).first()
 
         # Set active state
         setattr(question, "active", True)

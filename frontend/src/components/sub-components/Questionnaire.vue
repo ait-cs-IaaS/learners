@@ -9,7 +9,7 @@
       <v-form @submit.prevent="submitHandler">
         <v-row>
           <v-col>
-            <h2>Q{{ currentQuestionnaire?.id }}</h2>
+            <h2>Quiz</h2>
           </v-col>
         </v-row>
         <v-row>
@@ -97,15 +97,12 @@ export default {
     async submitHandler() {
       if (this.selectedAnswers === undefined) return;
       const response = await axios.post(
-        `questionnaires/questions/${this.currentQuestionnaire?.question_id}`,
+        `questionnaires/questions/${this.currentQuestionnaire?.id}`,
         {
           answers: this.selectedAnswers,
         }
       );
-      store.dispatch(
-        "removeQuestionnaire",
-        this.currentQuestionnaire?.question_id
-      );
+      store.dispatch("removeQuestionnaire", this.currentQuestionnaire?.id);
     },
     triggerAnimation() {
       this.contentChanging = true;

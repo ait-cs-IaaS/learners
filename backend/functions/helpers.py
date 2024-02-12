@@ -129,8 +129,9 @@ def sse_create_and_publish(
 
     new_event = SSE_Event(event=event, _type=_type, message=message, question=question, recipients=recipients, positions=positions)
 
-    # Create Database entry
-    db_create_notification(new_event)
+    if event != "questionnaire":
+        # Create Database entry
+        db_create_notification(new_event)
 
     # Notify Users
     sse.publish(new_event)

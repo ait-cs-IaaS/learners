@@ -73,9 +73,9 @@ export default {
     if (state.questionnaires.length) state.showQuestionnaires = true;
   },
 
-  REMOVE_QUESTIONNAIRE: (state: { questionnaires: any }, question_id: Number) =>
+  REMOVE_QUESTIONNAIRE: (state: { questionnaires: any }, question_id: String) =>
     (state.questionnaires = state.questionnaires.filter(
-      (q) => q.question_id != question_id
+      (q) => q.id != question_id
     )),
 
   SET_SHOW_QUESTIONNAIRE_STATE: (

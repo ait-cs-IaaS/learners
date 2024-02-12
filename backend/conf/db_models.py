@@ -86,7 +86,7 @@ class Questionnaire(db.Model):
 
 
 class QuestionnaireQuestion(db.Model):
-    question_id = db.Column(db.String(32), primary_key=True)
+    id = db.Column(db.String(32), primary_key=True)
     question = db.Column(db.String(), nullable=False)
     answer_options = db.Column(db.String(), nullable=False)
     language = db.Column(db.String(), nullable=False, primary_key=True)
@@ -100,7 +100,7 @@ class QuestionnaireAnswer(db.Model):
     answers = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=func.current_timestamp())
-    question_id = db.Column(db.Integer, db.ForeignKey("questionnaire_question.question_id"), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey("questionnaire_question.id"), nullable=False)
 
 
 class TokenBlocklist(db.Model):

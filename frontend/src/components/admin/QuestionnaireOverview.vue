@@ -24,13 +24,13 @@
         <v-expansion-panel-text>
           <v-container class="px-0">
             <v-row
-              v-for="question in extractRows(questionnaire.questions)"
+              v-for="(question, index) in extractRows(questionnaire.questions)"
               :key="question.id"
               class="questionnaire-row"
             >
               <v-col cols="4">
                 <span class="question-id">
-                  {{ question.id }}
+                  {{ index + 1 }}
                 </span>
                 <span v-html="question.question"> </span>
               </v-col>
@@ -54,7 +54,7 @@
                 </v-btn>
                 <v-btn
                   v-else
-                  @click="viewQuestion(question.question_id)"
+                  @click="viewQuestion(question.id)"
                   color="success"
                   variant="outlined"
                 >
@@ -91,8 +91,7 @@
 
 <script lang="ts">
 interface Question {
-  id: number;
-  question_id: string;
+  id: string;
   question: string;
   answer_options: string;
   language: string;
@@ -141,9 +140,7 @@ export default {
     extractRows(questions) {
       let updatedRows = [] as Question[];
       questions.forEach((question) => {
-        let found_index = updatedRows.findIndex(
-          (q) => q.question_id === question.question_id
-        );
+        let found_index = updatedRows.findIndex((q) => q.id === question.id);
         if (found_index > -1) {
           const current_language = updatedRows[found_index]["language"];
           if (!current_language.includes(question.language))
@@ -155,7 +152,7 @@ export default {
     },
     async activateQuestion(question) {
       await axios
-        .put(`questionnaires/questions/${question.question_id}`)
+        .put(`questionnaires/questions/${question.id}`)
         .then(() => (question.active = true));
     },
     async viewQuestion(question_id) {

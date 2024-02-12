@@ -8,7 +8,7 @@ from backend.functions.database import (
     db_get_participants_userids,
     db_get_questionnaire_question_answers_by_user,
     db_get_grouped_questionnaires,
-    db_get_questionnaire_question_by_question_id,
+    db_get_questionnaire_question_by_id,
     db_get_questionnaire_results_by_question_id,
     db_get_admin_users,
 )
@@ -42,7 +42,7 @@ def getQuestions():
             question["page_title"] = questionnaire.get("page_title")
             if question.get("active"):
                 # Check if user has already answerd the questionnaire
-                answers = db_get_questionnaire_question_answers_by_user(question["question_id"], current_user.id)
+                answers = db_get_questionnaire_question_answers_by_user(question["id"], current_user.id)
                 if not len(answers):
                     active_questions.append(question)
 
@@ -90,6 +90,6 @@ def submitQuestion(question_id):
 @admin_required()
 def getQuestionnaireResults(question_id):
     labels, results = db_get_questionnaire_results_by_question_id(question_id)
-    question = db_get_questionnaire_question_by_question_id(question_id).question
+    question = db_get_questionnaire_question_by_id(question_id).question
 
     return jsonify(question=question, labels=labels, results=results), 200
