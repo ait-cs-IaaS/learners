@@ -71,8 +71,10 @@ export default {
       const tabsList = this.tabs || [];
       return tabsList.filter((tab) => tab._type != "admin");
     },
+    toggleNotifications() {
+      return store.getters.getShowNotifications;
+    },
     showNotifications() {
-      this.notificationClosed = false;
       return (
         store.getters.getShowNotifications &&
         store.getters.getNotifications.length > 0 &&
@@ -166,6 +168,16 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("message", this.iFrameHandle);
+  },
+  watch: {
+    toggleNotifications: {
+      handler(new_state, old_state) {
+        if (new_state === true || old_state === undefined) {
+          this.notificationClosed = false;
+        }
+      },
+      immediate: true,
+    },
   },
 };
 </script>
