@@ -38,12 +38,12 @@ def getSidebar():
     usergroups = db_get_usergroups_by_user(current_user)
 
     if "admins" in usergroups:
-        tabs.append(Tab(name="admin", _type="admin").__dict__)
+        tabs.append(Tab(name="admin", _type="admin", user_role=current_user.role).__dict__)
         landingpage = "admin"
 
     for tab_id, tab_details in cfg.tabs.items():
         if "all" in tab_details.get("show", []) or any(group in usergroups for group in tab_details.get("show", [])):
-            tabs.append(Tab(name=tab_id, **tab_details).__dict__)
+            tabs.append(Tab(name=tab_id, **tab_details, user_role=current_user.role).__dict__)
 
     if vnc_clients := cfg.users.get(current_user.name).get("vnc_clients"):
         multiple = len(vnc_clients) > 1
