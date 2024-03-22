@@ -8,6 +8,9 @@ export default {
   getCurrentView: (state) => state.currentView || "",
   getTheme: (state) => state.theme,
 
+  // Timer
+  getTimer: (state) => state.timer,
+
   // Admin View
   getAdminForceReload: (state) => (tab) => {
     return state.adminForceReload[tab];

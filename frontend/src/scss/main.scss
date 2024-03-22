@@ -218,6 +218,10 @@ button.v-btn.resume-btn span {
   overflow-y: auto;
 }
 
+.v-snackbar__content {
+  margin: auto;
+}
+
 @media (min-width: 2560px) {
   .v-main .v-container {
     max-width: 1800px !important;

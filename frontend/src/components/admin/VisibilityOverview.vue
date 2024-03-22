@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="mb-4">
-      Pages Overview
+      Visibility Overview
       <v-progress-circular
         class="mx-2 mb-1"
         color="grey"
@@ -12,6 +12,18 @@
       ></v-progress-circular>
     </h2>
 
+    <v-snackbar
+      content-class="ma-0 mb-n1 pa-0 pb-1"
+      v-model="showTimer"
+      width="fit-content"
+      min-width="auto"
+      rounded="rounded-0"
+      timeout="-1"
+      style="border-radius: 0"
+      color="primary"
+    >
+      <scenario-timer />
+    </v-snackbar>
     <v-btn
       @click="notify = !notify"
       :ripple="false"
@@ -45,18 +57,20 @@ import FailIcon from "@/components/sub-components/FailIcon.vue";
 import Loader from "@/components/sub-components/Loader.vue";
 import SvgIcon from "@/components/dynamic-components/SvgIcon.vue";
 import PageTree from "@/components/general/PageTree.vue";
+import ScenarioTimer from "@/components/sub-components/ScenarioTimer.vue";
 import axios from "axios";
 import { store } from "@/store";
 import { sortTree } from "@/helpers";
 
 export default {
-  name: "PagesOverview",
+  name: "VisibilityOverview",
   components: {
     SuccessIcon,
     FailIcon,
     SvgIcon,
     Loader,
     PageTree,
+    ScenarioTimer,
   },
   data() {
     return {
@@ -68,16 +82,20 @@ export default {
   },
   props: {
     currentTab: { type: String, require: false },
+    sse_error: { type: Boolean, default: false },
   },
   computed: {
+    showTimer() {
+      return this.currentTab === "Visibility" && !this.sse_error;
+    },
     showLoader() {
       const viewCondition = store.getters.getCurrentView === "admin";
-      const tabCondition = this.currentTab === "Pages";
+      const tabCondition = this.currentTab === "Visibility";
       const eventCondition = this.loading;
       return viewCondition && tabCondition && eventCondition;
     },
     forceReload() {
-      return store.getters.getAdminForceReload("pages");
+      return store.getters.getAdminForceReload("visibility");
     },
   },
   methods: {
@@ -90,14 +108,15 @@ export default {
         })
         .finally(() => {
           this.loading = false;
-          store.dispatch("unsetAdminForceReload", "pages");
+          store.dispatch("unsetAdminForceReload", "visibility");
         });
     },
     async updateTree(pageId) {
-      await axios.put(`/pages/${pageId}/hidden`, { notify: this.notify });
-      if (this.updateObjectById(this.pageTree, pageId)) {
-        console.log("Updated: ", pageId);
-      }
+      await axios
+        .put(`/pages/${pageId}/hidden`, { notify: this.notify })
+        .then(() => {
+          this.updateObjectById(this.pageTree, pageId);
+        });
     },
     updateObjectById(obj, page_id) {
       for (const key in obj) {

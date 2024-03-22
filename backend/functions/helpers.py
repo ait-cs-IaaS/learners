@@ -100,6 +100,7 @@ def sse_create_and_publish(
     recipients=None,
     positions=None,
     question=None,
+    timer=None,
 ) -> bool:
     # Import
     from backend.classes.SSE import SSE_Event, sse
@@ -112,6 +113,11 @@ def sse_create_and_publish(
 
     if _type == "comment":
         message = f"<h4>New Comment</h4>User: {user.name}<br>Page: {page}"
+        recipients = [admin_user.id for admin_user in db_get_admin_users()]
+
+    if _type == "timer":
+        event = "timer"
+        message = f"{json.dumps(timer)}"
         recipients = [admin_user.id for admin_user in db_get_admin_users()]
 
     if _type == "content":
@@ -129,7 +135,7 @@ def sse_create_and_publish(
 
     new_event = SSE_Event(event=event, _type=_type, message=message, question=question, recipients=recipients, positions=positions)
 
-    if event != "questionnaire":
+    if event != "questionnaire" and event != "timer":
         # Create Database entry
         db_create_notification(new_event)
 

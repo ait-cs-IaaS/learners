@@ -24,6 +24,9 @@ export default {
   currentQuestionnaireIndex: 0,
   showQuestionnaires: true,
 
+  // Timer
+  timer: null,
+
   // Admin Reloads
   adminForceReload: {
     submissions: false,
@@ -31,5 +34,6 @@ export default {
     notifications: false,
     feedback: false,
     questionnaire: false,
+    timer: false,
   },
 };

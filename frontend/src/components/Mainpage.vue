@@ -19,7 +19,11 @@
       :currentView="currentView"
       @loaded="iframeLoaded"
     />
-    <admin-area v-if="admin" :currentView="currentView" />
+    <admin-area
+      v-if="admin"
+      :currentView="currentView"
+      :sse_error="sse_error"
+    />
     <!-- <user-area /> -->
   </div>
 </template>
@@ -34,6 +38,9 @@ import { ITabObject } from "@/types";
 import { jwtDecode } from "jwt-js-decode";
 import { store } from "@/store";
 import { setStyles, initSSE, initVisibility } from "@/helpers";
+import axios from "axios";
+import { VueCookies } from "vue-cookies";
+import { inject } from "vue";
 
 // TODO: Add UserArea
 export default {
@@ -48,10 +55,11 @@ export default {
     return {
       notificationClosed: false,
       questionnaireClosed: false,
-      sse_error: true,
+      sse_error: false,
       evtSource: EventSource as any,
       serverEvent: Object as any,
       iframes: [] as any,
+      intervalTracker: null as any | null,
     };
   },
   props: {
@@ -64,8 +72,12 @@ export default {
   },
   computed: {
     admin() {
-      const jwt = jwtDecode(store.getters.getJwt);
-      return jwt.payload.admin;
+      if (store.getters.getJwt) {
+        const jwt = jwtDecode(store.getters.getJwt);
+        return jwt.payload.admin;
+      } else {
+        return false;
+      }
     },
     filteredTabs() {
       const tabsList = this.tabs || [];
@@ -73,6 +85,10 @@ export default {
     },
     toggleNotifications() {
       return store.getters.getShowNotifications;
+    },
+    currentNotificationIndex() {
+      const index = store.getters.getCurrentNotificationIndex;
+      if (index) this.notificationClosed = false;
     },
     showNotifications() {
       return (
@@ -100,25 +116,32 @@ export default {
       let attemptCount = 1;
 
       const connectToStream = (context) => {
-        const jwt = store.getters.getJwt;
+        if (attemptCount > 2) {
+          console.log(
+            "Unable to establish SSE connection. Using fallback polling function."
+          );
+          this.streamFallbackMethod();
+        } else {
+          const jwt = store.getters.getJwt;
 
-        const backend = store.getters.getBackendUrl;
-        context.evtSource = new EventSource(`${backend}/stream?jwt=${jwt}`);
+          const backend = store.getters.getBackendUrl;
+          context.evtSource = new EventSource(`${backend}/stream?jwt=${jwt}`);
 
-        context.evtSource.onopen = function () {
-          console.log("Connected to SSE source.");
-          context.sse_error = false;
-          initSSE(context);
-        };
+          context.evtSource.onopen = function () {
+            console.log("Connected to SSE source.");
+            context.sse_error = false;
+            initSSE(context);
+          };
 
-        context.evtSource.onerror = function () {
-          console.log("Unable to establish SSE connection.");
-          context.sse_error = true;
-          setTimeout(() => {
-            attemptCount++;
-            connectToStream(context);
-          }, 5000);
-        };
+          context.evtSource.onerror = function () {
+            console.log("Unable to establish SSE connection.");
+            context.sse_error = true;
+            this.intervalTracker = setTimeout(() => {
+              attemptCount++;
+              connectToStream(context);
+            }, 5000);
+          };
+        }
       };
 
       connectToStream(ctx);
@@ -144,11 +167,42 @@ export default {
       this.iframes = iframes_list;
       return iframes_list;
     },
+    streamFallbackMethod() {
+      const gatherUpdates = () => {
+        // Get full list of notifications from server
+        store.dispatch("getNotificationsFromServer");
+
+        // Get full list of questionnaires from server
+        store.dispatch("getQuestionnairesFromServer");
+
+        // Trigger visibility control
+        initVisibility(this.iFramesGather());
+
+        // Call setTimeout again to repeat after 10 seconds
+        this.intervalTracker = setTimeout(gatherUpdates, 15000);
+      };
+
+      clearInterval(this.intervalTracker);
+
+      // Initial call to start the loop
+      gatherUpdates();
+    },
   },
   async beforeMount() {
     setStyles(this);
+    clearInterval(this.intervalTracker);
   },
   mounted() {
+    // Verify local jwt token
+    if (!store.getters.getJwt) {
+      const $cookies = inject<VueCookies>("$cookies");
+      $cookies?.remove("jwt_cookie");
+      store.dispatch("resetTabs");
+      store.dispatch("unsetJwt");
+      axios.defaults.headers.common["Authorization"] = "";
+      this.$router.push("/login");
+    }
+
     this.startSseSession(this);
 
     // Get full list of notifications from server
@@ -165,6 +219,7 @@ export default {
   },
   beforeUnmount() {
     this.closeSSE();
+    clearInterval(this.intervalTracker);
   },
   beforeDestroy() {
     window.removeEventListener("message", this.iFrameHandle);

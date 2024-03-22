@@ -19,7 +19,7 @@
           >
             <v-tab value="Submissions">Submissions Overview</v-tab>
             <v-tab value="Exercises">Exercises</v-tab>
-            <v-tab value="Pages">Pages</v-tab>
+            <v-tab value="Visibility">Visibility</v-tab>
             <v-tab value="Notifications">Notifications</v-tab>
             <v-tab value="Questionnaire">Questionnaire</v-tab>
             <v-tab value="Feedback">Feedback</v-tab>
@@ -39,9 +39,10 @@
                   class="tab-container"
                 />
               </v-window-item>
-              <v-window-item value="Pages">
-                <pages-overview
+              <v-window-item value="Visibility">
+                <visibility-overview
                   :currentTab="currentTab"
+                  :sse_error="sse_error"
                   class="tab-container"
                 />
               </v-window-item>
@@ -74,7 +75,7 @@
 <script lang="ts">
 import SubmissionsOverview from "@/components/admin/SubmissionsOverview.vue";
 import ExercisesOverview from "@/components/admin/ExercisesOverview.vue";
-import PagesOverview from "@/components/admin/PagesOverview.vue";
+import VisibilityOverview from "@/components/admin/VisibilityOverview.vue";
 import NotificationsOverview from "@/components/admin/NotificationsOverview.vue";
 import QuestionnaireOverview from "@/components/admin/QuestionnaireOverview.vue";
 import FeedbackOverview from "@/components/admin/FeedbackOverview.vue";
@@ -85,13 +86,14 @@ export default {
   components: {
     SubmissionsOverview,
     ExercisesOverview,
-    PagesOverview,
+    VisibilityOverview,
     NotificationsOverview,
     QuestionnaireOverview,
     FeedbackOverview,
   },
   props: {
     currentView: { type: String, require: false, default: "" },
+    sse_error: { type: Boolean, default: false },
   },
   methods: {
     triggerUpdate(tab) {

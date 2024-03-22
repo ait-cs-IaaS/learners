@@ -246,13 +246,18 @@ export const initVisibility = async (iframe_list) => {
       data: pages,
     };
 
-    try {
-      _iframe.contentWindow.postMessage(
-        functionCall,
-        new URL(_iframe.src).origin
-      );
-    } catch (error) {
-      console.log(error);
+    const current_location = document.location.origin;
+    const iframe_location = new URL(_iframe.src).origin;
+
+    if (current_location == iframe_location) {
+      try {
+        _iframe.contentWindow.postMessage(
+          functionCall,
+          new URL(_iframe.src).origin
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
   });
 };
@@ -264,10 +269,20 @@ export const sseHandlerContent = (ctx, event) => {
       function: "visibility",
       data: JSON.parse(event.data).message,
     };
-    _iframe.contentWindow.postMessage(
-      functionCall,
-      new URL(_iframe.src).origin
-    );
+
+    const current_location = document.location.origin;
+    const iframe_location = new URL(_iframe.src).origin;
+
+    if (current_location == iframe_location) {
+      try {
+        _iframe.contentWindow.postMessage(
+          functionCall,
+          new URL(_iframe.src).origin
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
   });
 };
 
@@ -290,6 +305,13 @@ export const sseHandlerNotification = (ctx, event) => {
   }
 };
 
+export const sseHandlerTimer = (ctx, event) => {
+  ctx.notificationClosed = false;
+  let message_json = JSON.parse(event.data)?.message;
+  let timer = JSON.parse(message_json);
+  store.dispatch("setTimer", timer);
+};
+
 export const sseHandlerQuestionnaire = (ctx, event) => {
   ctx.questionnaireClosed = false;
   const newQuestionnaire = extractQuestionnaires(event.data);
@@ -303,11 +325,16 @@ export const sseHandlerQuestionnaireSubmission = (ctx, event) => {
   store.dispatch("setAdminForceReload", "questionnaire");
 };
 export const initSSE = (ctx) => {
+  ctx.sse_error = false;
+
   ctx.evtSource.addEventListener("content", (event) =>
     sseHandlerContent(ctx, event)
   );
   ctx.evtSource.addEventListener("notification", (event) =>
     sseHandlerNotification(ctx, event)
+  );
+  ctx.evtSource.addEventListener("timer", (event) =>
+    sseHandlerTimer(ctx, event)
   );
   ctx.evtSource.addEventListener("questionnaire", (event) =>
     sseHandlerQuestionnaire(ctx, event)
@@ -323,6 +350,9 @@ export const initSSE = (ctx) => {
     );
     ctx.evtSource.removeEventListener("notification", (event) =>
       sseHandlerNotification(ctx, event)
+    );
+    ctx.evtSource.removeEventListener("timer", (event) =>
+      sseHandlerTimer(ctx, event)
     );
     ctx.evtSource.removeEventListener("questionnaire", (event) =>
       sseHandlerQuestionnaire(ctx, event)

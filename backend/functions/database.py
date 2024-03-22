@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import datetime, timezone
+import datetime
 import string
 from typing import Tuple
 from backend.classes.SSE import SSE_Event
@@ -21,6 +21,7 @@ from backend.conf.db_models import (
     QuestionnaireQuestion,
     Usergroup,
     UsergroupAssociation,
+    Timetracker,
 )
 from backend.database import db
 from backend.functions.helpers import convert_to_dict, extract_json_content
@@ -207,6 +208,10 @@ def db_get_submission_by_execution_uuid(execution_uuid: str) -> dict:
     return generic_getter(Submission, "execution_uuid", execution_uuid)
 
 
+def db_get_submission_by_exercise_id(exercise_id: str) -> dict:
+    return generic_getter(Submission, "exercise_id", exercise_id, all=True)
+
+
 def db_create_submission(exercise_type: str, exercise_id: str, user_id: int, data: dict = None, execution_uuid: str = None) -> bool:
     try:
         submission = Submission(
@@ -243,6 +248,50 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
         }
         db_create_or_update(Comment, ["user_id", "page"], new_comment)
         return True
+
+    except Exception as e:
+        logger.exception(e)
+        return False
+
+
+def db_set_time(action: str, offset: int = 0, delta: int = 0) -> bool:
+    try:
+        updated_time = {
+            "id": 0,
+        }
+
+        if action == "start":
+            updated_time["start_time"] = datetime.datetime.now()
+            updated_time["running"] = True
+
+        if action == "pause":
+            updated_time["pause_time"] = datetime.datetime.now()
+            updated_time["running"] = False
+
+        if action == "continue":
+            current_timer = db_get_time()
+            current_start_time = current_timer.start_time or datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            _delta = datetime.timedelta(milliseconds=delta)
+            _current_start_time = datetime.datetime.strptime(current_start_time, "%Y-%m-%d %H:%M:%S.%f")
+
+            updated_time["start_time"] = _current_start_time + _delta
+            updated_time["pause_time"] = None
+            updated_time["running"] = True
+
+        if action == "reset":
+            updated_time["start_time"] = None
+            updated_time["pause_time"] = None
+            updated_time["running"] = False
+            updated_time["offset"] = 0
+
+        if action == "offset":
+            updated_time["offset"] = offset
+
+        db_create_or_update(Timetracker, ["id"], updated_time)
+
+        print("db_get_time", db_get_time().__dict__)
+        return db_get_time()
 
     except Exception as e:
         logger.exception(e)
@@ -377,6 +426,10 @@ def db_get_all_pages() -> dict:
 
 def db_get_page_by_id(page_id) -> dict:
     return generic_getter(Page, "page_id", page_id)
+
+
+def db_get_time() -> dict:
+    return generic_getter(Timetracker, "id", 0)
 
 
 def db_get_all_active_pages() -> dict:

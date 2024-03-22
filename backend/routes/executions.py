@@ -2,7 +2,7 @@ import os
 import uuid
 from backend.classes.SubmissionResponse import SubmissionResponse
 
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, request, send_from_directory, make_response
 from flask_jwt_extended import jwt_required, current_user
 from backend.jwt_manager import admin_required, only_self_or_admin
 from backend.logger import logger
@@ -16,11 +16,14 @@ from backend.functions.database import (
     db_get_all_exercises,
     db_get_all_users,
     db_get_completed_state,
+    db_get_submission_by_exercise_id,
     db_get_submissions_by_user_exercise,
     db_get_exercise_groups,
     db_get_exercises_by_group,
     db_get_submissions_by_user_exercise,
+    db_get_time,
     db_get_user_by_id,
+    db_set_time,
 )
 from backend.functions.execution import (
     call_venjix,
@@ -216,3 +219,30 @@ def uploadFile():
 @jwt_required()
 def downloadFile(filename):
     return send_from_directory(os.path.join(os.getcwd(), cfg.upload_folder), filename)
+
+
+@executions_api.route("/time", methods=["GET"])
+@admin_required()
+def getTime():
+    if stored_time := db_get_time():
+        return jsonify(convert_to_dict(stored_time))
+    return jsonify({})
+
+
+@executions_api.route("/time/<action>", methods=["POST"])
+@admin_required()
+def setTimer(action):
+
+    offset = 0
+    delta = 0
+
+    if request.is_json:
+        offset = (request.get_json()).get("offset", 0)
+        delta = (request.get_json()).get("delta", 0)
+
+    if timer_event := db_set_time(action, offset, delta):
+        sse_create_and_publish(_type="timer", timer=convert_to_dict(timer_event))
+        return jsonify(updated=True)
+
+    else:
+        return jsonify(updated=False)

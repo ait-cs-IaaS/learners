@@ -14,6 +14,7 @@ export async function loadFonts() {
       families: [
         "Rubik:100,300,400,500,700,900&display=swap",
         "Montserrat:100,300,400,500,700,900&display=swap",
+        "Roboto+Mono:400,500,700&display=swap",
       ],
     },
   });

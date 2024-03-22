@@ -40,6 +40,13 @@
           </v-col>
 
           <v-col
+            class="time-col"
+            v-if="!topLevel && JSON.parse(details.params)['type'] == 'inject'"
+          >
+            <span v-html="JSON.parse(details.params)['time'] || '--:--'"></span>
+          </v-col>
+
+          <v-col
             cols="1"
             class="weight-col"
             v-if="
@@ -165,5 +172,9 @@ export default {
   padding-left: 14px;
   margin-right: 14px;
   text-overflow: "+";
+}
+
+.time-col {
+  max-width: 8ch;
 }
 </style>

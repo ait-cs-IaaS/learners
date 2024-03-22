@@ -29,6 +29,10 @@ export default {
     commit("SET_BACKEND_URL", backendUrl);
   },
 
+  // Timer
+  setTimer: ({ commit }: { commit: Commit }, timer: any) =>
+    commit("SET_TIMER", timer),
+
   // Tabs
   async getTabsFromServer({ commit }) {
     await axios

@@ -18,6 +18,8 @@ export default {
   },
   SET_THEME: (state: { theme: any }, theme: any) => (state.theme = theme),
 
+  SET_TIMER: (state: { timer: any }, timer: any) => (state.timer = timer),
+
   SET_CURRENT_VIEW: (state: { currentView: string }, currentView: string) =>
     (state.currentView = currentView),
 
@@ -88,7 +90,7 @@ export default {
     questionnaires: any;
     showQuestionnaires: boolean;
   }) => {
-    state.currentQuestionnaireIndex = state.questionnaires.length - 1;
+    state.currentQuestionnaireIndex = 0;
     if (state.questionnaires.length) {
       state.showQuestionnaires = true;
     } else {
@@ -98,4 +100,7 @@ export default {
 
   SET_QUESTIONNAIRES: (state: { questionnaires: any }, payload: any) =>
     (state.questionnaires = payload),
+
+  MARK_AS_READ: (state: { viewedList: any }, viewEntry: any) =>
+    (state.viewedList[viewEntry.id] = viewEntry),
 };
