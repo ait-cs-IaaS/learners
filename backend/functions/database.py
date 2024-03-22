@@ -261,16 +261,16 @@ def db_set_time(action: str, offset: int = 0, delta: int = 0) -> bool:
         }
 
         if action == "start":
-            updated_time["start_time"] = datetime.datetime.now()
+            updated_time["start_time"] = datetime.datetime.now(datetime.timezone.utc)
             updated_time["running"] = True
 
         if action == "pause":
-            updated_time["pause_time"] = datetime.datetime.now()
+            updated_time["pause_time"] = datetime.datetime.now(datetime.timezone.utc)
             updated_time["running"] = False
 
         if action == "continue":
             current_timer = db_get_time()
-            current_start_time = current_timer.start_time or datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+            current_start_time = current_timer.start_time or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
 
             _delta = datetime.timedelta(milliseconds=delta)
             _current_start_time = datetime.datetime.strptime(current_start_time, "%Y-%m-%d %H:%M:%S.%f")
