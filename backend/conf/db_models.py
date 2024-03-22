@@ -151,3 +151,11 @@ class Submission(db.Model):
     response_timestamp = db.Column(db.DateTime, nullable=True)
     response_content = db.Column(db.Text, nullable=True)
     script_response = db.Column(db.Text, nullable=True)
+
+
+class Timetracker(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.String(120), nullable=True)
+    pause_time = db.Column(db.String(120), nullable=True)
+    offset = db.Column(db.Integer, nullable=False, default=0)
+    running = db.Column(db.Integer, nullable=False, default=0)
