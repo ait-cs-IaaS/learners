@@ -101,6 +101,4 @@ export default {
   SET_QUESTIONNAIRES: (state: { questionnaires: any }, payload: any) =>
     (state.questionnaires = payload),
 
-  MARK_AS_READ: (state: { viewedList: any }, viewEntry: any) =>
-    (state.viewedList[viewEntry.id] = viewEntry),
 };
