@@ -96,6 +96,7 @@ import { store } from "@/store";
 import axios from "axios";
 import { setStyles } from "@/helpers";
 import Loader from "@/components/sub-components/Loader.vue";
+import { jwtDecode } from "jwt-js-decode";
 
 export default {
   name: "LoginForm",
@@ -141,6 +142,7 @@ export default {
         store.dispatch("setJwt", jwt);
         axios.defaults.headers.common["Authorization"] = "Bearer " + jwt;
         store.dispatch("getTabsFromServer");
+        if (jwtDecode(jwt).payload.admin) this.landingpage = "admin";
         this.$router.push(`/#${this.landingpage}`);
       } else {
         store.dispatch("unsetJwt");
