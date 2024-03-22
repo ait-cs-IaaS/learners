@@ -120,7 +120,6 @@ export default {
               _submissions.push(submission);
           });
           this.submissions = _submissions;
-          console.log(this.submissions);
         })
         .finally(() => {
           this.loading = false;

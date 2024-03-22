@@ -41,10 +41,10 @@
                   </li>
                 </ol>
               </v-col>
-              <v-col cols="1">
+              <v-col class="d-flex justify-end">
                 {{ question.language }}
               </v-col>
-              <v-col cols="1" class="d-flex justify-end">
+              <v-col cols="1" class="d-flex justify-end btn-col">
                 <v-btn
                   v-if="!question.active"
                   @click="activateQuestion(question)"
@@ -286,5 +286,9 @@ export default {
 
 .autocomplete-inputs .v-input__control {
   min-height: 60px;
+}
+
+.btn-col {
+  min-width: fit-content;
 }
 </style>
