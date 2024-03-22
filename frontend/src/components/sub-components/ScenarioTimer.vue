@@ -54,12 +54,15 @@ export default {
     },
   },
   methods: {
+    utcNow() {
+      return new Date(new Date().toUTCString().split("GMT")[0]);
+    },
     async start() {
       if (!this.timeBegan) {
         await axios.post(`/time/start`);
       } else {
         this.stoppedDuration = this.timeStopped
-          ? Date.now() - this.timeStopped.getTime()
+          ? this.utcNow().getTime() - this.timeStopped.getTime()
           : 0;
         await axios.post(`/time/continue`, { delta: this.stoppedDuration });
       }
@@ -84,7 +87,7 @@ export default {
 
     displayTime(currentTime) {
       if (!currentTime) {
-        currentTime = new Date();
+        currentTime = this.utcNow();
       }
       let timeElapsed = new Date(
         currentTime.getTime() - this.timeBegan + this.offset
