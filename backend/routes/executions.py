@@ -234,13 +234,11 @@ def getTime():
 def setTimer(action):
 
     offset = 0
-    delta = 0
 
     if request.is_json:
         offset = (request.get_json()).get("offset", 0)
-        delta = (request.get_json()).get("delta", 0)
 
-    if timer_event := db_set_time(action, offset, delta):
+    if timer_event := db_set_time(action, offset):
         sse_create_and_publish(_type="timer", timer=convert_to_dict(timer_event))
         return jsonify(updated=True)
 

@@ -61,10 +61,7 @@ export default {
       if (!this.timeBegan) {
         await axios.post(`/time/start`);
       } else {
-        this.stoppedDuration = this.timeStopped
-          ? this.utcNow().getTime() - this.timeStopped.getTime()
-          : 0;
-        await axios.post(`/time/continue`, { delta: this.stoppedDuration });
+        await axios.post(`/time/continue`);
       }
     },
 
@@ -121,13 +118,17 @@ export default {
       handler(new_state, old_state) {
         if (new_state) {
           if (new_state.start_time) {
-            this.timeBegan = new Date(new_state.start_time);
+            this.timeBegan = new Date(
+              new Date(new_state.start_time).toUTCString().split("GMT")[0]
+            );
           } else {
             this.timeBegan = null;
           }
 
           if (new_state.pause_time) {
-            this.timeStopped = new Date(new_state.pause_time);
+            this.timeStopped = new Date(
+              new Date(new_state.pause_time).toUTCString().split("GMT")[0]
+            );
           } else {
             this.timeStopped = null;
           }

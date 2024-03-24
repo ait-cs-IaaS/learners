@@ -254,7 +254,7 @@ def db_create_comment(comment: str, page: str, user_id: int) -> bool:
         return False
 
 
-def db_set_time(action: str, offset: int = 0, delta: int = 0) -> bool:
+def db_set_time(action: str, offset: int = 0) -> bool:
     try:
         updated_time = {
             "id": 0,
@@ -270,12 +270,15 @@ def db_set_time(action: str, offset: int = 0, delta: int = 0) -> bool:
 
         if action == "continue":
             current_timer = db_get_time()
-            current_start_time = current_timer.start_time or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+            current_start_time = current_timer.start_time or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f%z")
 
-            _delta = datetime.timedelta(milliseconds=delta)
-            _current_start_time = datetime.datetime.strptime(current_start_time, "%Y-%m-%d %H:%M:%S.%f")
+            _current_start_time = datetime.datetime.strptime(current_start_time, "%Y-%m-%d %H:%M:%S.%f%z")
 
-            updated_time["start_time"] = _current_start_time + _delta
+            now_timestamp = datetime.datetime.now(datetime.timezone.utc)
+            pause_time = datetime.datetime.strptime(current_timer.pause_time, "%Y-%m-%d %H:%M:%S.%f%z")
+            delta = now_timestamp - pause_time
+
+            updated_time["start_time"] = _current_start_time + delta
             updated_time["pause_time"] = None
             updated_time["running"] = True
 
