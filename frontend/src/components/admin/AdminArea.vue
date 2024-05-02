@@ -23,6 +23,7 @@
             <v-tab value="Notifications">Notifications</v-tab>
             <v-tab value="Questionnaire">Questionnaire</v-tab>
             <v-tab value="Feedback">Feedback</v-tab>
+            <v-tab value="Settings">Settings</v-tab>
           </v-tabs>
 
           <v-card-text>
@@ -64,6 +65,12 @@
                   class="tab-container"
                 />
               </v-window-item>
+              <v-window-item value="Settings">
+                <settings-overview
+                  :currentTab="currentTab"
+                  class="tab-container"
+                />
+              </v-window-item>
             </v-window>
           </v-card-text>
         </v-col>
@@ -79,6 +86,7 @@ import VisibilityOverview from "@/components/admin/VisibilityOverview.vue";
 import NotificationsOverview from "@/components/admin/NotificationsOverview.vue";
 import QuestionnaireOverview from "@/components/admin/QuestionnaireOverview.vue";
 import FeedbackOverview from "@/components/admin/FeedbackOverview.vue";
+import SettingsOverview from "@/components/admin/SettingsOverview.vue";
 import { store } from "@/store";
 
 export default {
@@ -90,6 +98,7 @@ export default {
     NotificationsOverview,
     QuestionnaireOverview,
     FeedbackOverview,
+    SettingsOverview,
   },
   props: {
     currentView: { type: String, require: false, default: "" },

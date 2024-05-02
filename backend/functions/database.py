@@ -844,3 +844,9 @@ def db_get_notifications_by_user(user_id: int) -> dict:
     except Exception as e:
         logger.exception(e)
         return False
+
+
+def db_full_database_reset() -> bool:
+    user_db = db.session.query(User).all()
+    db.drop_all(user_db)
+    return True

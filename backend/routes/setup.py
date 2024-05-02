@@ -1,5 +1,5 @@
 import json
-from backend.functions.database import db_get_usergroups_by_user
+from backend.functions.database import db_full_database_reset, db_get_usergroups_by_user
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, current_user, jwt_required
 from backend.classes.Tab import Tab
@@ -77,3 +77,10 @@ def getSidebar():
 def getSetupNotifications():
     notifications = cfg.init_notifications
     return jsonify(initialNotifications=notifications)
+
+
+@setup_api.route("/setup/resetdb", methods=["PUT"])
+@admin_required()
+def resetDatabase():
+    db_full_database_reset()
+    return jsonify(db_reset=True)
