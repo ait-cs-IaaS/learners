@@ -300,7 +300,6 @@ def db_set_time(action: str, offset: int = 0) -> bool:
 
         db_create_or_update(Timetracker, ["id"], updated_time)
 
-        print("db_get_time", db_get_time().__dict__)
         return db_get_time()
 
     except Exception as e:
