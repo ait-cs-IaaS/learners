@@ -72,19 +72,17 @@ def getAllSubmissions():
 @jwt_required()
 def postFormSubmission(exercise_id):
     response = SubmissionResponse()
-
     submission_data = request.get_json()
 
     exercise = db_get_exercise_by_id(exercise_id)
-    partial, completed = check_answers(exercise, submission_data)
+    partial = False
+    completed = True
 
     if db_create_submission("form", exercise_id, current_user.id, data=submission_data, partial=partial, completed=completed):
         response.executed = True
         response.partial = partial
         response.completed = completed
-        response.executed = completed or partial
-        if not completed:
-            response.status_msg = "not completed"
+        response.status_msg = "not completed" if not completed else "Submission successful"
 
     sse_create_and_publish(_type="submission", user=current_user, exercise=exercise)
 

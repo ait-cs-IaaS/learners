@@ -490,6 +490,20 @@ def db_get_page_tree(user) -> dict:
 
     return tree
 
+def db_get_page_visibility(user) -> dict:
+    page_list = generic_getter(Page, all=True)
+    usergroups = db_get_usergroups_by_user(user)
+    pages = {}
+
+    for page in page_list:
+        if "admins" in usergroups or any(group in usergroups for group in json.loads(page.params).get("groups", ["all"])):
+            hidden = page.hidden
+        else:
+            hidden = True
+        pages[page.page_id] = not hidden
+
+    return pages
+
 
 def db_toggle_page_visibility(page_id):
     page = generic_getter(Page, "page_id", page_id)

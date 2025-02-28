@@ -69,7 +69,8 @@ class Configuration:
         for tabname, tab in self.tabs.items():
             if not tab.get("show"):
                 tab.update({"show": ["all"]})
-
+        
+        self.pdf_path = os.path.join(os.getcwd(), "gen", "pdf")
 
 def build_config(app):
     global cfg
@@ -100,3 +101,12 @@ def config_app(app):
     app.config["JWT_TOKEN_LOCATION"] = ["query_string", "headers", "cookies"]
 
     app.config["CORS_SUPPORTS_CREDENTIALS"] = True
+    app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB limit
+    
+    # Ensure the folder exists
+    if not os.path.exists(cfg.upload_folder):
+        os.makedirs(cfg.upload_folder)
+
+    # Ensure the folder exists
+    if not os.path.exists(cfg.pdf_path):
+        os.makedirs(cfg.pdf_path)

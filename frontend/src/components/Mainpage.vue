@@ -150,7 +150,8 @@ export default {
       this.evtSource.close();
     },
     iframeLoaded() {
-      initVisibility(this.iFramesGather());
+      // function to run when iframe loaded
+      // initVisibility(this.iFramesGather());
     },
     iFrameHandle(event) {
       // Receiving function for calls from iframe

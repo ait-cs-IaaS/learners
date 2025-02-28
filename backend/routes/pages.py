@@ -5,6 +5,7 @@ from backend.functions.database import (
     db_create_notification,
     db_get_page_by_id,
     db_get_page_tree,
+    db_get_page_visibility,
     db_get_user_by_id,
     db_get_userids_by_usergroups,
     db_toggle_page_visibility,
@@ -23,6 +24,13 @@ def getPages():
     return jsonify(pages=pages)
 
 
+@pages_api.route("/visibility", methods=["GET"])
+@jwt_required()
+def getVisibility():
+    pages = db_get_page_visibility(current_user)
+    return jsonify(pages=pages)
+
+
 @pages_api.route("/pages/<page_id>/hidden", methods=["PUT"])
 @admin_required()
 def updatePage(page_id):
@@ -33,10 +41,11 @@ def updatePage(page_id):
     sse_recipients = db_get_userids_by_usergroups(json.loads(new_page.params).get("groups", ["all"]))
 
     for sse_recipient in sse_recipients:
+        pages = db_get_page_visibility(db_get_user_by_id(sse_recipient))
         newNotification = SSE_Event(
             event="content",
             _type="content",
-            message=db_get_page_tree(db_get_user_by_id(sse_recipient)),
+            message=json.dumps(pages),
             recipients=[sse_recipient],
         )
         # Notify Users

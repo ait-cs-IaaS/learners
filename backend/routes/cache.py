@@ -15,7 +15,7 @@ cache_api = Blueprint("cache_api", __name__)
 @cache_api.route("/cache", methods=["PUT"])
 @jwt_required()
 def putCache():
-    data = request.get_json()
+    data = json.loads(request.get_json())
 
     new_cache_entry = {
         "user_id": current_user.id,
