@@ -227,7 +227,7 @@ def db_create_submission(exercise_type: str, exercise_id: str, user_id: int, dat
         )
 
         if exercise_type == "form":
-            form_data = json.dumps(data, indent=4, sort_keys=False)
+            form_data = data
             submission.form_data = form_data
             submission.completed = completed
             submission.partial = partial
