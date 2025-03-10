@@ -185,9 +185,9 @@ def getCurrentExerciseState():
     return jsonify(success_list=results)
 
 
-@executions_api.route("/uploads", methods=["POST"])
+@executions_api.route("/uploads/<exercise_id>", methods=["POST"])
 @jwt_required()
-def uploadFile():
+def uploadFile(exercise_id):
     # Create an object of SubmissionResponse class
     response = SubmissionResponse()
 
@@ -203,7 +203,7 @@ def uploadFile():
         return jsonify(response.__dict__)
 
     # Generate a new file name and check if the file type is allowed, else return error message
-    filename = f"{current_user.name}_{secure_filename(file.filename)}"
+    filename = f"{current_user.name}_{exercise_id}_{secure_filename(file.filename)}"
     if not allowed_file(filename):
         response.status_msg = "File type not allowed"
         return jsonify(response.__dict__)
