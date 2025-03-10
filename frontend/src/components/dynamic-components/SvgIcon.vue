@@ -58,6 +58,10 @@ export default {
   display: flex;
   justify-content: center;
   align-content: center;
+  svg {
+    stroke: currentColor;
+    stroke-width: 1.6px;
+  }
 }
 
 .hero-icon.sidebar-hero-icon {
@@ -73,6 +77,8 @@ export default {
   margin-right: 20px;
   svg {
     color: white;
+    stroke: currentColor;
+    stroke-width: 1.6px;
   }
 }
 

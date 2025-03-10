@@ -57,6 +57,10 @@ h1.main-title {
 .v-badge__badge::after {
   pointer-events: none !important;
 }
+.v-badge__badge::after {
+  transform: scale(1);
+  outline: 1px solid rgb(var(--v-theme-primary));
+}
 
 .v-enter-active,
 .v-leave-active {
@@ -104,6 +108,7 @@ h1.main-title {
 button.v-btn {
   // opacity: 0.5;
   transition: all 150ms ease;
+
   &.active {
     color: white !important;
     opacity: 1;
