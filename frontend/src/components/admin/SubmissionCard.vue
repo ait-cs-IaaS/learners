@@ -49,60 +49,72 @@
           </v-row>
         </v-container>
         <!-- Submission's fields -->
-        <template v-for="item in JSON.parse(submission.form_data)">
-          <template v-for="(input, label) in item" :key="label">
-            <hr v-if="input === '--divider--'" class="divider" />
+        <template v-for="(inputgroup, groupIndex) in parsedFormData" :key="groupIndex">
+          <template v-for="(inputgroupDetails, index) in inputgroup" :key="index">
+            <h4 v-if="hasData(inputgroupDetails.data)" class="mb-3 details-card-label">
+              {{ unescape(inputgroup[0].section) }}
+              <span v-if="inputgroup.length > 1">: #{{ index + 1 }}</span>
+            </h4>
 
-            <div
-              v-else
-              class="details-card-row"
-              :class="{
-                missing: String(input).length < 1,
-              }"
-            >
-              <div v-if="String(label).startsWith('drawio_')">
+            <template v-for="(input, label) in inputgroupDetails.data" :key="label">
+              <hr v-if="input === '--divider--'" class="divider" />
+              <div
+                v-else
+                class="details-card-row"
+                :class="{ missing: !String(input).trim() }"
+              >
                 <div class="details-card-label">
                   {{ unescape(label) }}
                 </div>
-                <object :data="`${input}`" type="image/svg+xml"></object>
-                <a
-                  class="open-in-new-tab-link"
-                  @click="openInNewTab(input)"
-                  target="_blank"
-                >
-                  <SvgIcon name="arrow-top-right-on-square" inline />
-                  open in new tab
-                </a>
+
+                <template v-if="input.type === 'drawio'">
+                  <object :data="input.value" type="image/svg+xml"></object>
+                  <a class="open-in-new-tab-link" @click="openInNewTab(input.value)">
+                    <SvgIcon name="arrow-top-right-on-square" inline />
+                    open in new tab
+                  </a>
+                </template>
+
+                <template v-else-if="input.type === 'checkbox'">
+                  <div v-for="item in input.value" :key="item" class="details-card-input">
+                    <SvgIcon name="checkbox-checked" class="text-secondary" inline left />
+                    {{ item }}
+                  </div>
+                </template>
+
+                <template v-else-if="['radio', 'select-one'].includes(input.type)">
+                  <div class="details-card-input">
+                    <SvgIcon name="radio-checked" class="text-secondary" inline left />
+                    {{ input.value }}
+                  </div>
+                </template>
+
+                <template v-else-if="input.type === 'file'">
+                  <img
+                    v-if="isImage(input.value)"
+                    :src="`${backend}/uploads/${input.value}`"
+                    :alt="input.value"
+                    class="file-preview details-card-input"
+                  />
+                  <span v-else class="d-block mb-3 details-card-input">
+                    {{ input.value }}
+                  </span>
+                  <a class="open-in-new-tab-link" :href="`${backend}/uploads/${input.value}`" target="_blank">
+                    <SvgIcon name="arrow-top-right-on-square" inline />
+                    download file
+                  </a>
+                </template>
+
+                <template v-else>
+                  <div class="details-card-input" v-html="input.value"></div>
+                </template>
               </div>
-              <div v-else-if="String(label) == 'attachment'">
-                <div class="details-card-label">Uploaded file</div>
-                <img
-                  v-if="filetypes.some((s) => input.endsWith(s))"
-                  :src="`${backend}/uploads/${input}`"
-                  :alt="input"
-                  class="file-preview details-card-input"
-                />
-                <span v-else class="d-block mb-3 details-card-input">
-                  {{ input }}
-                </span>
-                <a
-                  class="open-in-new-tab-link"
-                  :href="`${backend}/uploads/${input}`"
-                  target="_blank"
-                >
-                  <SvgIcon name="arrow-top-right-on-square" inline />
-                  download file
-                </a>
-              </div>
-              <div v-else>
-                <div class="details-card-label">
-                  {{ unescape(label) }}
-                </div>
-                <div class="details-card-input" v-html="input"></div>
-              </div>
-            </div>
+            </template>
+
+            <hr v-if="hasData(inputgroupDetails.data)" class="divider" />
           </template>
         </template>
+
       </div>
     </v-card-text>
   </v-card>
@@ -140,9 +152,24 @@ export default {
       backend: "",
     };
   },
+  computed: {
+    parsedFormData() {
+      if (this.submissions.length > 0 && this.submissions[0].form_data) {
+        return JSON.parse(this.submissions[0].form_data);
+      }
+      return []; 
+    },
+  },
   methods: {
+    hasData(data) {
+      return Object.keys(data).length > 0;
+    },
+    isImage(fileName) {
+      return this.filetypes.some((ext) => fileName.endsWith(ext));
+    },
     unescape(_string) {
-      return _string.replaceAll("_", " ");
+      if (_string) return _string.replaceAll("_", " ");
+      else return _string
     },
     openInNewTab(object_data) {
       const newTab = window.open();
@@ -162,10 +189,13 @@ export default {
     axios
       .get(url)
       .then((res) => {
+        console.log(res.data)
         const submissions = res.data.submissions;
         this.exerciseName = res.data.exercise_name;
         this.userName = res.data.user_name;
         submissions.forEach((submission) => {
+          console.log(submission.form_data)
+          // console.log(JSON.parse(JSON.parse(submission.form_data)))
           this.submissions.push(submission);
         });
       })
