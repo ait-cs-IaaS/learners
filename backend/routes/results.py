@@ -31,7 +31,7 @@ def generate_pdf():
     pdf_filename = "example.pdf"
     html = HTML(string=html_content)
     # css = CSS(string='h1, h2, h3 { color: red }, @page { size: A4; margin: 1cm }', base_url="https://localhost/api//statics/hugo/instructor/css/styles.min.c72361e491ee4f34520fb30ea592e4350cff77edfa29c53f60bc7729b6dc7e48.css")
-    html.write_pdf(f"{ cfg.pdf_path }/{ pdf_filename }")
+    html.write_pdf(f"{ cfg.pdf_path }/{ pdf_filename }", stylesheets=[CSS("/home/lreuter/cyberrange/learners/backend/statics/hugo/instructor/css/styles_print.css")])
     # html.write_pdf(f"{ cfg.pdf_path }/{ pdf_filename }", stylesheets=[CSS("/home/lreuter/cyberrange/learners/backend/statics/hugo/instructor/css/styles.min.c72361e491ee4f34520fb30ea592e4350cff77edfa29c53f60bc7729b6dc7e48.css")])
 
     return send_file(
