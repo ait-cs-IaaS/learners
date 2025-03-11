@@ -42,10 +42,10 @@ export default {
           show: true,
           showForNullSeries: true,
           showForZeroSeries: true,
-          position: "top",
+          position: "left",
           horizontalAlign: "left",
           floating: false,
-          fontSize: "12px",
+          fontSize: "24px",
           fontFamily: "Rubik",
           fontWeight: 400,
           offsetX: 0,
@@ -152,7 +152,7 @@ export default {
           fillSeriesColor: false,
           theme: "dark",
           style: {
-            fontSize: "12px",
+            fontSize: "24px",
             fontFamily: undefined,
           },
           onDatasetHover: {
@@ -202,7 +202,7 @@ export default {
       this.series = data.results;
     },
   },
-  async mounted() {
+  async beforeMount() {
     await this.updateData(true);
   },
   watch: {
@@ -224,7 +224,15 @@ export default {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
+  // width: 50%;
 }
+.apexcharts-legend-series {
+  margin: 5px 5px !important;
+  cursor: help;
+}
+// .apexcharts-inner {
+//   width: 50%;
+// }
 .questionnaireChart .vue-apexcharts .apexcharts-canvas {
   margin: 35px auto;
 }

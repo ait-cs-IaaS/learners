@@ -179,7 +179,7 @@ export default {
         // Trigger visibility control
         initVisibility(this.iFramesGather());
 
-        // Call setTimeout again to repeat after 10 seconds
+        // Call setTimeout again to repeat after 15 seconds
         this.intervalTracker = setTimeout(gatherUpdates, 15000);
       };
 

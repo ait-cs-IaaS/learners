@@ -73,7 +73,7 @@
     </div>
 
     <!-- Dialog -->
-    <v-dialog v-model="dialog" width="60%">
+    <v-dialog v-model="dialog" width="90%">
       <v-btn
         icon
         rounded
