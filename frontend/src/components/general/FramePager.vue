@@ -5,7 +5,7 @@
     v-show="currentView === tab.id"
   >
     <iframe
-      v-if="!tab.openedInTab"
+      v-if="!tab.openedInTab && (iframeLoaded || lazyLoad)"
       :id="tab.id"
       :src="iframeSrc"
       loading="lazy"
@@ -13,10 +13,8 @@
       noresize="noresize"
       style="height: 100vh"
       width="100%"
-      @load="
-        iframeLoaded = true;
-        $emit('loaded');
-      "
+      @load="onIframeLoad"
+      ref="iframeElement"
     ></iframe>
 
     <div class="fullscreen-center" v-else>
@@ -42,13 +40,7 @@
 
     <transition name="fade">
       <div class="fullscreen-center" v-if="!iframeLoaded && !tab.openedInTab">
-        <loader
-          width="20%"
-          class="mx-auto"
-          :loadingTxt="iframeLoadingText"
-          :errorTxt="iframeErrorText"
-          :timeout="10"
-        />
+        <loader width="20%" class="mx-auto" :loadingTxt="iframeLoadingText" />
       </div>
     </transition>
   </div>
@@ -63,8 +55,13 @@ import Loader from "@/components/sub-components/Loader.vue";
 export default {
   name: "FramePager",
   props: {
-    tab: { type: Object as PropType<ITabObject>, require: true, default: null },
-    currentView: { type: String, require: false, default: "" },
+    tab: {
+      type: Object as PropType<ITabObject>,
+      required: true,
+      default: null,
+    },
+    currentView: { type: String, required: false, default: "" },
+    lazyLoad: { type: Boolean, required: false, default: false },
   },
   components: {
     Loader,
@@ -73,14 +70,13 @@ export default {
     return {
       iframeLoaded: false,
       iframeLoadingText: "",
-      iframeErrorText: "",
     };
   },
   computed: {
     iframeSrc() {
       const jwt = store.getters.getJwt;
       let src =
-        this.tab._type !== "client" && this.tab.id !== "drawio" && jwt
+        this.tab._type !== "client" && jwt
           ? `${this.tab.url}?jwt=${jwt}`
           : this.tab.url;
 
@@ -92,30 +88,32 @@ export default {
     },
   },
   methods: {
-    resumeHere() {
-      const respIFrame = document.getElementById(this.tab.id);
+    onIframeLoad() {
+      this.iframeLoaded = true;
+      this.$emit("loaded");
 
-      if (respIFrame) {
-        respIFrame.setAttribute("src", this.tab.url);
-      }
-      store.dispatch("setOpendInTab", {
-        tabId: this.tab.id,
-        opened: false,
-      });
-
-      const referTab = window.open("", `${this.tab.id}_tab`);
-      if (referTab) referTab.close();
+      // Delay loading other iframes
+      setTimeout(() => (this.lazyLoad = true), 1000);
     },
+  },
+  resumeHere() {
+    if (this.$refs.iframeElement) {
+      (this.$refs.iframeElement as HTMLIFrameElement).src = this.tab.url;
+    }
+
+    store.dispatch("setOpendInTab", {
+      tabId: this.tab.id,
+      opened: false,
+    });
+
+    const referTab = window.open("", `${this.tab.id}_tab`);
+    if (referTab) referTab.close();
   },
   beforeMount() {
     if (this.tab._type === "client") {
       this.iframeLoadingText = "connecting to client ... ";
-      this.iframeErrorText =
-        "The connection takes longer than expected.<br>There may be a certificate error. In order to resolve this, please open the current tab using the icon in the lower left corner of the screen and accept the certificate.<br>If the error persists, please contact the exercise team.";
     } else {
       this.iframeLoadingText = "loading content ... ";
-      this.iframeErrorText =
-        "The connection takes longer than expected.<br>Check your internet connection or try refreshing the page.<br>If the error persists, please contact the exercise team.";
     }
   },
 };
@@ -131,20 +129,6 @@ export default {
   top: 0px;
   left: 0px;
   flex-direction: column;
-}
-
-.error {
-  margin: auto auto;
-  max-width: 30%;
-
-  & h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    color: rgb(var(--v-theme-warning));
-    margin-bottom: 0.8rem;
-  }
 }
 
 .resume-info {
@@ -164,6 +148,7 @@ export default {
 .fade-leave-active {
   transition: opacity 1s;
 }
+
 .fade-leave-to {
   opacity: 0;
 }

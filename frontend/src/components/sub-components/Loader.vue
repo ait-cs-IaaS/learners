@@ -28,7 +28,7 @@ export default {
     timeout: {
       type: Number,
       require: false,
-      default: "10",
+      default: "",
     },
     errorTxt: {
       type: String,
@@ -60,10 +60,11 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      // this.$emit("timeout");
-      this.showError();
-    }, this.timeout * 1000);
+    if (this.timeout) {
+      setTimeout(() => {
+        this.showError();
+      }, this.timeout * 1000);
+    }
   },
 };
 </script>

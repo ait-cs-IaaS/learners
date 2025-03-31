@@ -17,6 +17,7 @@
       :key="tab.id"
       :tab="tab"
       :currentView="currentView"
+      :lazyLoad="tab.id === currentView"
       @loaded="iframeLoaded"
     />
     <admin-area
@@ -242,6 +243,7 @@ export default {
 .fade-leave-active {
   transition: opacity 500ms;
 }
+
 .fade-leave-to {
   opacity: 0;
 }
