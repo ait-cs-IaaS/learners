@@ -42,7 +42,7 @@ export default {
           show: true,
           showForNullSeries: true,
           showForZeroSeries: true,
-          position: "left",
+          position: "top",
           horizontalAlign: "left",
           floating: false,
           fontSize: "24px",
