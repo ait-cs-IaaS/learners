@@ -280,6 +280,7 @@ export default {
   text-align: left;
   border: 0px !important;
   border-spacing: 0;
+  font-size: 100% !important;
 
   & tbody th {
     font-size: 80%;
