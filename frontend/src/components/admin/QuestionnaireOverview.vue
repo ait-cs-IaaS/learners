@@ -45,7 +45,7 @@
                   label="Select questionnaire"
                   :rules="[req]"
                   variant="outlined"
-                  return-object="false"
+                  :return-object="false"
                   clearable
                 />
               </v-col>

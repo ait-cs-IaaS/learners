@@ -4,7 +4,7 @@ import json
 import ast
 import datetime
 import string
-from typing import Tuple
+from typing import Optional, Tuple
 from werkzeug.exceptions import BadRequest
 from backend.classes.SSE import SSE_Event
 
@@ -204,7 +204,9 @@ def db_create_new_question(question, answers, multiple, language, questionnaire_
         return None
 
 
-def create_question_from_string(payload_str: str, questionnaire_id: str | None = None, language: str = "en"):
+def create_question_from_string(
+    payload_str: str, questionnaire_id: Optional[str] = None, language: str = "en"
+):
     """
     Accepts a Python string like:
       "{'question': '...', 'multiple': False, 'answer_options': '[\"a\",\"b\"]'}"
