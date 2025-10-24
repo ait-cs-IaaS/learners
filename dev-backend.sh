@@ -15,7 +15,7 @@ yarn dev &
 yarn_pid=$!
 cd ..
 
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 
 while [ "$#" -gt 0 ]; do
@@ -25,10 +25,12 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-mkdir /tmp/learners
+mkdir /tmp/portal
 
-gunicorn backend:app --worker-class gevent --bind unix:/tmp/learners/learners.sock &
-gunicorn_pid=$!
+# gunicorn backend:app --worker-class gevent --bind unix:/tmp/portal/portal.sock &
+# gunicorn backend:app --worker-class gevent --bind 0.0.0.0:5000 &
+# gunicorn_pid=$!
+flask run --host=0.0.0.0 --debug
 
 
 wait -n

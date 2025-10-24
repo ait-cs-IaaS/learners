@@ -1,8 +1,11 @@
 import hashlib
+import uuid
 import json
+import ast
 import datetime
 import string
 from typing import Tuple
+from werkzeug.exceptions import BadRequest
 from backend.classes.SSE import SSE_Event
 
 from backend.logger import logger
@@ -25,6 +28,11 @@ from backend.conf.db_models import (
 )
 from backend.database import db
 from backend.functions.helpers import convert_to_dict, extract_json_content
+
+
+CUSTOM_QUESTIONNAIRE_ID = "custom_questions"
+CUSTOM_QUESTIONNAIRE_TITLE = "custom questions"
+CUSTOM_QUESTIONNAIRE_WEIGHT = 9999
 
 
 def db_insert_initial_usergroups(*args, **kwargs):
@@ -149,6 +157,116 @@ def db_insert_questionnaires(app, *args, **kwargs):
                 db_create_or_update(QuestionnaireQuestion, ["id", "language"], new_question)
 
 
+def db_get_or_create_custom_questionnaire() -> str:
+    """
+    Ensure that a shared questionnaire placeholder for ad-hoc questions exists.
+    Returns the questionnaire id to be used for new questions.
+    """
+    existing = db_get_questionnaire_by_id(CUSTOM_QUESTIONNAIRE_ID)
+    if existing:
+        return CUSTOM_QUESTIONNAIRE_ID
+
+    defaults = {
+        "id": CUSTOM_QUESTIONNAIRE_ID,
+        "page_title": CUSTOM_QUESTIONNAIRE_TITLE,
+        "parent_page_title": CUSTOM_QUESTIONNAIRE_TITLE,
+        "root_weight": CUSTOM_QUESTIONNAIRE_WEIGHT,
+        "parent_weight": CUSTOM_QUESTIONNAIRE_WEIGHT,
+        "child_weight": CUSTOM_QUESTIONNAIRE_WEIGHT,
+        "order_weight": CUSTOM_QUESTIONNAIRE_WEIGHT,
+    }
+
+    # Ignore the return value; creation errors will bubble up via later inserts.
+    db_create_or_update(Questionnaire, ["id"], defaults, nolog=True)
+    return CUSTOM_QUESTIONNAIRE_ID
+
+
+def db_create_new_question(question, answers, multiple, language, questionnaire_id, qid):
+
+    if not questionnaire_id:
+        questionnaire_id = db_get_or_create_custom_questionnaire()
+
+    rec = {
+        "id": qid,
+        "question": question,
+        "answer_options": json.dumps(answers, ensure_ascii=False),
+        "language": language,
+        "multiple": multiple,
+        "questionnaire_id": questionnaire_id,
+    }
+
+    try:
+        db_create_or_update(QuestionnaireQuestion, ["id", "language"], rec)
+        db.session.flush()
+        db.session.commit()
+        return rec
+    except Exception as e:
+        return None
+
+
+def create_question_from_string(payload_str: str, questionnaire_id: str | None = None, language: str = "en"):
+    """
+    Accepts a Python string like:
+      "{'question': '...', 'multiple': False, 'answer_options': '[\"a\",\"b\"]'}"
+    Inserts into DB. If questionnaire_id is None, computes a stable hash over the question.
+    """
+    try:
+        print("hello")
+        print(payload_str)
+        raw = ast.literal_eval(payload_str)  # safe parse
+        print(raw)
+    except Exception as e:
+        raise BadRequest(f"Invalid payload string: {e}")
+
+    question_txt = (raw.get("question") or "").strip()
+    if not question_txt:
+        raise BadRequest("Field 'question' is required")
+
+    # answer_options is expected to be a JSON string list
+    try:
+        answers = json.loads(raw.get("answer_options") or "[]")
+        if not isinstance(answers, list):
+            raise ValueError("answer_options is not a list")
+    except Exception as e:
+        raise BadRequest(f"Invalid 'answer_options' JSON: {e}")
+
+    # clean answers (trim, drop empties, de-dupe case-insensitive)
+    cleaned = []
+    seen = set()
+    for a in answers:
+        s = (str(a) if a is not None else "").strip()
+        key = s.lower()
+        if s and key not in seen:
+            cleaned.append(s)
+            seen.add(key)
+    if not cleaned:
+        raise BadRequest("At least one non-empty answer is required")
+
+    multiple = bool(raw.get("multiple", False))
+
+    # questionnaire_id: use provided value or stable hash of the question
+    if questionnaire_id is None:
+        questionnaire_id = hashlib.sha256(question_txt.encode("utf-8")).hexdigest()[:16]
+
+    # optional: accept client-provided id; otherwise generate a new one
+    qid = (raw.get("id") or "").strip() or str(uuid.uuid4())
+
+    new_question = {
+        "id": qid,
+        "question": question_txt,
+        "answer_options": json.dumps(cleaned, ensure_ascii=False),
+        "language": language or "en",
+        "multiple": multiple,
+        "questionnaire_id": questionnaire_id,
+    }
+
+    db_create_or_update(QuestionnaireQuestion, ["id", "language"], new_question)
+    db.session.flush()
+    db.session.commit()
+
+    return new_question
+
+
 def db_create_or_update(db_model, filter_keys: list = [], passed_element: dict = None, nolog: bool = False) -> bool:
     # check if element already exists
     try:
@@ -218,7 +336,15 @@ def db_get_submission_by_exercise_id(exercise_id: str) -> dict:
     return generic_getter(Submission, "exercise_id", exercise_id, all=True)
 
 
-def db_create_submission(exercise_type: str, exercise_id: str, user_id: int, data: dict = None, execution_uuid: str = None, partial: bool = False, completed: bool = True) -> bool:
+def db_create_submission(
+    exercise_type: str,
+    exercise_id: str,
+    user_id: int,
+    data: dict = None,
+    execution_uuid: str = None,
+    partial: bool = False,
+    completed: bool = True,
+) -> bool:
     try:
         submission = Submission(
             exercise_type=exercise_type,

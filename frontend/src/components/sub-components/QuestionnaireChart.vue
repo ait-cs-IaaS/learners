@@ -45,7 +45,8 @@ export default {
           position: "top",
           horizontalAlign: "left",
           floating: false,
-          fontSize: "12px",
+          fontSize: "16px",
+          letterSpacing: "normal",
           fontFamily: "Rubik",
           fontWeight: 400,
           offsetX: 0,
@@ -222,8 +223,9 @@ export default {
 }
 .apexcharts-legend {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex-direction: column;
+  max-height: none !important;
 }
 .questionnaireChart .vue-apexcharts .apexcharts-canvas {
   margin: 35px auto;

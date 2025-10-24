@@ -1,9 +1,12 @@
+import json
+import uuid
 from backend.jwt_manager import admin_required
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from backend.functions.database import (
     db_activate_questioniare_question,
+    db_create_new_question,
     db_create_questionnaire_answer,
     db_get_participants_userids,
     db_get_questionnaire_question_answers_by_user,
@@ -47,6 +50,62 @@ def getQuestions():
                     active_questions.append(question)
 
     return jsonify(questions=active_questions), 200
+
+
+from werkzeug.exceptions import BadRequest
+
+
+def _clean_answers(answer_options):
+    # accept either a JSON string or a list
+    if isinstance(answer_options, str):
+        answers = json.loads(answer_options or "[]")
+    else:
+        answers = list(answer_options or [])
+
+    cleaned, seen = [], set()
+    for a in answers:
+        s = (str(a) if a is not None else "").strip()
+        k = s.lower()
+        if s and k not in seen:
+            cleaned.append(s)
+            seen.add(k)
+    if not cleaned:
+        raise BadRequest("At least one non-empty answer is required")
+    return cleaned
+
+
+@questionnaires_api.route("/questionnaires/questions", methods=["POST"])
+@jwt_required()
+def createQuestionFromForm():
+
+    data = request.get_json(silent=True) or {}
+    question = (data.get("question") or "").strip()
+    if not question:
+        raise BadRequest("Field 'question' is required")
+
+    answers = _clean_answers(data.get("answer_options") or data.get("answers") or [])
+    multiple = bool(data.get("multiple", False))
+    language = (data.get("language") or "en").strip() or "en"
+    questionnaire_ref = data.get("questionnaire_id")
+    questionnaire_id = ""
+    if isinstance(questionnaire_ref, dict):
+        questionnaire_id = (
+            questionnaire_ref.get("id")
+            or questionnaire_ref.get("questionnaire_id")
+            or questionnaire_ref.get("value")
+            or ""
+        )
+    elif isinstance(questionnaire_ref, (str, int)):
+        questionnaire_id = str(questionnaire_ref)
+    questionnaire_id = (questionnaire_id or "").strip()
+    qid = (data.get("id") or "").strip() or str(uuid.uuid4())
+
+    rec = db_create_new_question(question, answers, multiple, language, questionnaire_id, qid)
+
+    if rec:
+        return jsonify({"question": rec}), 201
+    else:
+        return jsonify("error"), 400
 
 
 # Activate Question
