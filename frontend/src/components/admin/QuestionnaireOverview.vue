@@ -50,7 +50,7 @@
                 />
               </v-col>
 
-              <v-col class="py-0 px-0" cols="10">
+              <v-col class="py-0 px-0" lg="10" cols="12">
                 <v-text-field
                   v-model="question"
                   label="Question"
@@ -60,7 +60,7 @@
                 />
               </v-col>
 
-              <v-col class="py-0" cols="2">
+              <v-col class="py-0" lg="2" cols="12">
                 <v-switch
                   v-model="multiple"
                   label="Multiple answers"
